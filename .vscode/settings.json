@@ -1,0 +1,7 @@
+{
+  "flow.autoDownloadFlow": true,
+  "flow.tryFlowBin": true,
+  "editor.formatOnSave": true,
+  "editor.formatOnPaste": true,
+  "editor.formatOnType": true
+}

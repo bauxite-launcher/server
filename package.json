@@ -1,0 +1,32 @@
+{
+  "name": "bauxite",
+  "version": "0.0.1",
+  "main": "index.js",
+  "author": "Jim O'Brien <npm@jimmed.net>",
+  "license": "WTFPL",
+  "scripts": {
+    "build": "babel src --out-dir dist",
+    "test": "jest",
+    "type": "flow"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-jest": "^23.6.0",
+    "babel-plugin-transform-class-properties": "^6.24.1",
+    "babel-preset-env": "^1.7.0",
+    "babel-preset-flow": "^6.23.0",
+    "flow-bin": "^0.81.0",
+    "jest": "^23.6.0",
+    "jest-plugin-fs": "^2.9.0"
+  },
+  "jest": {
+    "testPathIgnorePatterns": [
+      "<rootDir>/dist/",
+      "<rootDir>/node_modules/",
+      "testUtil\\.js"
+    ]
+  },
+  "dependencies": {
+    "fs-extra": "^7.0.0"
+  }
+}
