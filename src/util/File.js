@@ -6,7 +6,7 @@ import {
   mkdirp,
   remove
 } from "fs-extra";
-import { type Readable, type Writable } from "stream";
+import { type Readable } from "stream";
 import { dirname } from "path";
 
 export interface IFile {
@@ -68,7 +68,7 @@ export class File implements IFile {
   }
 
   async writeFromStream(fileStream: Readable): Promise<void> {
-    const file: Writable = createWriteStream(this.filePath);
+    const file = createWriteStream(this.filePath);
     await new Promise((resolve, reject) => {
       file.on("error", reject);
       file.on("end", resolve);
