@@ -7,6 +7,7 @@ class ProcessIdFile extends TextFile {
   constructor(directory: string) {
     super(resolvePath(directory, "instance.pid"));
   }
+
   async readProcessId(): Promise<?number> {
     let file;
     try {

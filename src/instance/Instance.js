@@ -69,6 +69,17 @@ class Instance {
     await this.process.kill();
     delete this.process;
   }
+
+  async isRunning(): Promise<boolean> {
+    if (!this.process) {
+      return false;
+    }
+    const isRunning = await this.process.isRunning();
+    if (!isRunning) {
+      delete this.process;
+    }
+    return isRunning;
+  }
 }
 
 export default Instance;

@@ -1,13 +1,24 @@
 // @flow
 import { spawn as spawnProcess } from "child_process";
-import ps from "ps-node";
+import {
+  lookup as lookupProcess,
+  type LookupQuery,
+  type LookupResultList
+} from "ps-node";
 import SettingsFile from "./SettingsFile";
 import ProcessIdFile from "./ProcessIdFile";
+
+const lookupProcessAsync = (query: LookupQuery): Promise<LookupResultList> =>
+  new Promise((resolve, reject) =>
+    lookupProcess(
+      query,
+      (err, res) => (err || !res ? reject(err) : resolve(res))
+    )
+  );
 
 class InstanceProcess {
   directory: string;
   settings: SettingsFile;
-  process: *;
   processId: ProcessIdFile;
 
   constructor(directory: string, settings: SettingsFile) {
@@ -28,24 +39,28 @@ class InstanceProcess {
     return !!(await this.getProcessId());
   }
 
-  async launch(): Promise<void> {
-    if (await this.isRunning()) {
-      throw new Error("Process is already running");
-    }
-
+  async generateJavaArgs() {
     const {
-      javaBin = "java",
       serverJar = "minecraft_server.jar",
       javaArgs = []
     } = await this.settings.readSettings();
 
-    const args = ["-jar", serverJar, "-nogui", ...javaArgs];
+    return ["-jar", serverJar, "-nogui", ...javaArgs];
+  }
+
+  async launch(): Promise<void> {
+    if (await this.isRunning()) {
+      throw new Error("Process is already running");
+    }
+    const args = await this.generateJavaArgs();
+    const { javaBin = "java" } = await this.settings.readSettings();
     const options = {
       cwd: this.directory,
       detached: true,
       stdio: "ignore"
     };
     const process = spawnProcess(javaBin, args, options);
+    await this.processId.writeProcessId(process.pid);
     process.unref();
   }
 
@@ -62,15 +77,7 @@ class InstanceProcess {
   }
 
   static async processIsRunning(pid: number): Promise<boolean> {
-    const runningProcess = await new Promise((resolve, reject) => {
-      ps.lookup({ pid }, (err, results) => {
-        if (err) {
-          reject(err);
-        } else {
-          resolve(results[0]);
-        }
-      });
-    });
+    const [runningProcess] = await lookupProcessAsync({ pid: pid.toString() });
     return !!runningProcess;
   }
 }
