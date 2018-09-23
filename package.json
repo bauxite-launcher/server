@@ -11,6 +11,7 @@
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",
+    "babel-core": "^6.26.3",
     "babel-jest": "^23.6.0",
     "babel-plugin-transform-class-properties": "^6.24.1",
     "babel-preset-env": "^1.7.0",
@@ -19,15 +20,15 @@
     "jest": "^23.6.0",
     "jest-plugin-fs": "^2.9.0"
   },
+  "dependencies": {
+    "fs-extra": "^7.0.0",
+    "ps-node": "^0.1.6"
+  },
   "jest": {
     "testPathIgnorePatterns": [
       "<rootDir>/dist/",
       "<rootDir>/node_modules/",
       "testUtil\\.js"
     ]
-  },
-  "dependencies": {
-    "fs-extra": "^7.0.0",
-    "ps-node": "^0.1.6"
   }
 }
