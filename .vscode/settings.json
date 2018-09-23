@@ -1,7 +1,7 @@
 {
-  "flow.autoDownloadFlow": true,
-  "flow.tryFlowBin": true,
+  "flow.useNPMPackagedFlow": true,
   "editor.formatOnSave": true,
   "editor.formatOnPaste": true,
-  "editor.formatOnType": true
+  "javascript.format.enable": false,
+  "javascript.validate.enable": false
 }

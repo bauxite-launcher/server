@@ -27,6 +27,7 @@
     ]
   },
   "dependencies": {
-    "fs-extra": "^7.0.0"
+    "fs-extra": "^7.0.0",
+    "ps-node": "^0.1.6"
   }
 }

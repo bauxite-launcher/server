@@ -1,12 +1,14 @@
 // @flow
 import { TextFile, ITextFile } from "./TextFile";
 
-export interface IJsonFile<T: Object> extends ITextFile {
+type Json = Object | Array<Object>;
+
+export interface IJsonFile<T: Json> extends ITextFile {
   readAsObject(): Promise<T>;
   writeFromObject(fileContent: T): Promise<void>;
 }
 
-export class JsonFile<T: Object> extends TextFile implements IJsonFile<T> {
+export class JsonFile<T: Json> extends TextFile implements IJsonFile<T> {
   indent: number;
 
   constructor(filePath: string, indent?: boolean | number) {

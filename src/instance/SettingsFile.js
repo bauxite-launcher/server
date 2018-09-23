@@ -5,6 +5,7 @@ import { JsonFile } from "../util/JsonFile";
 export type Settings = {
   name: string,
   minecraftVersion: string,
+  serverJar: string,
   javaArgs?: Array<string>,
   javaBin?: string
 };

@@ -1,5 +1,11 @@
 // @flow
-import { readFile, writeFile, createWriteStream, mkdirp } from "fs-extra";
+import {
+  readFile,
+  writeFile,
+  createWriteStream,
+  mkdirp,
+  remove
+} from "fs-extra";
 import { type Readable, type Writable } from "stream";
 import { dirname } from "path";
 
@@ -96,5 +102,9 @@ export class File implements IFile {
     await writeFile(this.filePath, this.cache);
     this.unwrittenChanges = false;
     this.unreadUpdates = false;
+  }
+
+  async delete(): Promise<void> {
+    await remove(this.filePath);
   }
 }
