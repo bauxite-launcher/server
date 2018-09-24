@@ -20,7 +20,7 @@ export class JsonFile<T: Json> extends TextFile implements IJsonFile<T> {
     }
   }
 
-  static async createFromObject<T: Object>(
+  static async createFromObject<T: Json>(
     filePath: string,
     fileContent: T,
     indent?: boolean | number

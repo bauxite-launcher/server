@@ -46,12 +46,23 @@ export class File implements IFile {
     this.unwrittenChanges = false;
   }
 
+  static async createFromStream(
+    filePath: string,
+    fileStream: Readable
+  ): Promise<File> {
+    await mkdirp(dirname(filePath));
+    const file = new this(filePath);
+    file.unreadUpdates = false;
+    await file.writeFromStream(fileStream);
+    return file;
+  }
+
   static async createFromBuffer(
     filePath: string,
     fileContent: Buffer
   ): Promise<File> {
     await mkdirp(dirname(filePath));
-    const file = new File(filePath);
+    const file = new this(filePath);
     file.unreadUpdates = false;
     await file.writeFromBuffer(fileContent);
     return file;

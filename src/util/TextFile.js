@@ -21,7 +21,7 @@ export class TextFile extends File implements ITextFile {
     fileContent: string,
     encoding?: TextFileEncoding
   ): Promise<ITextFile> {
-    const file = new TextFile(filePath);
+    const file = new this(filePath);
     file.unreadUpdates = false;
     await file.writeFromString(fileContent);
     return file;

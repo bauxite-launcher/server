@@ -47,14 +47,13 @@ class Instance {
       resolvePath(directory, SETTINGS),
       settings
     );
-    return new Instance(directory, settingsFile);
+    return new this(directory, settingsFile);
   }
 
   path(...parts: Array<string>): string {
     return resolvePath(this.directory, ...parts);
   }
 
-  // TODO: Maybe merge instanceprocess into this class
   async launch(): Promise<void> {
     if (!this.process) {
       this.process = new InstanceProcess(this.path(), this.settings);

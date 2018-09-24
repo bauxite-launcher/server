@@ -45,7 +45,7 @@ class InstanceProcess {
       javaArgs = []
     } = await this.settings.readSettings();
 
-    return ["-jar", serverJar, "-nogui", ...javaArgs];
+    return ["-jar", serverJar, ...javaArgs, "-nogui"];
   }
 
   async launch(): Promise<void> {
