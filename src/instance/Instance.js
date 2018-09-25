@@ -1,13 +1,13 @@
 // @flow
 
 import { resolve as resolvePath } from "path";
-import SettingsFile, { type Settings } from "./SettingsFile";
+import SettingsFile, { type Settings } from "./files/SettingsFile";
 import ServerPropertiesFile, {
   type ServerProperties
-} from "./ServerPropertiesFile";
-import WhitelistFile from "./WhitelistFile";
-import OpsFile from "./OpsFile";
-import UserCacheFile from "./UserCacheFile";
+} from "./files/ServerPropertiesFile";
+import WhitelistFile from "./files/WhitelistFile";
+import OpsFile from "./files/OpsFile";
+import UserCacheFile from "./files/UserCacheFile";
 import InstanceProcess from "./Process";
 
 const PROPERTIES = "server.properties";
@@ -43,10 +43,8 @@ class Instance {
     directory: string,
     settings: Settings
   ): Promise<Instance> {
-    const settingsFile = await SettingsFile.createFromSettings(
-      resolvePath(directory, SETTINGS),
-      settings
-    );
+    const settingsFile = new SettingsFile(resolvePath(directory, SETTINGS));
+    await settingsFile.write(settings);
     return new this(directory, settingsFile);
   }
 
