@@ -14,32 +14,40 @@ class SettingsFile extends JsonFile<Settings> {
   static validate(settings: Settings) {
     super.validate(settings);
 
-    if (typeof settings !== "object") {
+    if (typeof settings !== "object" || settings == null) {
       throw new Error("Settings must be an object");
     }
-    if (!settings.name || typeof settings.name !== "string") {
-      throw new Error("Instance must have a name, and it must be a string");
-    }
-    if (
-      !settings.minecraftVersion ||
-      typeof settings.minecraftVersion !== "string"
-    ) {
+
+    const { name, minecraftVersion, serverJar, javaArgs, javaBin } = settings;
+
+    if (!name || typeof name !== "string") {
       throw new Error(
-        "Instance must have a minecraftVersion, and it must be a string"
+        "Instance must have a name, and it must be a non-empty string"
       );
     }
-    if (!settings.serverJar || typeof settings.serverJar !== "string") {
+    if (!minecraftVersion || typeof minecraftVersion !== "string") {
       throw new Error(
-        "Instance must have a serverJar, and it must be a string"
+        "Instance must have a minecraftVersion, and it must be a non-empty string"
+      );
+    }
+    if (!serverJar || typeof serverJar !== "string") {
+      throw new Error(
+        "Instance must have a serverJar, and it must be a non-empty string"
       );
     }
     if (
-      settings.javaArgs != null &&
-      (!(settings.javaArgs instanceof Array) ||
-        !settings.javaArgs.every(arg => arg && typeof arg === "string"))
+      javaArgs != null &&
+      (!(javaArgs instanceof Array) ||
+        !javaArgs.every(arg => arg && typeof arg === "string"))
     ) {
       throw new Error(
-        "Instance must have javaArgs as an array of strings, if provided."
+        "Instance must have javaArgs as an array of non-empty strings, if provided."
+      );
+    }
+
+    if (javaBin && typeof javaBin !== "string") {
+      throw new Error(
+        "Instance must have javaBin as a non-empty string, if provided"
       );
     }
   }
