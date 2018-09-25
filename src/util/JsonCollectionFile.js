@@ -105,9 +105,9 @@ class JsonCollectionFile<T: any = *, R = *> extends JsonFile<Array<T>> {
     return this.update(collection => collection.concat([entry]));
   }
 
-  async remove(callback: (item: T) => boolean): Promise<void> {
+  async remove(matchesItem: (item: T) => boolean): Promise<void> {
     return this.update(collection =>
-      collection.filter(item => !callback(item))
+      collection.filter(item => !matchesItem(item))
     );
   }
 }
