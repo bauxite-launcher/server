@@ -85,6 +85,17 @@ class JsonCollectionFile<T: any = *, R = *> extends JsonFile<Array<T>> {
     return this.write(newCollection);
   }
 
+  async updateItem(
+    matchesItem: (item: T) => boolean,
+    updater: (item: T) => Promise<T> | T
+  ): Promise<void> {
+    return this.update(collection =>
+      Promise.all(
+        collection.map(item => (matchesItem(item) ? updater(item) : item))
+      )
+    );
+  }
+
   async write(newCollection: Array<T>): Promise<void> {
     this.constructor.validate(newCollection);
     return super.write(newCollection);
