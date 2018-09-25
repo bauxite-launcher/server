@@ -64,7 +64,7 @@ describe("ProcessIdFile", () => {
     });
   });
 
-  describe("when not existing on disk", () => {
+  describe("when existing on disk", () => {
     beforeEach(() => fs.mock(existingFiles));
 
     describe("when constructed", () => {
@@ -88,7 +88,7 @@ describe("ProcessIdFile", () => {
     describe("when written with a value", () => {
       let processIdFile;
       beforeEach(() => (processIdFile = new ProcessIdFile(mockFilePath)));
-      it("should not error", async () => {
+      it("should not throw an error", async () => {
         await expect(
           processIdFile.write(mockProcessId)
         ).resolves.toBeUndefined();
@@ -103,7 +103,7 @@ describe("ProcessIdFile", () => {
     describe("when written without a value", () => {
       let processIdFile;
       beforeEach(() => (processIdFile = new ProcessIdFile(mockFilePath)));
-      it("should not error", async () => {
+      it("should not throw an error", async () => {
         await expect(processIdFile.write()).resolves.toBeUndefined();
       });
 
