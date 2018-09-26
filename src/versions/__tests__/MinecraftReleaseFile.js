@@ -22,10 +22,16 @@ describe("MinecraftReleaseFile", () => {
   });
 
   describe("when instantiated with valid URL", () => {
+    const createValidInstance = () => new MinecraftReleaseFile(mockManifestUrl);
     it("should not throw an error", () => {
-      expect(
-        () => new MinecraftReleaseFile(mockManifestUrl)
-      ).not.toThrowError();
+      expect(createValidInstance).not.toThrowError();
+    });
+
+    it("should have a read method", () => {
+      expect(createValidInstance().read).toBeInstanceOf(Function);
+    });
+    it("should NOT have a write method", () => {
+      expect(createValidInstance().write).not.toBeInstanceOf(Function);
     });
   });
 

@@ -2,6 +2,16 @@
 import fetch, { type FetchOptions } from "node-fetch";
 import TextFile, { ReadableFile } from "./TextFile";
 
+class FetchError extends Error {
+  constructor(url, response) {
+    super(
+      `While fetching ${url}, an HTTP error (${response.status}: ${
+        response.statusText
+      }) was returned`
+    );
+  }
+}
+
 class RemoteTextFile<T> implements ReadableFile<T> {
   +url: string;
   +fetchOptions: ?FetchOptions;
@@ -23,11 +33,7 @@ class RemoteTextFile<T> implements ReadableFile<T> {
   async readRaw(): Promise<string> {
     const response = await fetch(this.url, this.fetchOptions);
     if (!response.ok) {
-      throw new Error(
-        `While fetching ${this.url}, an HTTP error (${response.status}: ${
-          response.statusText
-        }) was returned`
-      );
+      throw new FetchError(this.url, response);
     }
     return response.text();
   }

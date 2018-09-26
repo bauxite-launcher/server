@@ -1,6 +1,6 @@
 // @flow
 import MinecraftReleaseListFile from "./MinecraftReleaseListFile";
-import RemoteFile from "../util/RemoteFile";
+import RemoteJsonFile from "../util/RemoteJsonFile";
 
 /**
  * There's a lot more to the actual version manifest, but we only care
@@ -13,11 +13,7 @@ type MinecraftReleaseManifest = {
   }
 };
 
-class MinecraftReleaseFile extends RemoteFile<MinecraftReleaseManifest> {
-  static parse(rawValue: string): MinecraftReleaseManifest {
-    return JSON.parse(rawValue);
-  }
-
+class MinecraftReleaseFile extends RemoteJsonFile<MinecraftReleaseManifest> {
   static async fromReleaseId(id: string): Promise<MinecraftReleaseFile> {
     const releaseList = new MinecraftReleaseListFile();
     const release = await releaseList.findById(id);
