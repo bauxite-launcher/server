@@ -14,7 +14,7 @@
  */
 
 declare module "fs-extra" {
-  import type { Writable } from "stream";
+  import type { Readable, Writable } from "stream";
   declare type Path = string;
   declare type Encoding = string;
 
@@ -29,6 +29,7 @@ declare module "fs-extra" {
     content: string,
     encoding: Encoding
   ): Promise<void>;
+  declare export function createReadStream(path: Path): Readable;
   declare export function createWriteStream(path: Path): Writable;
   declare export function mkdirp(path: Path): Promise<void>;
   declare export function remove(path: Path): Promise<void>;
