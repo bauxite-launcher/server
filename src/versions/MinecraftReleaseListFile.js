@@ -22,13 +22,12 @@ type MinecraftReleaseManifest = {
 
 class MinecraftReleaseListFile extends RemoteFile<MinecraftReleaseManifest> {
   static defaultUrl: string = MANIFEST_URL;
+  static parse(rawValue: string): MinecraftReleaseManifest {
+    return JSON.parse(rawValue);
+  }
 
   constructor() {
     super(MANIFEST_URL);
-  }
-
-  async read(): Promise<MinecraftReleaseManifest> {
-    return this.readAsObject();
   }
 
   async releases(): Promise<Array<MinecraftRelease>> {
