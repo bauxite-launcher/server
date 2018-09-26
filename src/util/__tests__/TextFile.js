@@ -1,81 +1,102 @@
-import { File } from "../File";
-import { TextFile } from "../TextFile";
+import TextFile from "../TextFile";
 import fs from "jest-plugin-fs";
-import withContext from "./context.testUtil";
 
 jest.mock("fs", () => require("jest-plugin-fs/mock"));
 
+const mockContent = "hello there 💩";
+const mockFilePath = "/text.txt";
+const existingFiles = { [mockFilePath]: mockContent };
+
 describe("TextFile", () => {
+  afterEach(() => fs.restore());
+
   it("should be a function", () => {
     expect(TextFile).toBeInstanceOf(Function);
   });
 
-  describe("when called with no parameters", () => {
-    it("should throw an error", () => {
-      expect(() => new TextFile()).toThrowError();
+  describe("when not existing on disk", () => {
+    beforeEach(() => fs.mock());
+
+    describe("when constructed", () => {
+      it("should not throw an error", () => {
+        expect(() => new TextFile(mockFilePath)).not.toThrowError();
+      });
+
+      it("should return an instance of TextFile", () => {
+        expect(new TextFile(mockFilePath)).toBeInstanceOf(TextFile);
+      });
+    });
+
+    describe("when read", () => {
+      let textFile;
+      beforeEach(() => (textFile = new TextFile(mockFilePath)));
+      it("should throw an error", async () => {
+        await expect(textFile.read()).rejects.toBeInstanceOf(Error);
+      });
+    });
+
+    describe("when written with a value", () => {
+      let textFile;
+      beforeEach(() => (textFile = new TextFile(mockFilePath)));
+      it("should not error", async () => {
+        await expect(textFile.write(mockContent)).resolves.toBeUndefined();
+      });
+
+      it("should write to disk", async () => {
+        await textFile.write(mockContent);
+        expect(fs.files()).toMatchObject(existingFiles);
+      });
+    });
+
+    describe("when written without a value", () => {
+      let textFile;
+      beforeEach(() => (textFile = new TextFile(mockFilePath)));
+      it("should throw an error", async () => {
+        await expect(textFile.write()).rejects.toBeInstanceOf(Error);
+      });
     });
   });
 
-  describe("when called with a valid file path", () => {
-    let file;
-    beforeEach(() => {
-      file = new TextFile("/file");
+  describe("when existing on disk", () => {
+    beforeEach(() => fs.mock(existingFiles));
+
+    describe("when constructed", () => {
+      it("should not throw an error", () => {
+        expect(() => new TextFile(mockFilePath)).not.toThrowError();
+      });
+
+      it("should return an instance of TextFile", () => {
+        expect(new TextFile(mockFilePath)).toBeInstanceOf(TextFile);
+      });
     });
-    it("should create an instance of TextFile", () => {
-      expect(file).toBeInstanceOf(File);
-      expect(file).toBeInstanceOf(TextFile);
+
+    describe("when read", () => {
+      let textFile;
+      beforeEach(() => (textFile = new TextFile(mockFilePath)));
+      it("should return the processId", async () => {
+        await expect(textFile.read()).resolves.toBe(mockContent);
+      });
     });
-  });
 
-  describe("createFromString", () => {
-    beforeEach(() => fs.mock({}));
-    afterEach(() => fs.restore());
-    withContext(
-      {
-        file: () => TextFile.createFromString("/test", "awooga")
-      },
-      ctx => {
-        it("should return an instance of File", () => {
-          expect(ctx.file).toBeInstanceOf(File);
-        });
+    describe("when written with a value", () => {
+      let textFile;
+      beforeEach(() => (textFile = new TextFile(mockFilePath)));
+      it("should not error", async () => {
+        await expect(textFile.write(mockContent)).resolves.toBeUndefined();
+      });
 
-        it("should write to the filesystem", () => {
-          expect(fs.files()).toHaveProperty("/test");
-          expect(fs.files()["/test"]).toEqual("awooga");
-        });
-      }
-    );
-  });
+      it("should write to disk", async () => {
+        await textFile.write(mockContent);
+        expect(fs.files()).toMatchObject(existingFiles);
+      });
+    });
 
-  describe("readAsString", () => {
-    beforeEach(() => fs.mock({ "/test": "aaaa!" }));
-    afterEach(() => fs.restore());
-    withContext(
-      {
-        file: () => new TextFile("/test")
-      },
-      ctx => {
-        it("should read from the filesystem", async () => {
-          const result = await ctx.file.readAsString();
-          expect(result).toEqual("aaaa!");
-        });
-      }
-    );
-  });
-
-  describe("writeFromString", () => {
-    beforeEach(() => fs.mock({}));
-    afterEach(() => fs.restore());
-    withContext(
-      {
-        file: () => new TextFile("/test")
-      },
-      ctx => {
-        it("should write from the filesystem", async () => {
-          await ctx.file.writeFromString("aaa");
-          expect(fs.files()["/test"]).toEqual("aaa");
-        });
-      }
-    );
+    describe("when written without a value", () => {
+      let textFile;
+      beforeEach(() => (textFile = new TextFile(mockFilePath)));
+      it("should throw an error", async () => {
+        await expect(textFile.write()).rejects.toBeInstanceOf(Error);
+      });
+    });
   });
 });

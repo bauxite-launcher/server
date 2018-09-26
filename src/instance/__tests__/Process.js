@@ -1,6 +1,6 @@
 import InstanceProcess from "../Process";
 import fs from "jest-plugin-fs";
-import SettingsFile from "../SettingsFile";
+import SettingsFile from "../files/SettingsFile";
 
 jest.mock("fs", () => require("jest-plugin-fs/mock"));
 jest.mock("child_process", () => {

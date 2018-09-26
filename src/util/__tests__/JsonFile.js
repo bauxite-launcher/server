@@ -1,85 +1,103 @@
-import { File } from "../File";
-import { TextFile } from "../TextFile";
-import { JsonFile } from "../JsonFile";
+import JsonFile from "../JsonFile";
 import fs from "jest-plugin-fs";
-import withContext from "./context.testUtil";
 
 jest.mock("fs", () => require("jest-plugin-fs/mock"));
 
+const mockContent = { key: "hello there 💩" };
+const mockFileContent = JSON.stringify(mockContent, null, 2);
+const mockFilePath = "/file.json";
+const existingFiles = { [mockFilePath]: mockFileContent };
+
 describe("JsonFile", () => {
+  afterEach(() => fs.restore());
+
   it("should be a function", () => {
     expect(JsonFile).toBeInstanceOf(Function);
   });
 
-  describe("when called with no parameters", () => {
-    it("should throw an error", () => {
-      expect(() => new JsonFile()).toThrowError();
+  describe("when not existing on disk", () => {
+    beforeEach(() => fs.mock());
+
+    describe("when constructed", () => {
+      it("should not throw an error", () => {
+        expect(() => new JsonFile(mockFilePath)).not.toThrowError();
+      });
+
+      it("should return an instance of JsonFile", () => {
+        expect(new JsonFile(mockFilePath)).toBeInstanceOf(JsonFile);
+      });
+    });
+
+    describe("when read", () => {
+      let jsonFile;
+      beforeEach(() => (jsonFile = new JsonFile(mockFilePath)));
+      it("should throw an error", async () => {
+        await expect(jsonFile.read()).rejects.toBeInstanceOf(Error);
+      });
+    });
+
+    describe("when written with a value", () => {
+      let jsonFile;
+      beforeEach(() => (jsonFile = new JsonFile(mockFilePath)));
+      it("should not error", async () => {
+        await expect(jsonFile.write(mockContent)).resolves.toBeUndefined();
+      });
+
+      it("should write to disk", async () => {
+        await jsonFile.write(mockContent);
+        expect(fs.files()).toMatchObject(existingFiles);
+      });
+    });
+
+    describe("when written without a value", () => {
+      let jsonFile;
+      beforeEach(() => (jsonFile = new JsonFile(mockFilePath)));
+      it("should throw an error", async () => {
+        await expect(jsonFile.write()).rejects.toBeInstanceOf(Error);
+      });
     });
   });
 
-  describe("when called with a valid file path", () => {
-    let file;
-    beforeEach(() => {
-      file = new JsonFile("/file");
+  describe("when existing on disk", () => {
+    beforeEach(() => fs.mock(existingFiles));
+
+    describe("when constructed", () => {
+      it("should not throw an error", () => {
+        expect(() => new JsonFile(mockFilePath)).not.toThrowError();
+      });
+
+      it("should return an instance of JsonFile", () => {
+        expect(new JsonFile(mockFilePath)).toBeInstanceOf(JsonFile);
+      });
     });
 
-    it("should create an instance of JsonFile", () => {
-      expect(file).toBeInstanceOf(File);
-      expect(file).toBeInstanceOf(TextFile);
-      expect(file).toBeInstanceOf(JsonFile);
+    describe("when read", () => {
+      let jsonFile;
+      beforeEach(() => (jsonFile = new JsonFile(mockFilePath)));
+      it("should return the processId", async () => {
+        await expect(jsonFile.read()).resolves.toMatchObject(mockContent);
+      });
     });
-  });
 
-  describe("createFromObject", () => {
-    beforeEach(() => fs.mock({}));
-    afterEach(() => fs.restore());
-    withContext(
-      {
-        file: () =>
-          JsonFile.createFromObject("/test", { foo: "bar", bax: "💩" })
-      },
-      ctx => {
-        it("should be an instance of JsonFile", () => {
-          expect(ctx.file).toBeInstanceOf(JsonFile);
-        });
+    describe("when written with a value", () => {
+      let jsonFile;
+      beforeEach(() => (jsonFile = new JsonFile(mockFilePath)));
+      it("should not error", async () => {
+        await expect(jsonFile.write(mockContent)).resolves.toBeUndefined();
+      });
 
-        it("should write to the filesystem", () => {
-          expect(fs.files()).toHaveProperty("/test");
-          expect(fs.files()["/test"]).toBe('{"foo":"bar","bax":"💩"}');
-        });
-      }
-    );
-  });
+      it("should write to disk", async () => {
+        await jsonFile.write(mockContent);
+        expect(fs.files()).toMatchObject(existingFiles);
+      });
+    });
 
-  describe("readAsObject", () => {
-    beforeEach(() => fs.mock({ "/test": '{"foo":"bar","bax":"💩"}' }));
-    afterEach(() => fs.restore());
-    withContext(
-      {
-        file: () => new JsonFile("/test")
-      },
-      ctx => {
-        it("should read from the filesystem", async () => {
-          const result = await ctx.file.readAsObject();
-          expect(result).toMatchObject({ foo: "bar", bax: "💩" });
-        });
-      }
-    );
-  });
-
-  describe("writeFromObject", () => {
-    beforeEach(() => fs.mock({}));
-    afterEach(() => fs.restore());
-    withContext(
-      {
-        file: () => new JsonFile("/test")
-      },
-      ctx => {
-        it("should write from the filesystem", async () => {
-          await ctx.file.writeFromObject({ foo: "bar", bax: "💩" });
-          expect(fs.files()["/test"]).toEqual('{"foo":"bar","bax":"💩"}');
-        });
-      }
-    );
+    describe("when written without a value", () => {
+      let jsonFile;
+      beforeEach(() => (jsonFile = new JsonFile(mockFilePath)));
+      it("should throw an error", async () => {
+        await expect(jsonFile.write()).rejects.toBeInstanceOf(Error);
+      });
+    });
   });
 });

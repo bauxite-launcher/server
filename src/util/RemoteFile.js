@@ -1,58 +1,36 @@
 // @flow
-import fetch, { type FetchOptions, type FetchResult } from "node-fetch";
-import { type Readable } from "stream";
-import { File, type IFile } from "./File";
+import fetch, { type FetchOptions } from "node-fetch";
+import TextFile, { ReadableFile } from "./TextFile";
 
-class RemoteFile<T: Object | Array<Object>> {
-  url: string;
-  cache: ?FetchResult<T>;
-  fetchOptions: ?FetchOptions;
+class RemoteTextFile<T> implements ReadableFile<T> {
+  +url: string;
+  +fetchOptions: ?FetchOptions;
+
+  static +parse: (rawValue: string) => Promise<T> | T;
 
   constructor(url: string, fetchOptions?: FetchOptions) {
+    if (!url) {
+      throw new Error("RemoteFile requires a url argument");
+    }
     this.url = url;
     if (fetchOptions) {
       this.fetchOptions = fetchOptions;
     }
   }
 
-  clearCache(): void {
-    delete this.cache;
-  }
+  read = TextFile.prototype.read;
 
-  async fetch(): Promise<FetchResult<T>> {
-    if (!this.cache) {
-      this.cache = await fetch(this.url, this.fetchOptions);
+  async readRaw(): Promise<string> {
+    const response = await fetch(this.url, this.fetchOptions);
+    if (!response.ok) {
+      throw new Error(
+        `While fetching ${this.url}, an HTTP error (${response.status}: ${
+          response.statusText
+        }) was returned`
+      );
     }
-    return this.cache;
-  }
-
-  async readAsStream(): Promise<Readable> {
-    const res = await this.fetch();
-    return res.body;
-  }
-
-  async readAsBuffer(): Promise<Buffer> {
-    const res = await this.fetch();
-    return res.buffer();
-  }
-
-  async readAsString(): Promise<string> {
-    const res = await this.fetch();
-    return res.text();
-  }
-
-  async readAsObject(): Promise<T> {
-    const res = await this.fetch();
-    return res.json();
-  }
-
-  async downloadToFile(
-    filePath: string,
-    FileClass: Class<File> = File
-  ): Promise<IFile> {
-    const readStream = await this.readAsStream();
-    return File.createFromStream(filePath, readStream);
+    return response.text();
   }
 }
 
-export default RemoteFile;
+export default RemoteTextFile;

@@ -5,8 +5,9 @@ import {
   type LookupQuery,
   type LookupResultList
 } from "ps-node";
-import SettingsFile from "./SettingsFile";
-import ProcessIdFile from "./ProcessIdFile";
+import { resolve as resolvePath } from "path";
+import SettingsFile from "./files/SettingsFile";
+import ProcessIdFile from "./files/ProcessIdFile";
 
 const lookupProcessAsync = (query: LookupQuery): Promise<LookupResultList> =>
   new Promise((resolve, reject) =>
@@ -24,11 +25,13 @@ class InstanceProcess {
   constructor(directory: string, settings: SettingsFile) {
     this.directory = directory;
     this.settings = settings;
-    this.processId = new ProcessIdFile(this.directory);
+    this.processId = new ProcessIdFile(
+      resolvePath(this.directory, "instance.pid")
+    );
   }
 
   async getProcessId(): Promise<?number> {
-    const processId = await this.processId.readProcessId();
+    const processId = await this.processId.read();
     if (processId && (await this.constructor.processIsRunning(processId))) {
       return processId;
     }
@@ -43,7 +46,7 @@ class InstanceProcess {
     const {
       serverJar = "minecraft_server.jar",
       javaArgs = []
-    } = await this.settings.readSettings();
+    } = await this.settings.read();
 
     return ["-jar", serverJar, ...javaArgs, "-nogui"];
   }
@@ -53,14 +56,14 @@ class InstanceProcess {
       throw new Error("Process is already running");
     }
     const args = await this.generateJavaArgs();
-    const { javaBin = "java" } = await this.settings.readSettings();
+    const { javaBin = "java" } = await this.settings.read();
     const options = {
       cwd: this.directory,
       detached: true,
       stdio: "ignore"
     };
     const process = spawnProcess(javaBin, args, options);
-    await this.processId.writeProcessId(process.pid);
+    await this.processId.write(process.pid);
     process.unref();
   }
 
