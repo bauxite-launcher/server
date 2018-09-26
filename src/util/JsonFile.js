@@ -1,14 +1,23 @@
 // @flow
+import TextFile, { ReadableFile } from "./TextFile";
 
-import TextFile from "./TextFile";
+export const asReadableJsonFile = <T: any>(BaseClass: *) =>
+  class ReadableJsonFile<T> extends BaseClass<T> {
+    static async parse(rawValue: string) {
+      return JSON.parse(rawValue);
+    }
+  };
 
-class JsonFile<T: any> extends TextFile<T> {
-  static async parse(rawValue: string) {
-    return JSON.parse(rawValue);
-  }
-  static async serialize(value: T) {
-    return JSON.stringify(value, null, 2);
-  }
-}
+export const asWritableJsonFile = <T: any>(BaseClass: *) => {
+  const ReadableJsonBaseClass: BaseClass<T> = asReadableJsonFile(BaseClass);
+  return class WritableJsonFile<T> extends ReadableJsonBaseClass {
+    static async serialize(value: T) {
+      return JSON.stringify(value, null, 2);
+    }
+  };
+};
 
-export default JsonFile;
+export const ReadableJsonFile = asReadableJsonFile(TextFile);
+export const WritableJsonFile = asWritableJsonFile(TextFile);
+
+export default WritableJsonFile;
