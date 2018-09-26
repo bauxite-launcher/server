@@ -17,8 +17,6 @@ class TextFile<T: any = string> implements ReadableFile<T>, WriteableFile<T> {
   filePath: string;
   encoding: string = "utf8";
   cache: ?T;
-  needsWrite: boolean = false;
-  needsRead: boolean = true;
 
   constructor(filePath: string, encoding?: string) {
     if (!filePath) {
@@ -30,6 +28,10 @@ class TextFile<T: any = string> implements ReadableFile<T>, WriteableFile<T> {
     }
   }
 
+  static +parse: (rawValue: string) => Promise<T> | T;
+  static +serialize: (value: T) => Promise<string> | string;
+
+  // TODO: Write tests
   static async createFromStream(
     filePath: string,
     contentStream: Readable,
@@ -43,17 +45,26 @@ class TextFile<T: any = string> implements ReadableFile<T>, WriteableFile<T> {
     return new this(filePath, encoding);
   }
 
-  async read(): Promise<T> {
-    if (this.needsRead || this.cache == null) {
-      const rawValue = await this.readRaw();
-      this.cache = await this.constructor.parse(rawValue);
+  async read(bypassCache: boolean = false): Promise<T> {
+    if (bypassCache || this.cache == null) {
+      const rawValue: string = await this.readRaw();
+      if (this.constructor.parse) {
+        this.cache = await this.constructor.parse(rawValue);
+      } else {
+        // $FlowIgnore – no parse function means T === string
+        this.cache = rawValue;
+      }
     }
+    // $FlowIgnore – see above
     return this.cache;
   }
 
   async write(newValue: T): Promise<void> {
     this.constructor.validate(newValue);
-    const rawValue = await this.constructor.serialize(newValue);
+    this.cache = newValue;
+    const rawValue = this.constructor.serialize
+      ? await this.constructor.serialize(newValue)
+      : newValue;
     return this.writeRaw(rawValue);
   }
 
@@ -69,14 +80,6 @@ class TextFile<T: any = string> implements ReadableFile<T>, WriteableFile<T> {
     return remove(this.filePath);
   }
 
-  // Override these methods to implement a new TextFile:
-  static async parse(rawValue: string): Promise<T> {
-    // $FlowIgnore -- this is a (slightly) abstract class which we can also instantiate concretely
-    return rawValue;
-  }
-  static async serialize(value: T): Promise<string> {
-    return value;
-  }
   // Throw errors here to prevent writing bad data to your file
   static validate(value: T): void {
     if (!value) {
