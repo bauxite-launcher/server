@@ -33,6 +33,8 @@ declare module "fs-extra" {
   declare export function createWriteStream(path: Path): Writable;
   declare export function mkdirp(path: Path): Promise<void>;
   declare export function remove(path: Path): Promise<void>;
+  declare export function pathExists(path: Path): Promise<boolean>;
+  declare export function ensureDir(path: Path): Promise<boolean>;
 }
 
 /**
