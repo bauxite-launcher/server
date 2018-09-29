@@ -18,13 +18,14 @@ class MinecraftReleaseFile extends RemoteFile<MinecraftReleaseManifest> {
     return JSON.parse(rawValue);
   }
 
-  static async fromReleaseId(id: string): Promise<MinecraftReleaseFile> {
+  static async fromReleaseId(id: string): Promise<MinecraftReleaseManifest> {
     const releaseList = new MinecraftReleaseListFile();
     const release = await releaseList.findById(id);
     if (!release) {
       throw new Error(`There is no Minecraft release with ID "${id}"`);
     }
-    return new MinecraftReleaseFile(release.url);
+    const file = new MinecraftReleaseFile(release.url);
+    return file.read();
   }
 }
 
