@@ -8,6 +8,7 @@ import ServerPropertiesFile, {
 import WhitelistFile from "./files/WhitelistFile";
 import OpsFile from "./files/OpsFile";
 import UserCacheFile from "./files/UserCacheFile";
+import EulaFile from "./files/EulaFile";
 import InstanceProcess from "./Process";
 
 const PROPERTIES = "server.properties";
@@ -15,6 +16,7 @@ const SETTINGS = "instance.json";
 const WHITELIST = "whitelist.json";
 const OPS = "ops.json";
 const USER_CACHE = "usercache.json";
+const EULA = "eula.txt";
 
 class Instance {
   directory: string;
@@ -23,6 +25,7 @@ class Instance {
   whitelist: WhitelistFile;
   ops: OpsFile;
   userCache: UserCacheFile;
+  eula: EulaFile;
   process: ?InstanceProcess;
 
   constructor(
@@ -37,6 +40,7 @@ class Instance {
     this.whitelist = new WhitelistFile(this.path(WHITELIST));
     this.ops = new OpsFile(this.path(OPS));
     this.userCache = new UserCacheFile(this.path(USER_CACHE));
+    this.eula = new EulaFile(this.path(EULA));
   }
 
   static async create(
