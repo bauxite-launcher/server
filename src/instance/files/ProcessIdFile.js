@@ -1,7 +1,6 @@
 // @flow
 
-import { resolve as resolvePath } from "path";
-import TextFile from "../../util/TextFile";
+import TextFile from '../../util/TextFile';
 
 class ProcessIdFile extends TextFile<?number> {
   static async parse(rawValue: string) {
@@ -9,15 +8,15 @@ class ProcessIdFile extends TextFile<?number> {
   }
 
   static async serialize(value: ?number) {
-    return value ? value.toString() : "";
+    return value ? value.toString() : '';
   }
 
   async readRaw(): Promise<string> {
     try {
       return await super.readRaw();
     } catch (error) {
-      if (error.code === "ENOENT") {
-        return "";
+      if (error.code === 'ENOENT') {
+        return '';
       }
       throw error;
     }
@@ -31,9 +30,7 @@ class ProcessIdFile extends TextFile<?number> {
     }
   }
 
-  static validate(newValue: ?number): void {
-    return;
-  }
+  static validate(): void {}
 }
 
 export default ProcessIdFile;

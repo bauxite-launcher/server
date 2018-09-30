@@ -1,6 +1,6 @@
 // @flow
-import TextFile from "../../util/TextFile";
-import pkg from "../../../package.json";
+import TextFile from '../../util/TextFile';
+import pkg from '../../../package.json';
 
 class EulaFile extends TextFile<boolean> {
   static header(): string {
@@ -15,23 +15,23 @@ class EulaFile extends TextFile<boolean> {
       .split(/\r?\n/g)
       .filter(Boolean)
       .map(line => line.trim())
-      .filter(line => !line.startsWith("#"))
-      .map(line => line.split("="))
+      .filter(line => !line.startsWith('#'))
+      .map(line => line.split('='))
       .reduce((acc, [key, ...value]) => {
-        acc[key] = value.join("=");
+        acc[key] = value.join('=');
         return acc;
       }, {});
 
-    return fileData.eula && fileData.eula === "true";
+    return fileData.eula && fileData.eula === 'true';
   }
 
   static serialize(value: boolean): string {
-    return `${this.header()}\neula=${value ? "true" : "false"}`;
+    return `${this.header()}\neula=${value ? 'true' : 'false'}`;
   }
 
   static validate(value: boolean): void {
-    if (typeof value !== "boolean") {
-      throw new Error(`EulaFile.write only accepts a boolean`);
+    if (typeof value !== 'boolean') {
+      throw new Error('EulaFile.write only accepts a boolean');
     }
   }
 
@@ -43,8 +43,8 @@ class EulaFile extends TextFile<boolean> {
     try {
       return await super.readRaw();
     } catch (error) {
-      if (error.code === "ENOENT") {
-        return "";
+      if (error.code === 'ENOENT') {
+        return '';
       }
       throw error;
     }

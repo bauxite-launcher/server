@@ -1,9 +1,9 @@
-import Instance from "../src/instance/Instance";
-import fs from "jest-plugin-fs";
+import fs from 'jest-plugin-fs';
+import Instance from '../src/instance/Instance';
 
-jest.mock("fs", () => require("jest-plugin-fs/mock"));
+jest.mock('fs', () => require('jest-plugin-fs/mock'));
 
-describe("Integration: Install", () => {
+describe('Integration: Install', () => {
   beforeEach(() => {
     fs.mock();
   });
@@ -12,27 +12,27 @@ describe("Integration: Install", () => {
     fs.restore();
   });
 
-  describe("Installing Minecraft 1.13.1", () => {
+  describe('Installing Minecraft 1.13.1', () => {
     jest.setTimeout(1e6);
 
-    it("should create a new instance", async () => {
+    it('should create a new instance', async () => {
       const progressCallback = jest.fn();
       const instance = await Instance.create(
-        "/instance",
+        '/instance',
         {
-          name: "Test Instance",
-          minecraftVersion: "1.13.1"
+          name: 'Test Instance',
+          minecraftVersion: '1.13.1',
         },
-        progressCallback
+        progressCallback,
       );
       expect(instance).toBeInstanceOf(Instance);
       expect(progressCallback).toHaveBeenCalled();
       await expect(instance.isInstalled()).resolves.toBe(true);
 
       const files = fs.files();
-      expect(files["/instance/instance.json"]).toBeDefined();
-      expect(files["/instance/eula.txt"]).toBeDefined();
-      expect(files["/instance/minecraft_server.1.13.1.jar"]).toBeDefined();
+      expect(files['/instance/instance.json']).toBeDefined();
+      expect(files['/instance/eula.txt']).toBeDefined();
+      expect(files['/instance/minecraft_server.1.13.1.jar']).toBeDefined();
     });
   });
 });

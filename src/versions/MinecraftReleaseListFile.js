@@ -1,8 +1,7 @@
 // @flow
-import RemoteFile from "../util/RemoteFile";
+import RemoteFile from '../util/RemoteFile';
 
-const MANIFEST_URL =
-  "https://launchermeta.mojang.com/mc/game/version_manifest.json";
+const MANIFEST_URL = 'https://launchermeta.mojang.com/mc/game/version_manifest.json';
 
 type ReleaseId = string;
 type ReleaseType = "release" | "snapshot" | "old_alpha" | "old_beta";
@@ -22,6 +21,7 @@ type MinecraftReleaseManifest = {
 
 class MinecraftReleaseListFile extends RemoteFile<MinecraftReleaseManifest> {
   static defaultUrl: string = MANIFEST_URL;
+
   static parse(rawValue: string): MinecraftReleaseManifest {
     return JSON.parse(rawValue);
   }
@@ -41,7 +41,7 @@ class MinecraftReleaseListFile extends RemoteFile<MinecraftReleaseManifest> {
   }
 
   async latest(
-    releaseType: ReleaseType = "release"
+    releaseType: ReleaseType = 'release',
   ): Promise<?MinecraftRelease> {
     const { latest } = await this.read();
     const releaseId = latest[releaseType];

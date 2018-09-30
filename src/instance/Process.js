@@ -1,32 +1,31 @@
 // @flow
-import { spawn as spawnProcess } from "child_process";
+import { spawn as spawnProcess } from 'child_process';
 import {
   lookup as lookupProcess,
   type LookupQuery,
-  type LookupResultList
-} from "ps-node";
-import { resolve as resolvePath } from "path";
-import SettingsFile from "./files/SettingsFile";
-import ProcessIdFile from "./files/ProcessIdFile";
+  type LookupResultList,
+} from 'ps-node';
+import { resolve as resolvePath } from 'path';
+import SettingsFile from './files/SettingsFile';
+import ProcessIdFile from './files/ProcessIdFile';
 
-const lookupProcessAsync = (query: LookupQuery): Promise<LookupResultList> =>
-  new Promise((resolve, reject) =>
-    lookupProcess(
-      query,
-      (err, res) => (err || !res ? reject(err) : resolve(res))
-    )
-  );
+const lookupProcessAsync = (query: LookupQuery): Promise<LookupResultList> => new Promise((resolve, reject) => lookupProcess(
+  query,
+  (err, res) => (err || !res ? reject(err) : resolve(res)),
+));
 
 class InstanceProcess {
   directory: string;
+
   settings: SettingsFile;
+
   processId: ProcessIdFile;
 
   constructor(directory: string, settings: SettingsFile) {
     this.directory = directory;
     this.settings = settings;
     this.processId = new ProcessIdFile(
-      resolvePath(this.directory, "instance.pid")
+      resolvePath(this.directory, 'instance.pid'),
     );
   }
 
@@ -44,23 +43,23 @@ class InstanceProcess {
 
   async generateJavaArgs() {
     const {
-      serverJar = "minecraft_server.jar",
-      javaArgs = []
+      serverJar = 'minecraft_server.jar',
+      javaArgs = [],
     } = await this.settings.read();
 
-    return ["-jar", serverJar, ...javaArgs, "-nogui"];
+    return ['-jar', serverJar, ...javaArgs, '-nogui'];
   }
 
   async launch(): Promise<void> {
     if (await this.isRunning()) {
-      throw new Error("Process is already running");
+      throw new Error('Process is already running');
     }
     const args = await this.generateJavaArgs();
-    const { javaBin = "java" } = await this.settings.read();
+    const { javaBin = 'java' } = await this.settings.read();
     const options = {
       cwd: this.directory,
       detached: true,
-      stdio: "ignore"
+      stdio: 'ignore',
     };
     const process = spawnProcess(javaBin, args, options);
     await this.processId.write(process.pid);
@@ -69,12 +68,12 @@ class InstanceProcess {
 
   async kill(): Promise<void> {
     if (!(await this.isRunning())) {
-      throw new Error("Process is not running");
+      throw new Error('Process is not running');
     }
 
     const processId = await this.getProcessId();
     if (!processId) {
-      throw new Error("Could not get process ID");
+      throw new Error('Could not get process ID');
     }
     process.kill(processId);
   }

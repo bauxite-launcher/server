@@ -1,5 +1,5 @@
 // @flow
-import JsonCollectionFile from "../../util/JsonCollectionFile";
+import JsonCollectionFile from '../../util/JsonCollectionFile';
 
 export type OpsEntry = {
   uuid: string,
@@ -9,7 +9,7 @@ export type OpsEntry = {
 };
 
 class OpsFile extends JsonCollectionFile<OpsEntry> {
-  static uniqueKeys = ["uuid", "name"];
+  static uniqueKeys = ['uuid', 'name'];
 
   async findByUuid(uuid: string): Promise<?OpsEntry> {
     return this.find(entry => entry.uuid === uuid);

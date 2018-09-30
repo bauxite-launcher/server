@@ -1,51 +1,49 @@
 // @flow
 
-import { resolve as resolvePath } from "path";
-import SettingsFile, { type Settings } from "./files/SettingsFile";
-import ServerPropertiesFile, {
-  type ServerProperties
-} from "./files/ServerPropertiesFile";
-import WhitelistFile from "./files/WhitelistFile";
-import OpsFile from "./files/OpsFile";
-import UserCacheFile from "./files/UserCacheFile";
-import EulaFile from "./files/EulaFile";
-import InstanceProcess from "./Process";
-import Installer, {
-  InstallStage,
-  type InstallStageType,
-  type InstallState,
-  type InstallStateSubscriber
-} from "./Installer";
+import { resolve as resolvePath } from 'path';
+import SettingsFile, { type Settings } from './files/SettingsFile';
+import ServerPropertiesFile from './files/ServerPropertiesFile';
+import WhitelistFile from './files/WhitelistFile';
+import OpsFile from './files/OpsFile';
+import UserCacheFile from './files/UserCacheFile';
+import EulaFile from './files/EulaFile';
+import InstanceProcess from './Process';
+import Installer, { type InstallState, type InstallStateSubscriber } from './Installer';
 
-const PROPERTIES = "server.properties";
-const SETTINGS = "instance.json";
-const WHITELIST = "whitelist.json";
-const OPS = "ops.json";
-const USER_CACHE = "usercache.json";
-const EULA = "eula.txt";
+const PROPERTIES = 'server.properties';
+const SETTINGS = 'instance.json';
+const WHITELIST = 'whitelist.json';
+const OPS = 'ops.json';
+const USER_CACHE = 'usercache.json';
+const EULA = 'eula.txt';
 
 class Instance {
   directory: string;
+
   settings: SettingsFile;
+
   properties: ServerPropertiesFile;
+
   whitelist: WhitelistFile;
+
   ops: OpsFile;
+
   userCache: UserCacheFile;
+
   eula: EulaFile;
-  _process: ?InstanceProcess;
+
+  processCache: ?InstanceProcess;
+
   process: InstanceProcess;
-  _installer: ?Installer;
+
+  installerCache: ?Installer;
+
   installer: Installer;
 
-  constructor(
-    directory: string,
-    settings?: SettingsFile,
-    properties?: ServerPropertiesFile
-  ) {
+  constructor(directory: string, settings?: SettingsFile, properties?: ServerPropertiesFile) {
     this.directory = directory;
     this.settings = settings || new SettingsFile(this.path(SETTINGS));
-    this.properties =
-      properties || new ServerPropertiesFile(this.path(PROPERTIES));
+    this.properties = properties || new ServerPropertiesFile(this.path(PROPERTIES));
     this.whitelist = new WhitelistFile(this.path(WHITELIST));
     this.ops = new OpsFile(this.path(OPS));
     this.userCache = new UserCacheFile(this.path(USER_CACHE));
@@ -55,7 +53,7 @@ class Instance {
   static async create(
     directory: string,
     settings: Settings,
-    onProgress?: ?InstallStateSubscriber
+    onProgress?: ?InstallStateSubscriber,
   ): Promise<Instance> {
     const settingsFile = new SettingsFile(resolvePath(directory, SETTINGS));
     const instance = new this(directory, settingsFile);
@@ -69,12 +67,12 @@ class Instance {
 
   createProcess(): InstanceProcess {
     const newProcess = new InstanceProcess(this.path(), this.settings);
-    this._process = newProcess;
+    this.processCache = newProcess;
     return newProcess;
   }
 
   get process() {
-    return this._process || this.createProcess();
+    return this.processCache || this.createProcess();
   }
 
   async launch(): Promise<void> {
@@ -96,12 +94,12 @@ class Instance {
 
   createInstaller(): Installer {
     const newInstaller = new Installer(this);
-    this._installer = newInstaller;
+    this.installerCache = newInstaller;
     return newInstaller;
   }
 
   get installer() {
-    return this._installer || this.createInstaller();
+    return this.installerCache || this.createInstaller();
   }
 
   async getInstallState(): Promise<InstallState> {
@@ -112,10 +110,7 @@ class Instance {
     return this.installer.isInstalled();
   }
 
-  async install(
-    minecraftVersionId: string,
-    onProgress?: ?InstallStateSubscriber
-  ): Promise<void> {
+  async install(minecraftVersionId: string, onProgress?: ?InstallStateSubscriber): Promise<void> {
     const unsubscribe = onProgress && this.installer.subscribe(onProgress);
     const result = await this.installer.install(minecraftVersionId, false);
     if (unsubscribe) {

@@ -1,31 +1,20 @@
 // @flow
-import JsonFile from "./JsonFile";
+import JsonFile from './JsonFile';
 
 export class DuplicateError extends Error {
-  sourceConstructor: Object;
-  key: string;
-  value: any;
-
   constructor(sourceConstructor: Object, key: string, value: any) {
-    super();
-    this.sourceConstructor = sourceConstructor;
-    this.key = key;
-    this.value = value;
-  }
-
-  get message(): string {
-    return `${this.sourceConstructor.name} is unique by its "${
-      this.key
-    }" property.\nTwo entries share the same ${this.key}, "${this.value}`;
-  }
-  set message(newValue: string) {
-    throw new Error("DuplicateError generates its own messages");
+    super(
+      `${
+        sourceConstructor.name
+      } is unique by its "${key}" property.\nTwo entries share the same ${key}, "${value}`,
+    );
   }
 }
 
 // Abstract(ish) class
 class JsonCollectionFile<T: any = *, R = *> extends JsonFile<Array<T>> {
   static +parseItem: ?(R) => T;
+
   static +uniqueKeys: ?Array<string>;
 
   static validate(collection: Array<T>) {
@@ -42,7 +31,7 @@ class JsonCollectionFile<T: any = *, R = *> extends JsonFile<Array<T>> {
     }
     collection.reduce(
       (seen, item) => {
-        keys.forEach(key => {
+        keys.forEach((key) => {
           if (seen[key].includes(item[key])) {
             throw new DuplicateError(this, key, seen[key]);
           }
@@ -53,7 +42,7 @@ class JsonCollectionFile<T: any = *, R = *> extends JsonFile<Array<T>> {
       keys.reduce((acc, key) => {
         acc[key] = [];
         return acc;
-      }, {})
+      }, {}),
     );
   }
 
@@ -77,9 +66,7 @@ class JsonCollectionFile<T: any = *, R = *> extends JsonFile<Array<T>> {
     return collection.filter(callback);
   }
 
-  async update(
-    updater: (collection: Array<T>) => Promise<Array<T>> | Array<T>
-  ): Promise<void> {
+  async update(updater: (collection: Array<T>) => Promise<Array<T>> | Array<T>): Promise<void> {
     const oldCollection = await this.read();
     const newCollection = await updater(oldCollection);
     return this.write(newCollection);
@@ -87,13 +74,9 @@ class JsonCollectionFile<T: any = *, R = *> extends JsonFile<Array<T>> {
 
   async updateItem(
     matchesItem: (item: T) => boolean,
-    updater: (item: T) => Promise<T> | T
+    updater: (item: T) => Promise<T> | T,
   ): Promise<void> {
-    return this.update(collection =>
-      Promise.all(
-        collection.map(item => (matchesItem(item) ? updater(item) : item))
-      )
-    );
+    return this.update(collection => Promise.all(collection.map(item => (matchesItem(item) ? updater(item) : item))));
   }
 
   async write(newCollection: Array<T>): Promise<void> {
@@ -106,9 +89,7 @@ class JsonCollectionFile<T: any = *, R = *> extends JsonFile<Array<T>> {
   }
 
   async remove(matchesItem: (item: T) => boolean): Promise<void> {
-    return this.update(collection =>
-      collection.filter(item => !matchesItem(item))
-    );
+    return this.update(collection => collection.filter(item => !matchesItem(item)));
   }
 }
 
