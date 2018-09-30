@@ -47,7 +47,8 @@ class RemoteTextFile<T> implements ReadableFile<T> {
         this.suggestedEncoding = suggestedEncoding.toLowerCase();
       }
     }
-    const contentDisposition = response.headers.get("content-dispositon");
+
+    const contentDisposition = response.headers.get("content-disposition");
     if (contentDisposition) {
       const suggestedFilename = parseHeaderValue(
         contentDisposition,

@@ -1,6 +1,8 @@
 // @flow
-import { readFile, writeFile, createWriteStream, remove } from "fs-extra";
+import { resolve as resolvePath } from "path";
 import { type Readable } from "stream";
+import RemoteFile from "./RemoteFile";
+import { readFile, writeFile, createWriteStream, remove } from "fs-extra";
 
 export interface ReadableFile<T> {
   read(): Promise<T>;
@@ -34,15 +36,51 @@ class TextFile<T: any = string> implements ReadableFile<T>, WriteableFile<T> {
   // TODO: Write tests
   static async createFromStream(
     filePath: string,
-    contentStream: Readable,
+    readStream: Readable,
     encoding?: string
   ): Promise<TextFile<T>> {
-    const writeStream = createWriteStream(filePath);
-    await new Promise((resolve, reject) => {
-      writeStream.on("error", reject).on("end", resolve);
-      contentStream.pipe(writeStream);
+    const file = new this(filePath, encoding);
+    await file.writeFromStream(readStream);
+    return file;
+  }
+
+  static async createFromRemoteFile(
+    remoteFile: RemoteFile<T>,
+    directory: string,
+    filePath?: string,
+    encoding?: string
+  ): Promise<TextFile<T>> {
+    if (!remoteFile) {
+      throw new Error("Remote file required");
+    }
+    if (!directory) {
+      throw new Error("Directory required");
+    }
+    const readStream = await remoteFile.readStream();
+    const filePathToUse = filePath || remoteFile.suggestedFilename;
+    const encodingToUse = encoding || remoteFile.suggestedEncoding || undefined;
+    if (!filePathToUse) {
+      throw new Error(
+        `Cannot create local file from remote URL (${
+          remoteFile.url
+        }), because no local filename was suggested by the remote server`
+      );
+    }
+
+    return this.createFromStream(
+      resolvePath(directory, filePathToUse),
+      readStream,
+      encodingToUse
+    );
+  }
+
+  async writeFromStream(readStream: Readable): Promise<void> {
+    return new Promise((resolve, reject) => {
+      const writeStream = createWriteStream(this.filePath);
+      readStream.on("error", reject);
+      writeStream.on("error", reject).on("close", resolve);
+      readStream.pipe(writeStream);
     });
-    return new this(filePath, encoding);
   }
 
   async read(bypassCache: boolean = false): Promise<T> {
