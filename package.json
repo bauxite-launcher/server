@@ -6,6 +6,8 @@
   "license": "WTFPL",
   "scripts": {
     "build": "babel src --out-dir dist",
+    "test:unit": "yarn test src",
+    "test:e2e": "yarn test test-e2e",
     "test": "jest",
     "type": "flow"
   },
