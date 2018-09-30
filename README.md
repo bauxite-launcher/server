@@ -1,5 +1,3 @@
-# Bauxite
+# Bauxite Server API
 
- - [Documentation][docs]
-
- [docs]: ./docs/index.md
+[![CircleCI](https://circleci.com/gh/bauxite-launcher/server/tree/master.svg?style=svg)](https://circleci.com/gh/bauxite-launcher/server/tree/master)
