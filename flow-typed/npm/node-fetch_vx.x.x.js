@@ -18,7 +18,7 @@ declare module "node-fetch" {
 
   declare type Headers = {
     raw: () => { [key: string]: string },
-    get: (key: string) => string
+    get: (key: string) => ?string
   };
 
   declare export type FetchOptions = {

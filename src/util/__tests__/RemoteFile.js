@@ -1,5 +1,5 @@
 import nock from "nock";
-import RemoteFile from "../RemoteFile";
+import RemoteFile, { parseHeaderValue } from "../RemoteFile";
 
 const mockHost = "http://example.com";
 const mockFilePath = "/file.txt";
@@ -39,6 +39,26 @@ describe("RemoteFile", () => {
 
     it("should return the content of the remote file", async () => {
       await expect(instance.read()).resolves.toBe(mockResponse);
+    });
+  });
+});
+
+describe("parseHeaderValue", () => {
+  it("should be a function", () => {
+    expect(parseHeaderValue).toBeInstanceOf(Function);
+  });
+
+  describe("when called with a basic header value", () => {
+    it("should return null", () => {
+      expect(parseHeaderValue("hello", "key")).toEqual(null);
+    });
+  });
+
+  describe("when called with a complex header value", () => {
+    it("should return the requested key", () => {
+      expect(parseHeaderValue('hello; key="value"; something', "key")).toEqual(
+        "value"
+      );
     });
   });
 });

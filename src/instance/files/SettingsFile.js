@@ -5,7 +5,15 @@ import JsonFile from "../../util/JsonFile";
 export type Settings = {
   name: string,
   minecraftVersion: string,
-  serverJar: string,
+  serverJar?: string,
+  javaArgs?: Array<string>,
+  javaBin?: string
+};
+
+export type PartialSettings = {
+  name?: string,
+  minecraftVersion?: string,
+  serverJar?: string,
   javaArgs?: Array<string>,
   javaBin?: string
 };
@@ -30,7 +38,7 @@ class SettingsFile extends JsonFile<Settings> {
         "Instance must have a minecraftVersion, and it must be a non-empty string"
       );
     }
-    if (!serverJar || typeof serverJar !== "string") {
+    if (serverJar && typeof serverJar !== "string") {
       throw new Error(
         "Instance must have a serverJar, and it must be a non-empty string"
       );
@@ -50,6 +58,22 @@ class SettingsFile extends JsonFile<Settings> {
         "Instance must have javaBin as a non-empty string, if provided"
       );
     }
+  }
+
+  async read(): Promise<Settings> {
+    try {
+      return await super.read();
+    } catch (error) {
+      if (error.code === "ENOENT") {
+        // $FlowIgnore
+        return { name: "Unnamed Instance" };
+      }
+      throw error;
+    }
+  }
+
+  async patch(partialSettings: PartialSettings): Promise<void> {
+    await this.update(oldSettings => ({ ...oldSettings, ...partialSettings }));
   }
 }
 

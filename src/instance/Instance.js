@@ -8,13 +8,21 @@ import ServerPropertiesFile, {
 import WhitelistFile from "./files/WhitelistFile";
 import OpsFile from "./files/OpsFile";
 import UserCacheFile from "./files/UserCacheFile";
+import EulaFile from "./files/EulaFile";
 import InstanceProcess from "./Process";
+import Installer, {
+  InstallStage,
+  type InstallStageType,
+  type InstallState,
+  type InstallStateSubscriber
+} from "./Installer";
 
 const PROPERTIES = "server.properties";
 const SETTINGS = "instance.json";
 const WHITELIST = "whitelist.json";
 const OPS = "ops.json";
 const USER_CACHE = "usercache.json";
+const EULA = "eula.txt";
 
 class Instance {
   directory: string;
@@ -23,7 +31,11 @@ class Instance {
   whitelist: WhitelistFile;
   ops: OpsFile;
   userCache: UserCacheFile;
-  process: ?InstanceProcess;
+  eula: EulaFile;
+  _process: ?InstanceProcess;
+  process: InstanceProcess;
+  _installer: ?Installer;
+  installer: Installer;
 
   constructor(
     directory: string,
@@ -37,45 +49,79 @@ class Instance {
     this.whitelist = new WhitelistFile(this.path(WHITELIST));
     this.ops = new OpsFile(this.path(OPS));
     this.userCache = new UserCacheFile(this.path(USER_CACHE));
+    this.eula = new EulaFile(this.path(EULA));
   }
 
   static async create(
     directory: string,
-    settings: Settings
+    settings: Settings,
+    onProgress?: ?InstallStateSubscriber
   ): Promise<Instance> {
     const settingsFile = new SettingsFile(resolvePath(directory, SETTINGS));
-    await settingsFile.write(settings);
-    return new this(directory, settingsFile);
+    const instance = new this(directory, settingsFile);
+    await instance.install(settings.minecraftVersion, onProgress);
+    return instance;
   }
 
   path(...parts: Array<string>): string {
     return resolvePath(this.directory, ...parts);
   }
 
+  createProcess(): InstanceProcess {
+    const newProcess = new InstanceProcess(this.path(), this.settings);
+    this._process = newProcess;
+    return newProcess;
+  }
+
+  get process() {
+    return this._process || this.createProcess();
+  }
+
   async launch(): Promise<void> {
-    if (!this.process) {
-      this.process = new InstanceProcess(this.path(), this.settings);
-    }
     return this.process.launch();
   }
 
   async kill(): Promise<void> {
-    if (!this.process) {
-      throw new Error("Instance has no running process");
-    }
     await this.process.kill();
     delete this.process;
   }
 
   async isRunning(): Promise<boolean> {
-    if (!this.process) {
-      return false;
-    }
     const isRunning = await this.process.isRunning();
     if (!isRunning) {
       delete this.process;
     }
     return isRunning;
+  }
+
+  createInstaller(): Installer {
+    const newInstaller = new Installer(this);
+    this._installer = newInstaller;
+    return newInstaller;
+  }
+
+  get installer() {
+    return this._installer || this.createInstaller();
+  }
+
+  async getInstallState(): Promise<InstallState> {
+    return this.installer.getState();
+  }
+
+  async isInstalled(): Promise<boolean> {
+    return this.installer.isInstalled();
+  }
+
+  async install(
+    minecraftVersionId: string,
+    onProgress?: ?InstallStateSubscriber
+  ): Promise<void> {
+    const unsubscribe = onProgress && this.installer.subscribe(onProgress);
+    const result = await this.installer.install(minecraftVersionId, false);
+    if (unsubscribe) {
+      unsubscribe();
+    }
+    return result;
   }
 }
 
