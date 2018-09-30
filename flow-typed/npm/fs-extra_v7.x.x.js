@@ -3,6 +3,7 @@
 
 declare module "fs-extra" {
   import type { Stats } from "fs";
+  import type { Readable, Writable } from "stream";
 
   declare export type SymlinkType = "dir" | "file";
   declare export type FsSymlinkType = "dir" | "file" | "junction";
@@ -745,4 +746,14 @@ declare module "fs-extra" {
     prefix: string,
     callback: (err: ErrnoError, folder: string) => void
   ): void;
+
+  declare export function createReadStream(
+    file: string | Buffer | number,
+    options?: { flag: string }
+  ): Readable;
+
+  declare export function createWriteStream(
+    file: string | Buffer | number,
+    options?: WriteFileOptions | string
+  ): Writable;
 }
