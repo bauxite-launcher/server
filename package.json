@@ -28,6 +28,7 @@
     "date-fns": "^1.29.0",
     "fs-extra": "^7.0.0",
     "node-fetch": "^2.2.0",
+    "progress-stream": "^2.0.0",
     "ps-node": "^0.1.6"
   },
   "jest": {

@@ -16,6 +16,7 @@ class RemoteTextFile<T> implements ReadableFile<T> {
   +fetchOptions: ?FetchOptions;
   suggestedFilename: ?string;
   suggestedEncoding: ?string;
+  expectedLength: ?number;
 
   static +parse: (rawValue: string) => Promise<T> | T;
 
@@ -40,6 +41,12 @@ class RemoteTextFile<T> implements ReadableFile<T> {
         }) was returned`
       );
     }
+
+    const contentLength = response.headers.get("content-length");
+    if (contentLength) {
+      this.expectedLength = parseInt(contentLength, 10);
+    }
+
     const contentType = response.headers.get("content-type");
     if (contentType) {
       const suggestedEncoding = parseHeaderValue(contentType, "charset");

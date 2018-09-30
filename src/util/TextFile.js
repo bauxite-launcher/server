@@ -1,8 +1,11 @@
 // @flow
 import { resolve as resolvePath, parse as parsePath } from "path";
 import { type Readable } from "stream";
-import RemoteFile from "./RemoteFile";
+import createProgressStream, {
+  type StreamProgressCallback
+} from "progress-stream";
 import { readFile, writeFile, createWriteStream, remove } from "fs-extra";
+import RemoteFile from "./RemoteFile";
 
 export interface ReadableFile<T> {
   read(): Promise<T>;
@@ -38,7 +41,7 @@ class TextFile<T: any = string> implements ReadableFile<T>, WriteableFile<T> {
     return resolvePath(this.directory, this.name);
   }
 
-  constructor(path: string, encoding?: string) {
+  constructor(path: string, encoding?: ?string) {
     if (!path) {
       throw new Error("File requires a path argument");
     }
@@ -51,22 +54,12 @@ class TextFile<T: any = string> implements ReadableFile<T>, WriteableFile<T> {
   static +parse: (rawValue: string) => Promise<T> | T;
   static +serialize: (value: T) => Promise<string> | string;
 
-  // TODO: Write tests
-  static async createFromStream(
-    path: string,
-    readStream: Readable,
-    encoding?: string
-  ): Promise<TextFile<T>> {
-    const file = new this(path, encoding);
-    await file.writeFromStream(readStream);
-    return file;
-  }
-
   static async createFromRemoteFile(
     remoteFile: RemoteFile<T>,
     directory: string,
-    name?: string,
-    encoding?: string
+    name?: ?string,
+    encoding?: ?string,
+    onProgress?: ?StreamProgressCallback
   ): Promise<TextFile<T>> {
     if (!remoteFile) {
       throw new Error("Remote file required");
@@ -76,7 +69,7 @@ class TextFile<T: any = string> implements ReadableFile<T>, WriteableFile<T> {
     }
     const readStream = await remoteFile.readStream();
     const nameToUse = name || remoteFile.suggestedFilename;
-    const encodingToUse = encoding || remoteFile.suggestedEncoding || undefined;
+    const encodingToUse = encoding || remoteFile.suggestedEncoding;
     if (!nameToUse) {
       throw new Error(
         `Cannot create local file from remote URL (${
@@ -88,16 +81,45 @@ class TextFile<T: any = string> implements ReadableFile<T>, WriteableFile<T> {
     return this.createFromStream(
       resolvePath(directory, nameToUse),
       readStream,
-      encodingToUse
+      encodingToUse,
+      onProgress,
+      remoteFile.expectedLength
     );
   }
 
-  async writeFromStream(readStream: Readable): Promise<void> {
+  static async createFromStream(
+    path: string,
+    readStream: Readable,
+    encoding?: ?string,
+    onProgress?: ?StreamProgressCallback,
+    expectedLength?: ?number
+  ): Promise<TextFile<T>> {
+    const file = new this(path, encoding);
+    await file.writeFromStream(readStream, onProgress, expectedLength);
+    return file;
+  }
+
+  async writeFromStream(
+    readStream: Readable,
+    onProgress?: ?StreamProgressCallback,
+    expectedLength?: ?number
+  ): Promise<void> {
+    if (onProgress && !expectedLength) {
+      throw new Error("Expected length is required to use onProgress");
+    }
     return new Promise((resolve, reject) => {
       const writeStream = createWriteStream(this.path);
       readStream.on("error", reject);
       writeStream.on("error", reject).on("close", resolve);
-      readStream.pipe(writeStream);
+      if (onProgress) {
+        const progressStream = createProgressStream(
+          { time: 100, length: expectedLength },
+          onProgress
+        );
+        readStream.pipe(progressStream).pipe(writeStream);
+      } else {
+        readStream.pipe(writeStream);
+      }
     });
   }
 

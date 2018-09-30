@@ -16,10 +16,14 @@ describe("Integration: Install", () => {
     jest.setTimeout(1e6);
 
     it("should create a new instance", async () => {
-      const instance = await Instance.create("/instance", {
-        name: "Test Instance",
-        minecraftVersion: "1.13.1"
-      });
+      const instance = await Instance.create(
+        "/instance",
+        {
+          name: "Test Instance",
+          minecraftVersion: "1.13.1"
+        },
+        progress => console.log(progress)
+      );
       expect(instance).toBeInstanceOf(Instance);
       await expect(instance.isInstalled()).resolves.toBe(true);
 

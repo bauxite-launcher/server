@@ -13,7 +13,8 @@ import InstanceProcess from "./Process";
 import Installer, {
   InstallStage,
   type InstallStageType,
-  type InstallState
+  type InstallState,
+  type InstallStateSubscriber
 } from "./Installer";
 
 const PROPERTIES = "server.properties";
@@ -53,11 +54,12 @@ class Instance {
 
   static async create(
     directory: string,
-    settings: Settings
+    settings: Settings,
+    onProgress?: ?InstallStateSubscriber
   ): Promise<Instance> {
     const settingsFile = new SettingsFile(resolvePath(directory, SETTINGS));
     const instance = new this(directory, settingsFile);
-    await instance.install(settings.minecraftVersion);
+    await instance.install(settings.minecraftVersion, onProgress);
     return instance;
   }
 
@@ -110,8 +112,16 @@ class Instance {
     return this.installer.isInstalled();
   }
 
-  async install(minecraftVersionId: string): Promise<void> {
-    return this.installer.install(minecraftVersionId);
+  async install(
+    minecraftVersionId: string,
+    onProgress?: ?InstallStateSubscriber
+  ): Promise<void> {
+    const unsubscribe = onProgress && this.installer.subscribe(onProgress);
+    const result = await this.installer.install(minecraftVersionId, false);
+    if (unsubscribe) {
+      unsubscribe();
+    }
+    return result;
   }
 }
 

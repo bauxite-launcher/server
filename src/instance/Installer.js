@@ -1,5 +1,9 @@
 // @flow
 import { pathExists, ensureDir } from "fs-extra";
+import streamProgress, {
+  type StreamProgressEvent,
+  type StreamProgressCallback
+} from "progress-stream";
 import Instance from "./Instance";
 import MinecraftRelease from "../versions/MinecraftReleaseFile";
 import { type Settings, type PartialSettings } from "./files/SettingsFile";
@@ -8,7 +12,6 @@ import TextFile from "../util/TextFile";
 
 export const InstallStage = {
   NotInstalled: Symbol("NotInstalled"),
-  Preparing: Symbol("Preparing"),
   Downloading: Symbol("Downloading"),
   Configuring: Symbol("Configuring"),
   Installed: Symbol("Installed")
@@ -16,37 +19,36 @@ export const InstallStage = {
 
 export type InstallStageType = $Values<typeof InstallStage>;
 
-export type InstallProgress = {
-  total: number,
-  current: number,
-  percent: number
-};
-
 export type InstallState =
   | { stage: typeof InstallStage.NotInstalled }
-  | { stage: typeof InstallStage.Preparing }
-  | { stage: typeof InstallStage.Downloading, progress: ?InstallProgress }
+  | { stage: typeof InstallStage.Downloading, progress: ?StreamProgressEvent }
   | { stage: typeof InstallStage.Configuring }
   | { stage: typeof InstallStage.Installed };
+
+export type InstallStateSubscriber = (newState: InstallState) => void;
 
 class Installer {
   instance: Instance;
   state: InstallState;
-
-  setState(stage: InstallStageType, progress?: InstallProgress): void {
-    this.state = { stage, progress };
-
-    if (this.state.progress) {
-      this.state.progress.percent =
-        this.state.progress.current / this.state.progress.total;
-    }
-  }
+  subscribers: Array<InstallStateSubscriber> = [];
 
   constructor(instance: Instance) {
     if (!instance) {
       throw new Error("Installer requires an instance");
     }
     this.instance = instance;
+  }
+
+  setState(stage: InstallStageType, progress?: StreamProgressEvent): void {
+    this.state = { stage, progress };
+    this.subscribers.forEach(subscriber => subscriber(this.state));
+  }
+
+  subscribe(subscriber: InstallStateSubscriber): () => void {
+    this.subscribers.push(subscriber);
+    return () => {
+      this.subscribers = this.subscribers.filter(item => item !== subscriber);
+    };
   }
 
   async isInstalled(): Promise<boolean> {
@@ -79,13 +81,12 @@ class Installer {
       throw new Error("Instance is already installed");
     }
 
-    // Create dir
-    this.setState(InstallStage.Preparing);
-
     // Download
     this.setState(InstallStage.Downloading);
     if (force || !(await this.serverJarExists())) {
-      await this.downloadServerJar(minecraftVersion);
+      await this.downloadServerJar(minecraftVersion, progress =>
+        this.setState(InstallStage.Downloading, progress)
+      );
     }
 
     // Eula
@@ -111,7 +112,10 @@ class Installer {
     return await pathExists(this.instance.path(serverJar));
   }
 
-  async downloadServerJar(minecraftVersion: string): Promise<void> {
+  async downloadServerJar(
+    minecraftVersion: string,
+    onProgress?: StreamProgressCallback
+  ): Promise<void> {
     if (!minecraftVersion) {
       throw new Error("Minecraft version must be specified!");
     }
@@ -128,7 +132,9 @@ class Installer {
     const serverJarFile = await TextFile.createFromRemoteFile(
       new RemoteFile(downloads.server.url),
       this.instance.path(),
-      `minecraft_server.${minecraftVersion}.jar`
+      `minecraft_server.${minecraftVersion}.jar`,
+      null,
+      onProgress
     );
 
     await this.writeSettings({
