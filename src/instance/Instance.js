@@ -10,6 +10,11 @@ import OpsFile from "./files/OpsFile";
 import UserCacheFile from "./files/UserCacheFile";
 import EulaFile from "./files/EulaFile";
 import InstanceProcess from "./Process";
+import Installer, {
+  InstallStage,
+  type InstallStageType,
+  type InstallState
+} from "./Installer";
 
 const PROPERTIES = "server.properties";
 const SETTINGS = "instance.json";
@@ -26,7 +31,10 @@ class Instance {
   ops: OpsFile;
   userCache: UserCacheFile;
   eula: EulaFile;
-  process: ?InstanceProcess;
+  _process: ?InstanceProcess;
+  process: InstanceProcess;
+  _installer: ?Installer;
+  installer: Installer;
 
   constructor(
     directory: string,
@@ -48,38 +56,62 @@ class Instance {
     settings: Settings
   ): Promise<Instance> {
     const settingsFile = new SettingsFile(resolvePath(directory, SETTINGS));
-    await settingsFile.write(settings);
-    return new this(directory, settingsFile);
+    const instance = new this(directory, settingsFile);
+    await instance.install(settings.minecraftVersion);
+    return instance;
   }
 
   path(...parts: Array<string>): string {
     return resolvePath(this.directory, ...parts);
   }
 
+  createProcess(): InstanceProcess {
+    const newProcess = new InstanceProcess(this.path(), this.settings);
+    this._process = newProcess;
+    return newProcess;
+  }
+
+  get process() {
+    return this._process || this.createProcess();
+  }
+
   async launch(): Promise<void> {
-    if (!this.process) {
-      this.process = new InstanceProcess(this.path(), this.settings);
-    }
     return this.process.launch();
   }
 
   async kill(): Promise<void> {
-    if (!this.process) {
-      throw new Error("Instance has no running process");
-    }
     await this.process.kill();
     delete this.process;
   }
 
   async isRunning(): Promise<boolean> {
-    if (!this.process) {
-      return false;
-    }
     const isRunning = await this.process.isRunning();
     if (!isRunning) {
       delete this.process;
     }
     return isRunning;
+  }
+
+  createInstaller(): Installer {
+    const newInstaller = new Installer(this);
+    this._installer = newInstaller;
+    return newInstaller;
+  }
+
+  get installer() {
+    return this._installer || this.createInstaller();
+  }
+
+  async getInstallState(): Promise<InstallState> {
+    return this.installer.getState();
+  }
+
+  async isInstalled(): Promise<boolean> {
+    return this.installer.isInstalled();
+  }
+
+  async install(minecraftVersionId: string): Promise<void> {
+    return this.installer.install(minecraftVersionId);
   }
 }
 
