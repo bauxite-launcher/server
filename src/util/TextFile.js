@@ -1,5 +1,5 @@
 // @flow
-import { resolve as resolvePath } from "path";
+import { resolve as resolvePath, parse as parsePath } from "path";
 import { type Readable } from "stream";
 import RemoteFile from "./RemoteFile";
 import { readFile, writeFile, createWriteStream, remove } from "fs-extra";
@@ -16,15 +16,33 @@ export interface WriteableFile<T> {
 }
 
 class TextFile<T: any = string> implements ReadableFile<T>, WriteableFile<T> {
-  filePath: string;
+  // The absolute path to the file
+  path: string;
+
+  // Just the filename of the file
+  name: string;
+
+  // Just the directory that the file resides in
+  directory: string;
+
   encoding: string = "utf8";
   cache: ?T;
 
-  constructor(filePath: string, encoding?: string) {
-    if (!filePath) {
-      throw new Error("File requires a filePath argument");
+  set path(newFilePath: string) {
+    const { dir, base } = parsePath(newFilePath);
+    this.name = base;
+    this.directory = dir;
+  }
+
+  get path(): string {
+    return resolvePath(this.directory, this.name);
+  }
+
+  constructor(path: string, encoding?: string) {
+    if (!path) {
+      throw new Error("File requires a path argument");
     }
-    this.filePath = filePath;
+    this.path = path;
     if (encoding) {
       this.encoding = encoding;
     }
@@ -35,11 +53,11 @@ class TextFile<T: any = string> implements ReadableFile<T>, WriteableFile<T> {
 
   // TODO: Write tests
   static async createFromStream(
-    filePath: string,
+    path: string,
     readStream: Readable,
     encoding?: string
   ): Promise<TextFile<T>> {
-    const file = new this(filePath, encoding);
+    const file = new this(path, encoding);
     await file.writeFromStream(readStream);
     return file;
   }
@@ -47,7 +65,7 @@ class TextFile<T: any = string> implements ReadableFile<T>, WriteableFile<T> {
   static async createFromRemoteFile(
     remoteFile: RemoteFile<T>,
     directory: string,
-    fileName?: string,
+    name?: string,
     encoding?: string
   ): Promise<TextFile<T>> {
     if (!remoteFile) {
@@ -57,9 +75,9 @@ class TextFile<T: any = string> implements ReadableFile<T>, WriteableFile<T> {
       throw new Error("Directory required");
     }
     const readStream = await remoteFile.readStream();
-    const fileNameToUse = fileName || remoteFile.suggestedFilename;
+    const nameToUse = name || remoteFile.suggestedFilename;
     const encodingToUse = encoding || remoteFile.suggestedEncoding || undefined;
-    if (!fileNameToUse) {
+    if (!nameToUse) {
       throw new Error(
         `Cannot create local file from remote URL (${
           remoteFile.url
@@ -68,7 +86,7 @@ class TextFile<T: any = string> implements ReadableFile<T>, WriteableFile<T> {
     }
 
     return this.createFromStream(
-      resolvePath(directory, fileNameToUse),
+      resolvePath(directory, nameToUse),
       readStream,
       encodingToUse
     );
@@ -76,7 +94,7 @@ class TextFile<T: any = string> implements ReadableFile<T>, WriteableFile<T> {
 
   async writeFromStream(readStream: Readable): Promise<void> {
     return new Promise((resolve, reject) => {
-      const writeStream = createWriteStream(this.filePath);
+      const writeStream = createWriteStream(this.path);
       readStream.on("error", reject);
       writeStream.on("error", reject).on("close", resolve);
       readStream.pipe(writeStream);
@@ -107,15 +125,15 @@ class TextFile<T: any = string> implements ReadableFile<T>, WriteableFile<T> {
   }
 
   async readRaw(): Promise<string> {
-    return readFile(this.filePath, this.encoding);
+    return readFile(this.path, this.encoding);
   }
 
   async writeRaw(newRawValue: string): Promise<void> {
-    return writeFile(this.filePath, newRawValue, this.encoding);
+    return writeFile(this.path, newRawValue, this.encoding);
   }
 
   async delete(): Promise<void> {
-    return remove(this.filePath);
+    return remove(this.path);
   }
 
   // Throw errors here to prevent writing bad data to your file

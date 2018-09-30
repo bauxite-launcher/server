@@ -111,6 +111,30 @@ describe("TextFile", () => {
     });
   });
 
+  describe("path", () => {
+    const mockNewFileDir = "/path/to";
+    const mockNewFileName = "file.txt";
+    const mockNewFilePath = `${mockNewFileDir}/${mockNewFileName}`;
+    let textFile;
+    beforeEach(() => (textFile = new TextFile(mockFilePath)));
+    describe("when set", () => {
+      beforeEach(() => (textFile.path = mockNewFilePath));
+      it("should update directory", () => {
+        expect(textFile.directory).toBe(mockNewFileDir);
+      });
+      it("should update name", () => {
+        expect(textFile.name).toBe(mockNewFileName);
+      });
+    });
+
+    describe("when got", () => {
+      beforeEach(() => (textFile = new TextFile(mockNewFilePath)));
+      it("should return the whole path", () => {
+        expect(textFile.path).toBe(mockNewFilePath);
+      });
+    });
+  });
+
   describe("writeFromStream", () => {
     let textFile;
     beforeEach(() => (textFile = new TextFile(mockFilePath)));
