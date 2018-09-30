@@ -10,6 +10,14 @@ export type Settings = {
   javaBin?: string
 };
 
+export type PartialSettings = {
+  name?: string,
+  minecraftVersion?: string,
+  serverJar?: string,
+  javaArgs?: Array<string>,
+  javaBin?: string
+};
+
 class SettingsFile extends JsonFile<Settings> {
   static validate(settings: Settings) {
     super.validate(settings);
@@ -50,6 +58,10 @@ class SettingsFile extends JsonFile<Settings> {
         "Instance must have javaBin as a non-empty string, if provided"
       );
     }
+  }
+
+  async patch(partialSettings: PartialSettings): Promise<void> {
+    await this.update(oldSettings => ({ ...oldSettings, ...partialSettings }));
   }
 }
 
