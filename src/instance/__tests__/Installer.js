@@ -154,7 +154,9 @@ describe("Installer", () => {
             })
             .get("/server.jar")
             .reply(200, serverJarContent);
-          await expect(installer.downloadServerJar()).resolves.toBeUndefined();
+          await expect(
+            installer.downloadServerJar("1.13.1")
+          ).resolves.toBeUndefined();
         });
 
         it("should write the server jar to disk at the specified path", async () => {
@@ -209,6 +211,7 @@ describe("Installer", () => {
             minecraftVersion: "1.13.1",
             serverJar: mockServerJar
           }));
+
         it("should call the instance's settings.write method", async () => {
           expect(instance.settings.patch).toHaveBeenCalledWith({
             minecraftVersion: "1.13.1",

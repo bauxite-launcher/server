@@ -78,12 +78,11 @@ class Installer {
     // Create dir
     this.setState(InstallStage.Preparing);
     await this.ensureDirectoryExists();
-    await this.writeSettings(settings);
 
     // Download
     this.setState(InstallStage.Downloading);
     if (force || !(await this.serverJarExists())) {
-      await this.downloadServerJar();
+      await this.downloadServerJar(settings.minecraftVersion);
     }
 
     // Eula
@@ -108,8 +107,7 @@ class Installer {
     return await pathExists(this.instance.path(serverJar));
   }
 
-  async downloadServerJar(): Promise<void> {
-    const { minecraftVersion } = await this.instance.settings.read();
+  async downloadServerJar(minecraftVersion: string): Promise<void> {
     if (!minecraftVersion) {
       throw new Error("Minecraft version must be specified!");
     }
