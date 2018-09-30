@@ -70,19 +70,22 @@ class Installer {
     };
   }
 
-  async install(settings: Settings, force: boolean = false): Promise<void> {
+  async install(
+    minecraftVersion: string,
+    force: boolean = false
+  ): Promise<void> {
+    await this.ensureDirectoryExists();
     if (!force && (await this.getState()).stage === InstallStage.Installed) {
       throw new Error("Instance is already installed");
     }
 
     // Create dir
     this.setState(InstallStage.Preparing);
-    await this.ensureDirectoryExists();
 
     // Download
     this.setState(InstallStage.Downloading);
     if (force || !(await this.serverJarExists())) {
-      await this.downloadServerJar(settings.minecraftVersion);
+      await this.downloadServerJar(minecraftVersion);
     }
 
     // Eula
@@ -104,6 +107,7 @@ class Installer {
 
   async serverJarExists(): Promise<boolean> {
     const { serverJar } = await this.instance.settings.read();
+    if (!serverJar) return false;
     return await pathExists(this.instance.path(serverJar));
   }
 
@@ -115,7 +119,7 @@ class Installer {
     const { downloads } = await MinecraftRelease.fromReleaseId(
       minecraftVersion
     );
-    if (!downloads || !downloads.server) {
+    if (!downloads || !downloads.server || !downloads.server.url) {
       throw new Error(
         `No server JAR file available for Minecraft v${minecraftVersion}`
       );
