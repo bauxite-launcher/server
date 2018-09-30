@@ -47,7 +47,7 @@ class TextFile<T: any = string> implements ReadableFile<T>, WriteableFile<T> {
   static async createFromRemoteFile(
     remoteFile: RemoteFile<T>,
     directory: string,
-    filePath?: string,
+    fileName?: string,
     encoding?: string
   ): Promise<TextFile<T>> {
     if (!remoteFile) {
@@ -57,9 +57,9 @@ class TextFile<T: any = string> implements ReadableFile<T>, WriteableFile<T> {
       throw new Error("Directory required");
     }
     const readStream = await remoteFile.readStream();
-    const filePathToUse = filePath || remoteFile.suggestedFilename;
+    const fileNameToUse = fileName || remoteFile.suggestedFilename;
     const encodingToUse = encoding || remoteFile.suggestedEncoding || undefined;
-    if (!filePathToUse) {
+    if (!fileNameToUse) {
       throw new Error(
         `Cannot create local file from remote URL (${
           remoteFile.url
@@ -68,7 +68,7 @@ class TextFile<T: any = string> implements ReadableFile<T>, WriteableFile<T> {
     }
 
     return this.createFromStream(
-      resolvePath(directory, filePathToUse),
+      resolvePath(directory, fileNameToUse),
       readStream,
       encodingToUse
     );
