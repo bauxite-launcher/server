@@ -1,0 +1,17 @@
+{
+  "parser": "babel-eslint",
+  "extends": "airbnb-base",
+  "plugins": ["flow", "import"],
+  "env": { "node": true, "jest": true },
+  "rules": {
+    "max-len": "off"
+  },
+  "overrides": [
+    {
+      "files": ["*.test.js"],
+      "rules": {
+        "global-require": "off"
+      }
+    }
+  ]
+}

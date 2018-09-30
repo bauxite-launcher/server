@@ -1,11 +1,13 @@
 // @flow
-import { resolve as resolvePath, parse as parsePath } from "path";
-import { type Readable } from "stream";
+import { resolve as resolvePath, parse as parsePath } from 'path';
+import { type Readable } from 'stream';
 import createProgressStream, {
-  type StreamProgressCallback
-} from "progress-stream";
-import { readFile, writeFile, createWriteStream, remove } from "fs-extra";
-import RemoteFile from "./RemoteFile";
+  type StreamProgressCallback,
+} from 'progress-stream';
+import {
+  readFile, writeFile, createWriteStream, remove,
+} from 'fs-extra';
+import RemoteFile from './RemoteFile';
 
 export interface ReadableFile<T> {
   read(): Promise<T>;
@@ -28,7 +30,8 @@ class TextFile<T: any = string> implements ReadableFile<T>, WriteableFile<T> {
   // Just the directory that the file resides in
   directory: string;
 
-  encoding: string = "utf8";
+  encoding: string = 'utf8';
+
   cache: ?T;
 
   set path(newFilePath: string) {
@@ -43,7 +46,7 @@ class TextFile<T: any = string> implements ReadableFile<T>, WriteableFile<T> {
 
   constructor(path: string, encoding?: ?string) {
     if (!path) {
-      throw new Error("File requires a path argument");
+      throw new Error('File requires a path argument');
     }
     this.path = path;
     if (encoding) {
@@ -52,6 +55,7 @@ class TextFile<T: any = string> implements ReadableFile<T>, WriteableFile<T> {
   }
 
   static +parse: (rawValue: string) => Promise<T> | T;
+
   static +serialize: (value: T) => Promise<string> | string;
 
   static async createFromRemoteFile(
@@ -59,13 +63,13 @@ class TextFile<T: any = string> implements ReadableFile<T>, WriteableFile<T> {
     directory: string,
     name?: ?string,
     encoding?: ?string,
-    onProgress?: ?StreamProgressCallback
+    onProgress?: ?StreamProgressCallback,
   ): Promise<TextFile<T>> {
     if (!remoteFile) {
-      throw new Error("Remote file required");
+      throw new Error('Remote file required');
     }
     if (!directory) {
-      throw new Error("Directory required");
+      throw new Error('Directory required');
     }
     const readStream = await remoteFile.readStream();
     const nameToUse = name || remoteFile.suggestedFilename;
@@ -74,7 +78,7 @@ class TextFile<T: any = string> implements ReadableFile<T>, WriteableFile<T> {
       throw new Error(
         `Cannot create local file from remote URL (${
           remoteFile.url
-        }), because no local filename was suggested by the remote server`
+        }), because no local filename was suggested by the remote server`,
       );
     }
 
@@ -83,7 +87,7 @@ class TextFile<T: any = string> implements ReadableFile<T>, WriteableFile<T> {
       readStream,
       encodingToUse,
       onProgress,
-      remoteFile.expectedLength
+      remoteFile.expectedLength,
     );
   }
 
@@ -92,7 +96,7 @@ class TextFile<T: any = string> implements ReadableFile<T>, WriteableFile<T> {
     readStream: Readable,
     encoding?: ?string,
     onProgress?: ?StreamProgressCallback,
-    expectedLength?: ?number
+    expectedLength?: ?number,
   ): Promise<TextFile<T>> {
     const file = new this(path, encoding);
     await file.writeFromStream(readStream, onProgress, expectedLength);
@@ -102,19 +106,19 @@ class TextFile<T: any = string> implements ReadableFile<T>, WriteableFile<T> {
   async writeFromStream(
     readStream: Readable,
     onProgress?: ?StreamProgressCallback,
-    expectedLength?: ?number
+    expectedLength?: ?number,
   ): Promise<void> {
     if (onProgress && !expectedLength) {
-      throw new Error("Expected length is required to use onProgress");
+      throw new Error('Expected length is required to use onProgress');
     }
     return new Promise((resolve, reject) => {
       const writeStream = createWriteStream(this.path);
-      readStream.on("error", reject);
-      writeStream.on("error", reject).on("close", resolve);
+      readStream.on('error', reject);
+      writeStream.on('error', reject).on('close', resolve);
       if (onProgress) {
         const progressStream = createProgressStream(
           { time: 100, length: expectedLength },
-          onProgress
+          onProgress,
         );
         readStream.pipe(progressStream).pipe(writeStream);
       } else {
@@ -161,7 +165,7 @@ class TextFile<T: any = string> implements ReadableFile<T>, WriteableFile<T> {
   // Throw errors here to prevent writing bad data to your file
   static validate(value: T): void {
     if (!value) {
-      throw new Error("File must not be empty");
+      throw new Error('File must not be empty');
     }
   }
 }

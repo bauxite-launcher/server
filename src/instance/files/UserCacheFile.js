@@ -1,17 +1,17 @@
 // @flow
-import parseDate from "date-fns/parse";
-import JsonCollectionFile from "../../util/JsonCollectionFile";
+import parseDate from 'date-fns/parse';
+import JsonCollectionFile from '../../util/JsonCollectionFile';
 
 export type RawCachedUser = {
   name: string,
   uuid: string,
-  expiresOn: string
+  expiresOn: string,
 };
 
 export type CachedUser = {
   name: string,
   uuid: string,
-  expiresOn: Date
+  expiresOn: Date,
 };
 
 class UserCacheFile extends JsonCollectionFile<CachedUser> {
@@ -20,7 +20,7 @@ class UserCacheFile extends JsonCollectionFile<CachedUser> {
   }
 
   async writeRaw() {
-    throw new Error("UsernameCache is not writable");
+    throw new Error(`UsernameCache is not writable (${this.path})`);
   }
 
   async findByUuid(uuid: string): Promise<?CachedUser> {
