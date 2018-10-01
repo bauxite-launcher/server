@@ -14,7 +14,7 @@ export type CachedUser = {
   expiresOn: Date,
 };
 
-class UserCacheFile extends JsonCollectionFile<CachedUser> {
+class UserCacheFile extends JsonCollectionFile<CachedUser, RawCachedUser> {
   static parseItem({ expiresOn, ...item }: RawCachedUser): CachedUser {
     return { ...item, expiresOn: parseDate(expiresOn) };
   }
@@ -27,7 +27,7 @@ class UserCacheFile extends JsonCollectionFile<CachedUser> {
     return this.find(user => user.uuid === uuid);
   }
 
-  async findByUsername(name: string): Promise<?CachedUser> {
+  async findByName(name: string): Promise<?CachedUser> {
     return this.find(user => user.name === name);
   }
 }
