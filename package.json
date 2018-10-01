@@ -8,7 +8,7 @@
     "build": "babel src --out-dir dist",
     "test:unit": "yarn test src",
     "test:e2e": "yarn test test-e2e",
-    "test:ci": "yarn test:unit --runInBand",
+    "test:ci": "yarn test --runInBand",
     "test": "jest",
     "type": "flow",
     "lint": "eslint src test-e2e",
