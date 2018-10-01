@@ -37,7 +37,7 @@ jobs:
           command: yarn lint
       - run:
           name: Type-check source code
-          command: yarn flow
+          command: yarn flow check
       - run:
           name: Run unit tests
           command: yarn test --ci --runInBand --reporters=default --reporters=jest-junit
