@@ -22,7 +22,9 @@ jobs:
             # fallback to using the latest cache if no exact match is found
             - v1-dependencies-
 
-      - run: yarn install
+      - run:
+          name: Install dependencies
+          command: yarn install
 
       - save_cache:
           paths:
@@ -30,6 +32,18 @@ jobs:
           key: v1-dependencies-{{ checksum "package.json" }}
 
       # run tests!
-      - run: yarn lint
-      - run: yarn flow
-      - run: yarn test:ci
+      - run:
+          name: Lint source code
+          command: yarn lint
+      - run:
+          name: Type-check source code
+          command: yarn flow check
+      - run:
+          name: Run unit tests
+          command: yarn test --ci --runInBand --reporters=default --reporters=jest-junit
+          environment:
+            JEST_JUNIT_OUTPUT: "reports/jest/js-test-results.xml"
+      - store_test_results:
+          path: reports
+      - store_artifacts:
+          path: reports
