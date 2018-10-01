@@ -1337,7 +1337,7 @@ concat-stream@^1.6.0:
 
 connected-domain@^1.0.0:
   version "1.0.0"
-  resolved "https://npm.v2.mudano.com/connected-domain/-/connected-domain-1.0.0.tgz#bfe77238c74be453a79f0cb6058deeb4f2358e93"
+  resolved "https://registry.yarnpkg.com/connected-domain/-/connected-domain-1.0.0.tgz#bfe77238c74be453a79f0cb6058deeb4f2358e93"
   integrity sha1-v+dyOMdL5FOnnwy2BY3utPI1jpM=
 
 console-control-strings@^1.0.0, console-control-strings@~1.1.0:
@@ -2109,7 +2109,7 @@ flat-cache@^1.2.1:
 
 flow-bin@^0.81.0:
   version "0.81.0"
-  resolved "https://npm.v2.mudano.com/flow-bin/-/flow-bin-0.81.0.tgz#7f0a733dce1dad3cb1447c692639292dc3d60bf5"
+  resolved "https://registry.yarnpkg.com/flow-bin/-/flow-bin-0.81.0.tgz#7f0a733dce1dad3cb1447c692639292dc3d60bf5"
   integrity sha512-5e8oL3/5rm3G0Eet3yDCne2R/TLo5Fkn+Z5MtHd4wtz+1miLC35Sgo8XvnbTmiZ9epdTZ1q6GLmJWYh7tUlfGg==
 
 for-in@^1.0.1, for-in@^1.0.2:
@@ -4862,7 +4862,7 @@ symbol-tree@^3.2.2:
 
 table-parser@^0.1.3:
   version "0.1.3"
-  resolved "https://npm.v2.mudano.com/table-parser/-/table-parser-0.1.3.tgz#0441cfce16a59481684c27d1b5a67ff15a43c7b0"
+  resolved "https://registry.yarnpkg.com/table-parser/-/table-parser-0.1.3.tgz#0441cfce16a59481684c27d1b5a67ff15a43c7b0"
   integrity sha1-BEHPzhallIFoTCfRtaZ/8VpDx7A=
   dependencies:
     connected-domain "^1.0.0"
