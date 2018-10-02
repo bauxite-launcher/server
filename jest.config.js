@@ -1,5 +1,5 @@
 module.exports = {
-  reporters: ['default', 'jest-junit'],
+  reporters: ['default'],
   testPathIgnorePatterns: [
     '<rootDir>/dist/',
     '<rootDir>/node_modules/',
