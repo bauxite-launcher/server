@@ -2,10 +2,8 @@
 // @flow
 
 import yargs from 'yargs';
+import { InfoCommand } from './commands';
 
-yargs.usage('$0 <cmd> [args]').options({
-  directory: {
-    type: 'string',
-    global: true,
-  },
-});
+const commands = [InfoCommand];
+
+commands.reduce((acc, cmd) => acc.command(cmd), yargs).parse();

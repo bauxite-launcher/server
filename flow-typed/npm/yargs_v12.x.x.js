@@ -2,10 +2,9 @@
 // flow-typed version: da30fe6876/yargs_v10.x.x/flow_>=v0.54.x
 
 declare module 'yargs' {
-  declare type Argv<T> = {
+  declare export type Argv<T> = T & {
     _: Array<string>,
     $0: string,
-    [key: $Keys<T>]: mixed,
   };
 
   declare type Options<T> = $Shape<{
@@ -45,22 +44,22 @@ declare module 'yargs' {
     handler?: (argv: Argv<T>) => void,
   |};
 
-  declare type ModuleObjectDesc<T> = {|
+  declare export type ModuleObjectDesc<T> = {|
     ...CommonModuleObject<T>,
     desc?: string | false,
   |};
 
-  declare type ModuleObjectDescribe<T> = {|
+  declare export type ModuleObjectDescribe<T> = {|
     ...CommonModuleObject<T>,
     describe?: string | false,
   |};
 
-  declare type ModuleObjectDescription<T> = {|
+  declare export type ModuleObjectDescription<T> = {|
     ...CommonModuleObject<T>,
     description?: string | false,
   |};
 
-  declare type ModuleObject<T> =
+  declare export type ModuleObject<T> =
     | ModuleObjectDesc<T>
     | ModuleObjectDescribe<T>
     | ModuleObjectDescription<T>;
@@ -258,5 +257,5 @@ declare module 'yargs' {
     wrap(columns: number | null): this;
   }
 
-  declare module.exports: Yargs<*>;
+  declare export default Yargs<*>;
 }
