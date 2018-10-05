@@ -1,23 +1,23 @@
 // @flow
+import { resolve as resolvePath } from 'path';
 import {
   createCommandHandler,
   type CommandHandlerDefinition,
 } from '../../util/commandHandler';
-import pkg from '../../../../package.json';
 
-type Package = {
-  name: string,
-  version: string,
+type InstanceArgs = {
+  directory: string,
 };
+type InstanceInfo = InstanceArgs & {};
 
-const infoCommand: CommandHandlerDefinition<{}, Package> = {
+const infoCommand: CommandHandlerDefinition<InstanceArgs, InstanceInfo> = {
   command: 'info',
-  description: 'Show the info',
-  async setup(): Promise<Package> {
-    return pkg;
+  description: 'Show information about an instance',
+  async setup({ directory }): Promise<InstanceInfo> {
+    return { directory: resolvePath(directory) };
   },
-  render({ name, version }) {
-    return `${name} v${version}`;
+  render({ directory }) {
+    return directory;
   },
 };
 
