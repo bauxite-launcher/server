@@ -12,10 +12,9 @@ export type CommandHandlerDefinition<T, U> = {
 
 // eslint-disable-next-line import/prefer-default-export
 export function createCommandHandler<T: Object, U: Object>({
-  command,
-  description,
   setup,
   render,
+  ...rest
 }: CommandHandlerDefinition<T, U>): ModuleObject<T> {
   async function handler(
     argv: Argv<T & { json: boolean }>,
@@ -40,8 +39,7 @@ export function createCommandHandler<T: Object, U: Object>({
   }
 
   return {
-    command,
-    description,
+    ...rest,
     handler(argv: Argv<T & { directory: string }>) {
       const instance: MinecraftInstance = new MinecraftInstance(
         resolvePath(argv.directory),

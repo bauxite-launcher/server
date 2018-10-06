@@ -2,9 +2,9 @@
 // @flow
 
 import yargs, { type ModuleObject } from 'yargs';
-import { InfoCommand } from './commands';
+import { StatusCommand } from './commands';
 
-const commands: Array<ModuleObject<*>> = [InfoCommand];
+const commands: Array<ModuleObject<*>> = [StatusCommand];
 
 const argParser = yargs
   .options({

@@ -8,19 +8,19 @@ import {
 type InstanceArgs = {
   directory: string,
 };
-type InstalledInstanceInfo = {
+type InstalledInstanceStatus = {
   installed: true,
   running: boolean,
   version?: string,
 };
-type UninstalledInstanceInfo = { installed: false };
-type InstanceInfo = InstanceArgs &
-  (InstalledInstanceInfo | UninstalledInstanceInfo);
+type UninstalledInstanceStatus = { installed: false };
+type InstanceStatus = InstanceArgs &
+  (InstalledInstanceStatus | UninstalledInstanceStatus);
 
-const infoCommand: CommandHandlerDefinition<InstanceArgs, InstanceInfo> = {
-  command: 'info',
+const statusCommand: CommandHandlerDefinition<InstanceArgs, InstanceStatus> = {
+  command: 'status',
   description: 'Show the current status of the instance',
-  async setup({ directory }, instance): Promise<InstanceInfo> {
+  async setup({ directory }, instance): Promise<InstanceStatus> {
     const installed = await instance.isInstalled();
     if (!installed) return { directory, installed: false };
 
@@ -39,4 +39,4 @@ const infoCommand: CommandHandlerDefinition<InstanceArgs, InstanceInfo> = {
   },
 };
 
-export default createCommandHandler(infoCommand);
+export default createCommandHandler(statusCommand);
