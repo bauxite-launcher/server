@@ -8,6 +8,12 @@
   },
   "overrides": [
     {
+      "files": ["src/cli/**/*.js"],
+      "rules": {
+        "no-console": "off"
+      }
+    },
+    {
       "files": ["*.test.js"],
       "rules": {
         "global-require": "off"
