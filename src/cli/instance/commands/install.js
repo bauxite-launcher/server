@@ -92,12 +92,12 @@ const installCommand: CommandHandlerDefinition<InstallArgs, InstallOutput> = {
     const { minecraftVersion } = await instance.settings.read();
     return {
       directory: instance.directory,
-      version: minecraftVersion,
+      minecraftVersion,
       name,
     };
   },
-  render({ directory, version }) {
-    return `Successfully installed Minecraft server ${version} to ${directory}`;
+  render({ directory, minecraftVersion }) {
+    return `Successfully installed Minecraft server ${minecraftVersion} to ${directory}`;
   },
 };
 

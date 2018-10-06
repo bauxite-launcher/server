@@ -16,7 +16,8 @@ type UpgradeArgs = {
 
 type UpgradeOutput = {
   directory: string,
-  version: string,
+  oldVersion: string,
+  newVersion: string,
 };
 
 const upgradeCommand: CommandHandlerDefinition<UpgradeArgs, UpgradeOutput> = {
@@ -87,11 +88,12 @@ const upgradeCommand: CommandHandlerDefinition<UpgradeArgs, UpgradeOutput> = {
     const { minecraftVersion: newVersion } = await instance.settings.read();
     return {
       directory: instance.directory,
-      version: newVersion,
+      oldVersion: minecraftVersion,
+      newVersion,
     };
   },
-  render({ directory, version }) {
-    return `Successfully upgraded Minecraft server ${version} to ${directory}`;
+  render({ oldVersion, newVersion }) {
+    return `Successfully upgraded Minecraft server instance from ${oldVersion} to ${newVersion}`;
   },
 };
 
