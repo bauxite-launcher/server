@@ -8,7 +8,10 @@ import OpsFile from './files/OpsFile';
 import UserCacheFile from './files/UserCacheFile';
 import EulaFile from './files/EulaFile';
 import InstanceProcess from './Process';
-import Installer, { type InstallState, type InstallStateSubscriber } from './Installer';
+import Installer, {
+  type InstallState,
+  type InstallStateSubscriber,
+} from './Installer';
 
 const PROPERTIES = 'server.properties';
 const SETTINGS = 'instance.json';
@@ -40,7 +43,11 @@ class Instance {
 
   installer: Installer;
 
-  constructor(directory: string, settings?: SettingsFile, properties?: ServerPropertiesFile) {
+  constructor(
+    directory: string,
+    settings?: SettingsFile,
+    properties?: ServerPropertiesFile,
+  ) {
     this.directory = directory;
     this.settings = settings || new SettingsFile(this.path(SETTINGS));
     this.properties = properties || new ServerPropertiesFile(this.path(PROPERTIES));
@@ -110,7 +117,10 @@ class Instance {
     return this.installer.isInstalled();
   }
 
-  async install(minecraftVersionId: string, onProgress?: ?InstallStateSubscriber): Promise<void> {
+  async install(
+    minecraftVersionId: string,
+    onProgress?: ?InstallStateSubscriber,
+  ): Promise<void> {
     const unsubscribe = onProgress && this.installer.subscribe(onProgress);
     const result = await this.installer.install(minecraftVersionId, false);
     if (unsubscribe) {

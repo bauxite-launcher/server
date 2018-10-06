@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 // @flow
 
-import yargs from 'yargs';
+import yargs, { type ModuleObject } from 'yargs';
 import { InfoCommand } from './commands';
 
-const commands = [InfoCommand];
+const commands: Array<ModuleObject<*>> = [InfoCommand];
 
 const argParser = yargs
   .options({
@@ -13,6 +13,14 @@ const argParser = yargs
       global: true,
       default: process.cwd(),
       normalize: true,
+      description: 'The directory of the Minecraft instance',
+      defaultDescription: './',
+    },
+    json: {
+      type: 'boolean',
+      global: true,
+      default: false,
+      description: 'Output results as a JSON object',
     },
   })
   .env('BAUXITE');
