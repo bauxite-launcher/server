@@ -2,9 +2,19 @@
 // @flow
 
 import yargs, { type ModuleObject } from 'yargs';
-import { StatusCommand, InstallCommand } from './commands';
+import {
+  StatusCommand,
+  InstallCommand,
+  StartCommand,
+  StopCommand,
+} from './commands';
 
-const commands: Array<ModuleObject<*>> = [StatusCommand, InstallCommand];
+const commands: Array<ModuleObject<*>> = [
+  StatusCommand,
+  InstallCommand,
+  StartCommand,
+  StopCommand,
+];
 
 const argParser = yargs
   .options({
@@ -27,7 +37,7 @@ const argParser = yargs
   .demandCommand(1, '')
   .recommendCommands()
   .strict()
-  .fail((msg, error) => {
+  .fail((msg) => {
     console.log(msg);
   });
 
