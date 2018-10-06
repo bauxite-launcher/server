@@ -57,7 +57,7 @@ describe('InstanceProcess', () => {
         await instance.launch();
         expect(require('child_process').spawn).toBeCalledWith(
           'java',
-          ['-jar', 'minecraft_server.jar', '-nogui'],
+          ['-jar', 'minecraft_server.jar', 'nogui'],
           {
             cwd: '/',
             detached: true,

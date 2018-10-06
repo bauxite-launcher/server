@@ -1,6 +1,9 @@
 // @flow
 import { pathExists, ensureDir } from 'fs-extra';
-import { type StreamProgressEvent, type StreamProgressCallback } from 'progress-stream';
+import {
+  type StreamProgressEvent,
+  type StreamProgressCallback,
+} from 'progress-stream';
 import Instance from './Instance';
 import MinecraftRelease from '../versions/MinecraftReleaseFile';
 import { type PartialSettings } from './files/SettingsFile';
@@ -21,10 +24,14 @@ export type InstallStageType =
   | typeof InstallStage.Installed;
 
 export type InstallState =
-  | { stage: typeof InstallStage.NotInstalled }
-  | { stage: typeof InstallStage.Downloading, progress: ?StreamProgressEvent }
-  | { stage: typeof InstallStage.Configuring }
-  | { stage: typeof InstallStage.Installed };
+  | {
+      stage:
+        | typeof InstallStage.NotInstalled
+        | typeof InstallStage.Configuring
+        | typeof InstallStage.Installed,
+      progress?: void,
+    }
+  | { stage: typeof InstallStage.Downloading, progress: ?StreamProgressEvent };
 
 export type InstallStateSubscriber = (newState: InstallState) => void;
 
@@ -55,7 +62,10 @@ class Installer {
   }
 
   async isInstalled(): Promise<boolean> {
-    return (await this.directoryExists()) && ((await this.serverJarExists()) && this.eulaAgreed());
+    return (
+      (await this.directoryExists())
+      && ((await this.serverJarExists()) && this.eulaAgreed())
+    );
   }
 
   async getState(): Promise<InstallState> {
@@ -72,7 +82,10 @@ class Installer {
     };
   }
 
-  async install(minecraftVersion: string, force: boolean = false): Promise<void> {
+  async install(
+    minecraftVersion: string,
+    force: boolean = false,
+  ): Promise<void> {
     await this.ensureDirectoryExists();
     if (!force && (await this.getState()).stage === InstallStage.Installed) {
       throw new Error('Instance is already installed');
@@ -115,9 +128,13 @@ class Installer {
       throw new Error('Minecraft version must be specified!');
     }
 
-    const { downloads } = await MinecraftRelease.fromReleaseId(minecraftVersion);
+    const { downloads } = await MinecraftRelease.fromReleaseId(
+      minecraftVersion,
+    );
     if (!downloads || !downloads.server || !downloads.server.url) {
-      throw new Error(`No server JAR file available for Minecraft v${minecraftVersion}`);
+      throw new Error(
+        `No server JAR file available for Minecraft v${minecraftVersion}`,
+      );
     }
 
     const serverJarFile = await TextFile.createFromRemoteFile(
