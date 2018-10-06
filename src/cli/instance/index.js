@@ -5,6 +5,7 @@ import yargs, { type ModuleObject } from 'yargs';
 import {
   StatusCommand,
   InstallCommand,
+  UpgradeCommand,
   StartCommand,
   StopCommand,
 } from './commands';
@@ -12,6 +13,7 @@ import {
 const commands: Array<ModuleObject<*>> = [
   StatusCommand,
   InstallCommand,
+  UpgradeCommand,
   StartCommand,
   StopCommand,
 ];

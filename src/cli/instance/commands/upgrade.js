@@ -8,35 +8,29 @@ import MinecraftReleasesFile from '../../../versions/MinecraftReleaseListFile';
 
 const Releases = new MinecraftReleasesFile();
 
-type InstallArgs = {
+type UpgradeArgs = {
   json?: boolean,
   directory: string,
   minecraftVersion?: string,
-  name?: string,
 };
 
-type InstallOutput = {
+type UpgradeOutput = {
   directory: string,
-  minecraftVersion: string,
-  name: string,
+  oldVersion: string,
+  newVersion: string,
 };
 
-const installCommand: CommandHandlerDefinition<InstallArgs, InstallOutput> = {
-  command: 'install',
-  description: 'Install Minecraft server',
+const upgradeCommand: CommandHandlerDefinition<UpgradeArgs, UpgradeOutput> = {
+  command: 'upgrade',
+  description: 'Upgrade Minecraft server',
   async setup(
-    {
-      json = false,
-      name: inputName,
-      minecraftVersion: inputVersion,
-      $0,
-    }: Argv<InstallArgs>,
+    { json = false, minecraftVersion: inputVersion, $0 }: Argv<UpgradeArgs>,
     instance,
-  ): Promise<InstallOutput> {
+  ): Promise<UpgradeOutput> {
     const installed = await instance.isInstalled();
-    if (installed) {
+    if (!installed) {
       throw new Error(
-        `An instance is already installed. Run \`${$0} status\` for more information`,
+        `Instance not installed. Run \`${$0} install --help\` for more information`,
       );
     }
 
@@ -54,16 +48,17 @@ const installCommand: CommandHandlerDefinition<InstallArgs, InstallOutput> = {
       version = latest.id;
     }
 
-    let name = inputName;
-    if (!name) {
-      if (!json) {
-        console.warn('No name specified for instance, falling back to default');
-      }
-      name = `Unnamed ${version}`;
+    const { minecraftVersion } = await instance.settings.read();
+    if (minecraftVersion === version) {
+      throw new Error(
+        `Instance is already on Minecraft server version ${minecraftVersion}`,
+      );
     }
 
     if (!json) {
-      console.log(`Installing Minecraft server ${version}…`);
+      console.log(
+        `Upgrading Minecraft server from ${minecraftVersion} to ${version}…`,
+      );
     }
 
     await instance.install(
@@ -86,19 +81,20 @@ const installCommand: CommandHandlerDefinition<InstallArgs, InstallOutput> = {
           }
         }
         : undefined,
+      true,
     );
 
     process.stdout.write('\n');
-    const { minecraftVersion } = await instance.settings.read();
+    const { minecraftVersion: newVersion } = await instance.settings.read();
     return {
       directory: instance.directory,
-      minecraftVersion,
-      name,
+      oldVersion: minecraftVersion,
+      newVersion,
     };
   },
-  render({ directory, minecraftVersion }) {
-    return `Successfully installed Minecraft server ${minecraftVersion} to ${directory}`;
+  render({ oldVersion, newVersion }) {
+    return `Successfully upgraded Minecraft server instance from ${oldVersion} to ${newVersion}`;
   },
 };
 
-export default createCommandHandler(installCommand);
+export default createCommandHandler(upgradeCommand);
