@@ -2,9 +2,9 @@
 // @flow
 
 import yargs, { type ModuleObject } from 'yargs';
-import { StatusCommand } from './commands';
+import { StatusCommand, InstallCommand } from './commands';
 
-const commands: Array<ModuleObject<*>> = [StatusCommand];
+const commands: Array<ModuleObject<*>> = [StatusCommand, InstallCommand];
 
 const argParser = yargs
   .options({
@@ -26,6 +26,9 @@ const argParser = yargs
   .env('BAUXITE')
   .demandCommand(1, '')
   .recommendCommands()
-  .strict();
+  .strict()
+  .fail((msg, error) => {
+    console.log(msg);
+  });
 
 commands.reduce((acc, cmd) => acc.command(cmd), argParser).parse();
