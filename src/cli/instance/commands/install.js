@@ -1,5 +1,4 @@
 // @flow
-import { inspect } from 'util';
 import { type Argv } from 'yargs';
 import {
   createCommandHandler,
@@ -97,7 +96,7 @@ const installCommand: CommandHandlerDefinition<InstallArgs, InstallOutput> = {
       name,
     };
   },
-  render({ directory, version, name }) {
+  render({ directory, version }) {
     return `Successfully installed Minecraft server ${version} to ${directory}`;
   },
 };
