@@ -23,6 +23,9 @@ const argParser = yargs
       description: 'Output results as a JSON object',
     },
   })
-  .env('BAUXITE');
+  .env('BAUXITE')
+  .demandCommand(1, '')
+  .recommendCommands()
+  .strict();
 
 commands.reduce((acc, cmd) => acc.command(cmd), argParser).parse();
