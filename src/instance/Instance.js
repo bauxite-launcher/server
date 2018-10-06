@@ -120,9 +120,10 @@ class Instance {
   async install(
     minecraftVersionId: string,
     onProgress?: ?InstallStateSubscriber,
+    force?: boolean = false,
   ): Promise<void> {
     const unsubscribe = onProgress && this.installer.subscribe(onProgress);
-    const result = await this.installer.install(minecraftVersionId, false);
+    const result = await this.installer.install(minecraftVersionId, force);
     if (unsubscribe) {
       unsubscribe();
     }
