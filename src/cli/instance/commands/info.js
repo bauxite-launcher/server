@@ -1,5 +1,5 @@
 // @flow
-import { resolve as resolvePath } from 'path';
+import { inspect } from 'util';
 import {
   createCommandHandler,
   type CommandHandlerDefinition,
@@ -8,16 +8,34 @@ import {
 type InstanceArgs = {
   directory: string,
 };
-type InstanceInfo = InstanceArgs & {};
+type InstalledInstanceInfo = {
+  installed: true,
+  running: boolean,
+  version?: string,
+};
+type UninstalledInstanceInfo = { installed: false };
+type InstanceInfo = InstanceArgs &
+  (InstalledInstanceInfo | UninstalledInstanceInfo);
 
 const infoCommand: CommandHandlerDefinition<InstanceArgs, InstanceInfo> = {
   command: 'info',
-  description: 'Show information about an instance',
-  async setup({ directory }): Promise<InstanceInfo> {
-    return { directory: resolvePath(directory) };
+  description: 'Show the current status of the instance',
+  async setup({ directory }, instance): Promise<InstanceInfo> {
+    const installed = await instance.isInstalled();
+    if (!installed) return { directory, installed: false };
+
+    const running = await instance.isRunning();
+    const { minecraftVersion } = await instance.settings.read();
+
+    return {
+      directory,
+      installed: true,
+      running,
+      version: minecraftVersion,
+    };
   },
-  render({ directory }) {
-    return directory;
+  render(data) {
+    return inspect(data, { colors: true });
   },
 };
 
