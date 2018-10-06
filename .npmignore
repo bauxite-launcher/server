@@ -1,0 +1,14 @@
+flow-typed
+src
+docs
+.vscode
+.circleci
+test-e2e
+.babelrc
+.editorconfig
+.eslintrc.json
+.flowconfig
+jest.config.js
+reports
+*.log
+junit.xml
