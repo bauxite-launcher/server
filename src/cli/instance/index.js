@@ -36,9 +36,6 @@ const argParser = yargs
   .env('BAUXITE')
   .demandCommand(1, '')
   .recommendCommands()
-  .strict()
-  .fail((msg) => {
-    console.log(msg);
-  });
+  .strict();
 
 commands.reduce((acc, cmd) => acc.command(cmd), argParser).parse();
