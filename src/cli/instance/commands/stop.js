@@ -9,7 +9,9 @@ type StopArgs = {
   json?: boolean,
 };
 
-type StopOutput = {};
+type StopOutput = {
+  stopped: true,
+};
 
 const stopCommand: CommandHandlerDefinition<StopArgs, StopOutput> = {
   command: 'stop',
@@ -25,7 +27,7 @@ const stopCommand: CommandHandlerDefinition<StopArgs, StopOutput> = {
     }
 
     await instance.kill();
-    return {};
+    return { stopped: true };
   },
   render() {
     return 'Successfully stopped Minecraft server';

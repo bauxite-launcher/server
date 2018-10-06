@@ -11,6 +11,7 @@ type StartArgs = {
 
 type StartOutput = {
   pid: number,
+  started: true,
 };
 
 const startCommand: CommandHandlerDefinition<StartArgs, StartOutput> = {
@@ -34,7 +35,7 @@ const startCommand: CommandHandlerDefinition<StartArgs, StartOutput> = {
     if (!pid) {
       throw new Error('No process ID found');
     }
-    return { pid };
+    return { started: true, pid };
   },
   render({ pid }) {
     return `Successfully started Minecraft server (process ID: ${pid})`;

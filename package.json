@@ -4,6 +4,9 @@
   "main": "index.js",
   "author": "Jim O'Brien <npm@jimmed.net>",
   "license": "WTFPL",
+  "bin": {
+    "bx-instance": "dist/cli/instance/index.js"
+  },
   "scripts": {
     "build": "babel src --out-dir dist",
     "test:unit": "yarn test src",

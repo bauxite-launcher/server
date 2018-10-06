@@ -3,12 +3,12 @@ import { type ModuleObject, type Argv } from 'yargs';
 import { resolve as resolvePath } from 'path';
 import MinecraftInstance from '../../instance/Instance';
 
-type ErrorRenderer = (error: Error, argv: *) => string | Array<string>;
+type ErrorRenderer = (error: Error, argv: *) => string | Array<?string>;
 const defaultErrorRenderer: ErrorRenderer = (error: Error) => `Something went wrong:\n\t${error.message}`;
-const logToConsole = (output: string | Array<string>) => {
+const logToConsole = (output: string | Array<?string>) => {
   if (output instanceof Array) {
     // eslint-disable-next-line no-console
-    output.forEach(line => console.log(line));
+    output.filter(Boolean).forEach(line => console.log(line));
   } else {
     // eslint-disable-next-line no-console
     console.log(output);
@@ -19,7 +19,7 @@ export type CommandHandlerDefinition<T, U> = {
   command: string,
   description: string,
   setup: (argv: Argv<T>, instance: MinecraftInstance) => U | Promise<U>,
-  render: (options: U) => string | Array<string>,
+  render: (options: U) => string | Array<?string>,
   renderError?: ErrorRenderer,
 };
 
@@ -35,7 +35,7 @@ export function createCommandHandler<T: Object, U: Object>({
   async function handler(
     argv: Argv<T & { json: boolean }>,
     instance: MinecraftInstance,
-  ): Promise<string | Array<string>> {
+  ): Promise<string | Array<?string>> {
     const result = await setup(argv, instance);
 
     if (argv.json) {
