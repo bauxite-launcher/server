@@ -5,6 +5,8 @@ import Instance from '../Instance';
 
 jest.mock('fs', () => require('jest-plugin-fs/mock'));
 
+// TODO: Convert to using mocks properly
+
 const mockInstancePath = '/instance';
 const mockServerJar = 'minecraft_server.jar';
 
@@ -41,8 +43,8 @@ describe('Installer', () => {
   });
 
   describe('class methods', () => {
-    let installer; let
-      instance;
+    let installer;
+    let instance;
 
     beforeEach(() => {
       fs.mock();
@@ -120,9 +122,9 @@ describe('Installer', () => {
     describe('downloadServerJar', () => {
       const serverJarContent = '💎⛏🌳👊';
 
-      let scope;
+      let scope; // eslint-disable-line no-unused-vars
       afterEach(() => {
-        if (scope) scope.done();
+        nock.cleanAll();
       });
 
       it('should be a function', () => {

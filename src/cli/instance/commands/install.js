@@ -3,9 +3,7 @@ import { type Argv } from 'yargs';
 import createCommandHandler, {
   type CommandHandlerDefinition,
 } from '../../util/commandHandler';
-import MinecraftReleasesFile from '../../../versions/MinecraftReleaseListFile';
-
-const Releases = new MinecraftReleasesFile();
+import Releases from '../../../versions/MinecraftReleaseListFile';
 
 type InstallArgs = {
   json?: boolean,
