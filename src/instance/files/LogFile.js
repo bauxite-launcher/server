@@ -1,6 +1,7 @@
 // @flow
 import { gunzip as gunzipAsync } from 'zlib';
 import { promisify } from 'util';
+import { readFile } from 'fs-extra';
 import JsonCollectionFile from '../../util/JsonCollectionFile';
 
 const gunzip: (Buffer | string) => string = promisify(gunzipAsync);
@@ -96,11 +97,10 @@ class LogFile extends JsonCollectionFile<LogEntry, RawLogEntry> {
   }
 
   async readRaw() {
-    const raw = await super.readRaw();
     if (!this.compressed) {
-      return raw;
+      return super.readRaw();
     }
-    const uncompressed = await gunzip(raw);
+    const uncompressed = await gunzip(await readFile(this.path));
     return uncompressed.toString();
   }
 
