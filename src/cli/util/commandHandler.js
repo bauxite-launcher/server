@@ -23,8 +23,7 @@ export type CommandHandlerDefinition<T, U> = {
   renderError?: ErrorRenderer,
 };
 
-// eslint-disable-next-line import/prefer-default-export
-export function createCommandHandler<T: Object, U: Object>({
+export default function createCommandHandler<T: Object, U: Object>({
   setup,
   render,
   renderError,
@@ -39,7 +38,6 @@ export function createCommandHandler<T: Object, U: Object>({
     const result = await setup(argv, instance);
 
     if (argv.json) {
-      // eslint-disable-next-line no-console
       return JSON.stringify(result, null, 2);
     }
 

@@ -1,6 +1,5 @@
 // @flow
-import {
-  createCommandHandler,
+import createCommandHandler, {
   type CommandHandlerDefinition,
 } from '../../util/commandHandler';
 

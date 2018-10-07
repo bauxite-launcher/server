@@ -1,7 +1,6 @@
 // @flow
 import { type Argv } from 'yargs';
-import {
-  createCommandHandler,
+import createCommandHandler, {
   type CommandHandlerDefinition,
 } from '../../util/commandHandler';
 import MinecraftReleasesFile from '../../../versions/MinecraftReleaseListFile';
