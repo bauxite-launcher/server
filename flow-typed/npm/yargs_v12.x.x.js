@@ -35,12 +35,14 @@ declare module 'yargs' {
     type: 'array' | 'boolean' | 'count' | 'number' | 'string',
   }>;
 
+  declare export type ModuleBuilder<T> =
+    | { [key: $Keys<T>]: Options<T> }
+    | ((yargsInstance: Yargs<T>) => mixed);
+
   declare type CommonModuleObject<T> = {|
     command?: string | Array<string>,
     aliases?: Array<string> | string,
-    builder?:
-      | { [key: $Keys<T>]: Options<T> }
-      | ((yargsInstance: Yargs<T>) => mixed),
+    builder?: ModuleBuilder<T>,
     handler?: (argv: Argv<T>) => void,
   |};
 
