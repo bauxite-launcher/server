@@ -13,7 +13,7 @@ type StartOutput = {
   started: true,
 };
 
-const startCommand: CommandHandlerDefinition<StartArgs, StartOutput> = {
+export const startCommand: CommandHandlerDefinition<StartArgs, StartOutput> = {
   command: 'start',
   description: 'Start Minecraft server',
   async setup(

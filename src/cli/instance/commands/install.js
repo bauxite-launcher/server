@@ -20,7 +20,10 @@ type InstallOutput = {
   name: string,
 };
 
-const installCommand: CommandHandlerDefinition<InstallArgs, InstallOutput> = {
+export const installCommand: CommandHandlerDefinition<
+  InstallArgs,
+  InstallOutput,
+> = {
   command: 'install',
   description: 'Install Minecraft server',
   async setup(

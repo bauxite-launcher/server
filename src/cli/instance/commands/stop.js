@@ -12,7 +12,7 @@ type StopOutput = {
   stopped: true,
 };
 
-const stopCommand: CommandHandlerDefinition<StopArgs, StopOutput> = {
+export const stopCommand: CommandHandlerDefinition<StopArgs, StopOutput> = {
   command: 'stop',
   description: 'Stop Minecraft server',
   async setup({ json = false }: Argv<StopArgs>, instance): Promise<StopOutput> {

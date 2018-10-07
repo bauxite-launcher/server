@@ -19,7 +19,10 @@ type UpgradeOutput = {
   newVersion: string,
 };
 
-const upgradeCommand: CommandHandlerDefinition<UpgradeArgs, UpgradeOutput> = {
+export const upgradeCommand: CommandHandlerDefinition<
+  UpgradeArgs,
+  UpgradeOutput,
+> = {
   command: 'upgrade',
   description: 'Upgrade Minecraft server',
   async setup(
