@@ -1,9 +1,10 @@
 import fs from 'jest-plugin-fs';
-import { gzip as gzipAsync } from 'zlib';
+import { gzip as gzipAsync, gunzip as gunzipAsync } from 'zlib';
 import { promisify } from 'util';
 import LogFile from '../LogFile';
 
 const gzip = promisify(gzipAsync);
+const gunzip = promisify(gunzipAsync);
 
 const rawLog = `
 [17:16:52] [Server thread/INFO]: Loading properties
@@ -92,7 +93,7 @@ describe('LogFile', () => {
     describe('with uncompressed logfile', () => {
       beforeEach(async () => {
         fs.mock({
-          './logs/latest.log': rawLog,
+          '/logs/latest.log': rawLog,
         });
         instance = new LogFile('/logs/latest.log');
       });
@@ -112,17 +113,24 @@ describe('LogFile', () => {
 
     describe('with compressed logfile', () => {
       beforeEach(async () => {
-        fs.mock(
-          {
-            './2018-01-01-1.log.gz': (await gzip(rawLog)).toString('utf8'),
-          },
-          'logs',
-        );
-        instance = new LogFile('./logs/latest.log');
+        // jest-plugin-fs is based on memfs, which doesn't allow setting mock files
+        // as Buffers. Accordingly, here we mock out `LogFile::readRaw`, at the
+        // cost of test coverage. TODO, probably.
+        const compressedLog = await gzip(rawLog);
+        instance = new LogFile('/logs/2018-01-01-1.log.gz');
+        instance.readRaw = jest.fn(async () => (await gunzip(compressedLog)).toString());
       });
 
       it('should automatically set logfile flag to false', () => {
-        expect(instance).toHaveProperty('compressed', false);
+        expect(instance).toHaveProperty('compressed', true);
+      });
+
+      describe('read', () => {
+        it('should return an array of objects', async () => {
+          const result = await instance.read();
+          expect(result).toBeInstanceOf(Array);
+          result.forEach(item => expect(item).toBeInstanceOf(Object));
+        });
       });
     });
   });
