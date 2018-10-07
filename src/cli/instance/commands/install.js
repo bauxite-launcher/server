@@ -24,6 +24,14 @@ export const installCommand: CommandHandlerDefinition<
 > = {
   command: 'install',
   description: 'Install Minecraft server',
+  builder: {
+    minecraftVersion: {
+      type: 'string',
+    },
+    name: {
+      type: 'string',
+    },
+  },
   async setup(
     {
       json = false,

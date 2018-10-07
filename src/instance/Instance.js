@@ -12,6 +12,7 @@ import Installer, {
   type InstallState,
   type InstallStateSubscriber,
 } from './Installer';
+import LogManager from './LogManager';
 
 const PROPERTIES = 'server.properties';
 const SETTINGS = 'instance.json';
@@ -19,6 +20,7 @@ const WHITELIST = 'whitelist.json';
 const OPS = 'ops.json';
 const USER_CACHE = 'usercache.json';
 const EULA = 'eula.txt';
+const LOGS_DIR = 'logs';
 
 class Instance {
   directory: string;
@@ -42,6 +44,10 @@ class Instance {
   installerCache: ?Installer;
 
   installer: Installer;
+
+  logsCache: ?LogManager;
+
+  logs: LogManager;
 
   constructor(
     directory: string,
@@ -128,6 +134,16 @@ class Instance {
       unsubscribe();
     }
     return result;
+  }
+
+  createLogManager(): LogManager {
+    const newLogManager = new LogManager(this.path(LOGS_DIR));
+    this.logsCache = newLogManager;
+    return newLogManager;
+  }
+
+  get logs(): LogManager {
+    return this.logsCache || this.createLogManager();
   }
 }
 
