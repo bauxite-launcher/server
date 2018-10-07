@@ -5,14 +5,9 @@ import MinecraftInstance from '../../instance/Instance';
 
 type ErrorRenderer = (error: Error, argv: *) => string | Array<?string>;
 const defaultErrorRenderer: ErrorRenderer = (error: Error) => `Something went wrong:\n\t${error.message}`;
-const logToConsole = (output: string | Array<?string>) => {
-  if (output instanceof Array) {
-    // eslint-disable-next-line no-console
-    output.filter(Boolean).forEach(line => console.log(line));
-  } else {
-    // eslint-disable-next-line no-console
-    console.log(output);
-  }
+const logToConsole = (result: string | Array<?string>) => {
+  const output = result instanceof Array ? result.join('\n') : result;
+  process.stdout.write(`${output}\n`);
 };
 
 export type CommandHandlerDefinition<T, U> = {
@@ -23,8 +18,7 @@ export type CommandHandlerDefinition<T, U> = {
   renderError?: ErrorRenderer,
 };
 
-// eslint-disable-next-line import/prefer-default-export
-export function createCommandHandler<T: Object, U: Object>({
+export default function createCommandHandler<T: Object, U: Object>({
   setup,
   render,
   renderError,
@@ -39,7 +33,6 @@ export function createCommandHandler<T: Object, U: Object>({
     const result = await setup(argv, instance);
 
     if (argv.json) {
-      // eslint-disable-next-line no-console
       return JSON.stringify(result, null, 2);
     }
 
