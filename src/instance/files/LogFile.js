@@ -98,6 +98,11 @@ class LogFile extends JsonCollectionFile<LogEntry, RawLogEntry> {
     const raw = await super.readRaw();
     return this.compressed ? gunzip(raw) : raw;
   }
+
+  async readLast(lines: number): Promise<Array<LogEntry>> {
+    const all = await this.read();
+    return all.slice(-lines);
+  }
 }
 
 export default LogFile;
