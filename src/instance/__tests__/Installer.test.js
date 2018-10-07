@@ -2,27 +2,18 @@ import nock from 'nock';
 import fs from 'jest-plugin-fs';
 import Installer from '../Installer';
 import Instance from '../Instance';
+import SettingsFile from '../files/SettingsFile';
+import EulaFile from '../files/EulaFile';
 
 jest.mock('fs', () => require('jest-plugin-fs/mock'));
-
-// TODO: Convert to using mocks properly
+jest.mock('../Instance');
+jest.mock('../files/SettingsFile');
+jest.mock('../files/EulaFile');
 
 const mockInstancePath = '/instance';
 const mockServerJar = 'minecraft_server.jar';
 
-const makeInstance = () => ({
-  directory: mockInstancePath,
-  path: jest.fn(Instance.prototype.path),
-  settings: {
-    read: jest.fn(() => Promise.resolve({ minecraftVersion: '1.13.1', serverJar: mockServerJar })),
-    write: jest.fn(() => Promise.resolve()),
-    patch: jest.fn(() => Promise.resolve()),
-  },
-  eula: {
-    read: jest.fn(() => Promise.resolve(false)),
-    accept: jest.fn(() => Promise.resolve()),
-  },
-});
+const makeInstance = () => new Instance();
 const makeInstaller = (instance = makeInstance()) => new Installer(instance);
 
 describe('Installer', () => {
@@ -49,6 +40,9 @@ describe('Installer', () => {
     beforeEach(() => {
       fs.mock();
       instance = makeInstance();
+      instance.settings = new SettingsFile();
+      instance.eula = new EulaFile();
+      instance.path.mockImplementation((...args) => [mockInstancePath, ...args].join('/'));
       installer = makeInstaller(instance);
     });
     afterEach(() => {
@@ -67,7 +61,9 @@ describe('Installer', () => {
       });
 
       describe('when the directory does exist', () => {
-        beforeEach(() => fs.mock({ [`${mockInstancePath}/test.txt`]: '' }));
+        beforeEach(() => {
+          fs.mock({ [`${mockInstancePath}/test.txt`]: '' });
+        });
         it('should return true', async () => {
           await expect(installer.directoryExists()).resolves.toBe(true);
         });
@@ -99,10 +95,9 @@ describe('Installer', () => {
     });
 
     describe('serverJarExists', () => {
-      it('should be a function', () => {
-        expect(installer.serverJarExists).toBeInstanceOf(Function);
+      beforeEach(() => {
+        instance.settings.read.mockImplementation(() => Promise.resolve({ serverJar: mockServerJar }));
       });
-
       describe('when the server jar does not exist', () => {
         it('should return false', async () => {
           await expect(installer.serverJarExists()).resolves.toBe(false);
@@ -180,7 +175,9 @@ describe('Installer', () => {
       });
 
       describe('when called', () => {
-        beforeEach(() => installer.eulaAgreed());
+        beforeEach(() => {
+          installer.eulaAgreed();
+        });
         it("should call the instance's eula.read method", async () => {
           expect(instance.eula.read).toHaveBeenCalled();
         });
