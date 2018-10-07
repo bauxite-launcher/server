@@ -1,5 +1,5 @@
 import nock from 'nock';
-import MinecraftReleaseListFile from '../MinecraftReleaseListFile';
+import { MinecraftReleaseListFile } from '../MinecraftReleaseListFile';
 
 const mockReleaseManifest = {
   versions: [
@@ -34,30 +34,36 @@ describe('MinecraftReleaseListFile', () => {
       instance = new MinecraftReleaseListFile();
     });
 
-    let scope;
+    let scope; // eslint-disable-line no-unused-vars
     beforeEach(() => {
       scope = nock('https://launchermeta.mojang.com')
         .get('/mc/game/version_manifest.json')
         .reply(200, mockReleaseManifest);
     });
-    afterEach(() => scope.done());
+    afterEach(() => nock.cleanAll());
 
     describe('read', () => {
       it('should return a MinecraftReleaseManifest', async () => {
-        await expect(instance.read()).resolves.toMatchObject(mockReleaseManifest);
+        await expect(instance.read()).resolves.toMatchObject(
+          mockReleaseManifest,
+        );
       });
     });
 
     describe('releases', () => {
       it('should return an array of releases', async () => {
-        await expect(instance.releases()).resolves.toEqual(mockReleaseManifest.versions);
+        await expect(instance.releases()).resolves.toEqual(
+          mockReleaseManifest.versions,
+        );
       });
     });
 
     describe('latest', () => {
       describe('called with no argument', () => {
         it('should return the latest stable release', async () => {
-          await expect(instance.latest()).resolves.toEqual(mockReleaseManifest.versions[0]);
+          await expect(instance.latest()).resolves.toEqual(
+            mockReleaseManifest.versions[0],
+          );
         });
       });
 

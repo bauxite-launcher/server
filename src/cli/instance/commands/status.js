@@ -14,7 +14,10 @@ type InstanceStatus = {
   version?: string,
 };
 
-const statusCommand: CommandHandlerDefinition<InstanceArgs, InstanceStatus> = {
+export const statusCommand: CommandHandlerDefinition<
+  InstanceArgs,
+  InstanceStatus,
+> = {
   command: 'status',
   description: 'Show the current status of the instance',
   async setup({ directory }: InstanceArgs, instance): Promise<InstanceStatus> {

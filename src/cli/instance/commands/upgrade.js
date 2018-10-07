@@ -3,9 +3,7 @@ import { type Argv } from 'yargs';
 import createCommandHandler, {
   type CommandHandlerDefinition,
 } from '../../util/commandHandler';
-import MinecraftReleasesFile from '../../../versions/MinecraftReleaseListFile';
-
-const Releases = new MinecraftReleasesFile();
+import Releases from '../../../versions/MinecraftReleaseListFile';
 
 type UpgradeArgs = {
   json?: boolean,
@@ -19,7 +17,10 @@ type UpgradeOutput = {
   newVersion: string,
 };
 
-const upgradeCommand: CommandHandlerDefinition<UpgradeArgs, UpgradeOutput> = {
+export const upgradeCommand: CommandHandlerDefinition<
+  UpgradeArgs,
+  UpgradeOutput,
+> = {
   command: 'upgrade',
   description: 'Upgrade Minecraft server',
   async setup(

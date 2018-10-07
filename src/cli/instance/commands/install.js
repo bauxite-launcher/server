@@ -3,9 +3,7 @@ import { type Argv } from 'yargs';
 import createCommandHandler, {
   type CommandHandlerDefinition,
 } from '../../util/commandHandler';
-import MinecraftReleasesFile from '../../../versions/MinecraftReleaseListFile';
-
-const Releases = new MinecraftReleasesFile();
+import Releases from '../../../versions/MinecraftReleaseListFile';
 
 type InstallArgs = {
   json?: boolean,
@@ -20,7 +18,10 @@ type InstallOutput = {
   name: string,
 };
 
-const installCommand: CommandHandlerDefinition<InstallArgs, InstallOutput> = {
+export const installCommand: CommandHandlerDefinition<
+  InstallArgs,
+  InstallOutput,
+> = {
   command: 'install',
   description: 'Install Minecraft server',
   async setup(

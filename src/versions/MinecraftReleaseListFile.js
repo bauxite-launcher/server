@@ -4,22 +4,24 @@ import RemoteFile from '../util/RemoteFile';
 const MANIFEST_URL = 'https://launchermeta.mojang.com/mc/game/version_manifest.json';
 
 type ReleaseId = string;
-type ReleaseType = "release" | "snapshot" | "old_alpha" | "old_beta";
+type ReleaseType = 'release' | 'snapshot' | 'old_alpha' | 'old_beta';
 
 type MinecraftRelease = {
   id: ReleaseId,
   url: string,
   type: ReleaseType,
   time: string,
-  releaseTime: string
+  releaseTime: string,
 };
 
 type MinecraftReleaseManifest = {
   versions: Array<MinecraftRelease>,
-  latest: { [releaseType: ReleaseType]: ReleaseId }
+  latest: { [releaseType: ReleaseType]: ReleaseId },
 };
 
-class MinecraftReleaseListFile extends RemoteFile<MinecraftReleaseManifest> {
+export class MinecraftReleaseListFile extends RemoteFile<
+  MinecraftReleaseManifest,
+> {
   static defaultUrl: string = MANIFEST_URL;
 
   static parse(rawValue: string): MinecraftReleaseManifest {
@@ -50,4 +52,4 @@ class MinecraftReleaseListFile extends RemoteFile<MinecraftReleaseManifest> {
   }
 }
 
-export default MinecraftReleaseListFile;
+export default new MinecraftReleaseListFile();
