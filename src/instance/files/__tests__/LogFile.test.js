@@ -1,4 +1,9 @@
+import fs from 'jest-plugin-fs';
+import { gzip as gzipAsync } from 'zlib';
+import { promisify } from 'util';
 import LogFile from '../LogFile';
+
+const gzip = promisify(gzipAsync);
 
 const rawLog = `
 [17:16:52] [Server thread/INFO]: Loading properties
@@ -17,6 +22,8 @@ Which might happen with errors %TEST%
 [17:16:54] [Server thread/INFO]: Loaded 571 advancements
 [17:16:58] [Server thread/INFO]: Preparing start region for dimension minecraft:overworld`;
 
+jest.mock('fs', () => require('jest-plugin-fs/mock'));
+
 describe('LogFile', () => {
   it('should be a function', () => {
     expect(LogFile).toBeInstanceOf(Function);
@@ -29,27 +36,21 @@ describe('LogFile', () => {
         result = LogFile.parse(rawLog);
       });
 
-      it('should split up a file into an array of strings', () => {
+      it('should split up a file into an array of log entries', () => {
         expect(result).toBeInstanceOf(Array);
-        result.forEach(item => expect(typeof item).toBe('string'));
-      });
-
-      it('should filter any empty lines', () => {
-        result.forEach(item => expect(item.length).toBeGreaterThan(1));
+        result.forEach(item => expect(item).toBeInstanceOf(Object));
       });
 
       it('should handle multiline entries', () => {
-        expect(result[3]).toContain('%TEST');
-        expect(result[5]).not.toContain('%TEST%');
+        expect(result[3].text).toContain('%TEST%');
+        expect(result[5].text).not.toContain('%TEST%');
       });
     });
 
     describe('parseItem', () => {
-      let rawLines;
       let parsedLines;
       beforeEach(() => {
-        rawLines = LogFile.parse(rawLog);
-        parsedLines = rawLines.map(line => LogFile.parseItem(line));
+        parsedLines = LogFile.parse(rawLog);
       });
 
       it('should convert each line to an object', () => {
@@ -80,6 +81,48 @@ describe('LogFile', () => {
           expect(entry).toHaveProperty('logLevel');
           expect(entry.logLevel).toBeDefined();
         });
+      });
+    });
+  });
+
+  describe('class methods', () => {
+    let instance;
+    afterEach(() => fs.restore());
+
+    describe('with uncompressed logfile', () => {
+      beforeEach(async () => {
+        fs.mock({
+          './logs/latest.log': rawLog,
+        });
+        instance = new LogFile('/logs/latest.log');
+      });
+
+      it('should automatically set logfile flag to false', () => {
+        expect(instance).toHaveProperty('compressed', false);
+      });
+
+      describe('read', () => {
+        it('should return an array of objects', async () => {
+          const result = await instance.read();
+          expect(result).toBeInstanceOf(Array);
+          result.forEach(item => expect(item).toBeInstanceOf(Object));
+        });
+      });
+    });
+
+    describe('with compressed logfile', () => {
+      beforeEach(async () => {
+        fs.mock(
+          {
+            './2018-01-01-1.log.gz': (await gzip(rawLog)).toString('utf8'),
+          },
+          'logs',
+        );
+        instance = new LogFile('./logs/latest.log');
+      });
+
+      it('should automatically set logfile flag to false', () => {
+        expect(instance).toHaveProperty('compressed', false);
       });
     });
   });

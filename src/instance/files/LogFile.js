@@ -64,8 +64,8 @@ export function parseLogEntry(symbols: Array<string>): LogEntry {
 class LogFile extends JsonCollectionFile<LogEntry, RawLogEntry> {
   compressed: boolean;
 
-  static parse(rawFile: string): Array<RawLogEntry> {
-    return rawFile
+  static parse(rawFile: string): Array<LogEntry> {
+    const rawCollection: Array<RawLogEntry> = rawFile
       .split(/\r?\n/g)
       .map(line => line.trim())
       .filter(Boolean)
@@ -78,6 +78,7 @@ class LogFile extends JsonCollectionFile<LogEntry, RawLogEntry> {
         }
         return acc;
       }, []);
+    return rawCollection.map(item => this.parseItem(item));
   }
 
   static parseItem(rawEntry: RawLogEntry): LogEntry {
