@@ -89,5 +89,21 @@ describe('createCommandHandler', () => {
         expect(process.stdout.write).toHaveBeenCalledWith('/\nfoo\n');
       });
     });
+
+    describe('when render throws an error', () => {
+      beforeEach(() => {
+        handlerDefinition.render = jest.fn(() => {
+          throw new Error('Whoops!');
+        });
+        instance = createCommandHandler(handlerDefinition);
+        instance.handler(argv);
+      });
+      it('should call renderError with that error', () => {
+        expect(handlerDefinition.renderError).toHaveBeenCalledTimes(1);
+        expect(handlerDefinition.renderError.mock.calls[0][0]).toBeInstanceOf(
+          Error,
+        );
+      });
+    });
   });
 });
