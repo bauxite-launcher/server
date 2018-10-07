@@ -23,6 +23,11 @@ export const upgradeCommand: CommandHandlerDefinition<
 > = {
   command: 'upgrade',
   description: 'Upgrade Minecraft server',
+  builder: {
+    minecraftVersion: {
+      type: 'string',
+    },
+  },
   async setup(
     { json = false, minecraftVersion: inputVersion, $0 }: Argv<UpgradeArgs>,
     instance,
