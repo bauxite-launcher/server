@@ -2,6 +2,8 @@ import createCommandHandler from '../commandHandler';
 
 jest.mock('../../../instance/Instance');
 
+// TODO: Test '--json' functionality
+
 describe('createCommandHandler', () => {
   let handlerDefinition;
   let instance;

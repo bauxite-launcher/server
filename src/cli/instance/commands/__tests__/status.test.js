@@ -7,6 +7,8 @@ jest.mock('../../../../instance/Instance');
 jest.mock('../../../../instance/Process');
 jest.mock('../../../../instance/files/SettingsFile');
 
+// TODO: Test render method
+
 describe('status command', () => {
   let instance;
   beforeEach(() => {
@@ -73,7 +75,7 @@ describe('status command', () => {
           expect(instance.settings.read).toHaveBeenCalledTimes(1);
         });
 
-        it('should return an object with the directory installed: false, running: true', () => {
+        it('should return an object with the directory installed: true, running: false', () => {
           expect(result).toMatchObject({
             directory: '/',
             installed: true,
@@ -102,7 +104,7 @@ describe('status command', () => {
           expect(instance.process.getProcessId).toHaveBeenCalledTimes(1);
         });
 
-        it('should return an object with the directory installed: false, running: true', () => {
+        it('should return an object with the directory installed: true, running: true', () => {
           expect(result).toMatchObject({
             directory: '/',
             installed: true,
