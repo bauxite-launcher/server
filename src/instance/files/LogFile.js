@@ -85,7 +85,7 @@ class LogFile extends JsonCollectionFile<LogEntry, RawLogEntry> {
     return parseLogEntry(parts);
   }
 
-  constructor(path: string, compressed?: boolean = false) {
+  constructor(path: string, compressed?: boolean = path.endsWith('.gz')) {
     super(path, compressed ? null : 'utf8');
     this.compressed = compressed;
   }
