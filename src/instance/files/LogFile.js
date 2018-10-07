@@ -1,5 +1,9 @@
 // @flow
+import { gunzip as gunzipAsync } from 'zlib';
+import { promisify } from 'util';
 import JsonCollectionFile from '../../util/JsonCollectionFile';
+
+const gunzip: (Buffer | string) => string = promisify(gunzipAsync);
 
 export type RawLogEntry = string;
 
@@ -58,6 +62,8 @@ export function parseLogEntry(symbols: Array<string>): LogEntry {
 }
 
 class LogFile extends JsonCollectionFile<LogEntry, RawLogEntry> {
+  compressed: boolean;
+
   static parse(rawFile: string): Array<RawLogEntry> {
     return rawFile
       .split(/\r?\n/g)
@@ -79,8 +85,18 @@ class LogFile extends JsonCollectionFile<LogEntry, RawLogEntry> {
     return parseLogEntry(parts);
   }
 
+  constructor(path: string, compressed?: boolean = false) {
+    super(path, compressed ? null : 'utf8');
+    this.compressed = compressed;
+  }
+
   async writeRaw() {
     throw new Error(`LogFile is not writable (${this.path})`);
+  }
+
+  async readRaw() {
+    const raw = await super.readRaw();
+    return this.compressed ? gunzip(raw) : raw;
   }
 }
 
