@@ -11,8 +11,9 @@ export type RawLogEntry = string;
 
 export type LogEntry = {
   time: string,
-  category: Array<string>,
   logLevel: 'WARN' | 'ERROR' | 'INFO' | ?string,
+  thread: string,
+  category: Array<string>,
   text: string,
 };
 
@@ -59,17 +60,23 @@ export function parseLogEntry(symbols: Array<string>): LogEntry {
     /* eslint-enable no-fallthrough */
   });
   const [time, baseCategory, ...categories] = bracketContents;
-
-  let category = baseCategory;
+  let thread = baseCategory;
   let logLevel;
   if (baseCategory && baseCategory.includes('/')) {
-    [category, logLevel] = baseCategory.split('/');
+    [thread, logLevel] = baseCategory.split('/');
   }
   const text = bodyBuffer.join('');
+  const deduplicatedCategories = categories.reduce((acc, cat) => {
+    if (acc.includes(cat)) {
+      return acc;
+    }
+    return acc.concat([cat]);
+  }, []);
   return {
     time,
     text,
-    category: [category, ...categories],
+    thread,
+    category: deduplicatedCategories,
     logLevel,
   };
 }

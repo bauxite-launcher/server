@@ -13,10 +13,12 @@ type LogsArgs = {
   date?: Date,
   level?: LogLevel,
   tail?: boolean,
+  emoji?: boolean,
 };
 type LogsOutput =
   | {
       level: ?LogLevel,
+      emoji: boolean,
       files: Array<{
         name: string,
         lines?: ?number,
@@ -26,10 +28,21 @@ type LogsOutput =
     }
   | { tail: true };
 
+const logLevelEmojis = {
+  INFO: 'ℹ️',
+  WARN: '⚠️',
+  ERROR: '💢',
+};
+
 function renderLogItem({
-  time, logLevel, category, text,
-}) {
-  return `[${time}] ${logLevel || 'INFO'} {${category.join('|')}} ─ ${text}`;
+  time, thread, logLevel, category, text,
+}, { emoji }) {
+  return emoji
+    ? `[${time}] ${logLevelEmojis[logLevel || 'INFO']
+        || '❓'} (${thread}) ${category.map(cat => `{${cat}}`).join(' ')}  ${text}`
+    : `[${time}] ${logLevel || 'INFO'} (${thread}) ${
+      category.length ? `{${category.join('|')}} ` : ''
+    }─ ${text}`;
 }
 
 export const logsCommand: CommandHandlerDefinition<LogsArgs, LogsOutput> = {
@@ -56,13 +69,18 @@ export const logsCommand: CommandHandlerDefinition<LogsArgs, LogsOutput> = {
         type: 'boolean',
         description: 'Provide a live stream from the log file',
       },
+      emoji: {
+        type: 'boolean',
+        description: 'Use emojis in output',
+        default: true,
+      },
     })
     .conflicts({
       tail: ['json', 'lines', 'date'],
     }),
   async setup(
     {
-      lines, date, level, tail,
+      lines, date, level, tail, emoji = true,
     }: Argv<LogsArgs>,
     instance,
   ): Promise<LogsOutput> {
@@ -70,7 +88,10 @@ export const logsCommand: CommandHandlerDefinition<LogsArgs, LogsOutput> = {
       // Promise that never resolves, so that we continue until the user kills the process (with Ctrl+C)
       const latestLogFile = await instance.logs.getLatest();
       await new Promise((resolve, reject) => {
-        latestLogFile.tail(line => console.log(renderLogItem(line)), reject);
+        latestLogFile.tail(
+          line => console.log(renderLogItem(line, { emoji })),
+          reject,
+        );
       });
     }
     const logFiles: Array<LogFile> = date
@@ -78,7 +99,7 @@ export const logsCommand: CommandHandlerDefinition<LogsArgs, LogsOutput> = {
       : [await instance.logs.getLatest()];
 
     if (!logFiles.length) {
-      return { level, files: [] };
+      return { level, emoji, files: [] };
     }
     const logContent = await Promise.all(
       logFiles.map(async file => ({
@@ -89,6 +110,7 @@ export const logsCommand: CommandHandlerDefinition<LogsArgs, LogsOutput> = {
     );
     return {
       level,
+      emoji: emoji || false,
       files: logContent.map(
         ({
           entries,
@@ -124,7 +146,7 @@ export const logsCommand: CommandHandlerDefinition<LogsArgs, LogsOutput> = {
         `\n--[${
           lines ? `Last ${lines} entries from` : 'All entries from'
         } ${name}]--`,
-        ...entries.map(renderLogItem),
+        ...entries.map(line => renderLogItem(line, { emoji: result.emoji })),
       ])
       .reduce((acc, item) => acc.concat(item), []);
   },
