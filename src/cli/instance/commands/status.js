@@ -1,7 +1,7 @@
 // @flow
 import createCommandHandler, {
   type CommandHandlerDefinition,
-} from '../../util/commandHandler';
+} from '../commandHandler';
 
 type InstanceArgs = {
   directory: string,

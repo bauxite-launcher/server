@@ -2,7 +2,7 @@
 import { type Argv } from 'yargs';
 import createCommandHandler, {
   type CommandHandlerDefinition,
-} from '../../util/commandHandler';
+} from '../commandHandler';
 
 type StopArgs = {
   json?: boolean,

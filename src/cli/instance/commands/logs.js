@@ -3,7 +3,7 @@ import { type Argv } from 'yargs';
 import parseDate from 'date-fns/parse';
 import createCommandHandler, {
   type CommandHandlerDefinition,
-} from '../../util/commandHandler';
+} from '../commandHandler';
 import LogFile, { type LogEntry } from '../../../instance/files/LogFile';
 
 const LogLevels = { ERROR: 1, INFO: 2, WARN: 3 };
