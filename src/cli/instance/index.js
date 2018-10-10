@@ -33,7 +33,6 @@ const argParser = yargs
     json: {
       type: 'boolean',
       global: true,
-      default: false,
       description: 'Output results as a JSON object',
     },
   })
