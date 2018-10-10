@@ -107,5 +107,19 @@ describe('createCommandHandler', () => {
         );
       });
     });
+
+    describe('when the --json flag is passed', () => {
+      beforeEach(() => {
+        instance = createCommandHandler(handlerDefinition);
+        instance.handler({ ...argv, json: true });
+      });
+
+      it('should log the result as valid JSON', () => {
+        expect(process.stdout.write).toHaveBeenCalledTimes(1);
+        expect(JSON.parse(process.stdout.write.mock.calls[0][0])).toMatchObject(
+          { argv: { ...argv, json: true } },
+        );
+      });
+    });
   });
 });
