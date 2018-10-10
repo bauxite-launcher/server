@@ -34,7 +34,7 @@ function renderLogItem({
 
 export const logsCommand: CommandHandlerDefinition<LogsArgs, LogsOutput> = {
   command: 'logs',
-  description: 'Logs Minecraft server',
+  description: 'Displays logs from the Minecraft server',
   builder: {
     lines: {
       type: 'number',
