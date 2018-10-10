@@ -12,7 +12,7 @@ declare module 'yargs' {
     array: boolean,
     boolean: boolean,
     choices: Array<mixed>,
-    coerce: (arg: mixed) => mixed,
+    coerce: (arg: *) => mixed,
     config: boolean,
     configParser: (configPath: string) => { [key: $Keys<T>]: mixed },
     conflicts: string | { [key: $Keys<T>]: string },

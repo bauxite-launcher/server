@@ -8,6 +8,7 @@ import {
   UpgradeCommand,
   StartCommand,
   StopCommand,
+  LogsCommand,
 } from './commands';
 
 const commands: Array<ModuleObject<*>> = [
@@ -16,6 +17,7 @@ const commands: Array<ModuleObject<*>> = [
   UpgradeCommand,
   StartCommand,
   StopCommand,
+  LogsCommand,
 ];
 
 const argParser = yargs

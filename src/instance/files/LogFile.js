@@ -1,6 +1,8 @@
 // @flow
 import { gunzip as gunzipAsync } from 'zlib';
 import { promisify } from 'util';
+import { readFile } from 'fs-extra';
+import { Tail } from 'tail';
 import JsonCollectionFile from '../../util/JsonCollectionFile';
 
 const gunzip: (Buffer | string) => string = promisify(gunzipAsync);
@@ -64,6 +66,10 @@ export function parseLogEntry(symbols: Array<string>): LogEntry {
 class LogFile extends JsonCollectionFile<LogEntry, RawLogEntry> {
   compressed: boolean;
 
+  tailFileCache: ?Tail;
+
+  tailFile: Tail;
+
   static parse(rawFile: string): Array<LogEntry> {
     const rawCollection: Array<RawLogEntry> = rawFile
       .split(/\r?\n/g)
@@ -96,17 +102,63 @@ class LogFile extends JsonCollectionFile<LogEntry, RawLogEntry> {
   }
 
   async readRaw() {
-    const raw = await super.readRaw();
     if (!this.compressed) {
-      return raw;
+      return super.readRaw();
     }
-    const uncompressed = await gunzip(raw);
+    const uncompressed = await gunzip(await readFile(this.path));
     return uncompressed.toString();
   }
 
   async readLast(lines: number): Promise<Array<LogEntry>> {
     const all = await this.read();
     return all.slice(-lines);
+  }
+
+  get tailFile() {
+    if (!this.tailFileCache) {
+      this.tailFileCache = new Tail(this.path);
+    }
+    return this.tailFileCache;
+  }
+
+  // TODO: Unit tests (!)
+  tail(
+    lineCallback: LogEntry => void,
+    errorCallback: Error => void,
+  ): () => void {
+    const parseAndCallback = line => lineCallback(this.constructor.parseItem(line));
+    let lineBuffer = [];
+    const handleLine = (line) => {
+      if (line.startsWith('[')) {
+        if (lineBuffer.length) {
+          parseAndCallback(lineBuffer.join('\n'));
+          lineBuffer = [];
+        }
+        parseAndCallback(line);
+      } else {
+        lineBuffer.push(line);
+      }
+    };
+
+    return this.tailRaw(handleLine, errorCallback);
+  }
+
+  tailFileWatcherCount = 0;
+
+  tailRaw(
+    lineCallback: string => void,
+    errorCallback: Error => void,
+  ): () => void {
+    this.tailFile.watch();
+    this.tailFileWatcherCount += 1;
+    this.tailFile.on('line', lineCallback).on('error', errorCallback);
+    return () => {
+      this.tailFileWatcherCount -= 1;
+      if (!this.tailFileWatcherCount) {
+        this.tailFile.unwatch();
+      }
+      this.tailFile.off('line', lineCallback).off('error', errorCallback);
+    };
   }
 }
 
