@@ -35,6 +35,47 @@ export type InstallState =
 
 export type InstallStateSubscriber = (newState: InstallState) => void;
 
+class InstanceAlreadyInstalledError extends Error {
+  instance: Instance;
+
+  constructor(instance: Instance) {
+    super();
+    this.instance = instance;
+    this.message = this.generateMessage();
+  }
+
+  generateMessage() {
+    return `Cannot install a fresh instance of Minecraft, because there is an existing installation:
+  - Path: ${this.instance.path()}`;
+  }
+}
+
+class NoServerJarAvailableError extends Error {
+  instance: Instance;
+
+  minecraftVersion: string;
+
+  downloads: Object;
+
+  constructor(instance: Instance, minecraftVersion: string, downloads: Object) {
+    super();
+    this.instance = instance;
+    this.minecraftVersion = minecraftVersion;
+    this.downloads = downloads;
+    this.message = this.generateMessage();
+  }
+
+  generateMessage() {
+    return `No download URL was provided for the server binary in the Minecraft ${
+      this.minecraftVersion
+    } release manifest:
+
+Expected download manifest to be an object containing a string at "server.url" but instead got:
+
+${JSON.stringify(this.downloads)}`;
+  }
+}
+
 class Installer {
   instance: Instance;
 
@@ -88,7 +129,7 @@ class Installer {
   ): Promise<void> {
     await this.ensureDirectoryExists();
     if (!force && (await this.getState()).stage === InstallStage.Installed) {
-      throw new Error('Instance is already installed');
+      throw new InstanceAlreadyInstalledError(this.instance);
     }
 
     // Download
@@ -132,8 +173,10 @@ class Installer {
       minecraftVersion,
     );
     if (!downloads || !downloads.server || !downloads.server.url) {
-      throw new Error(
-        `No server JAR file available for Minecraft v${minecraftVersion}`,
+      throw new NoServerJarAvailableError(
+        this.instance,
+        minecraftVersion,
+        downloads,
       );
     }
 
