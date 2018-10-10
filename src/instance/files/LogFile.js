@@ -11,33 +11,44 @@ export type RawLogEntry = string;
 
 export type LogEntry = {
   time: string,
-  category: Array<string>,
   logLevel: 'WARN' | 'ERROR' | 'INFO' | ?string,
+  thread: string,
+  category: Array<string>,
   text: string,
 };
 
 export function parseLogEntry(symbols: Array<string>): LogEntry {
   let bracketsDeep = 0;
   let bracketBuffer = [];
+  let hadBrackets = false;
   const bracketContents = [];
   const bodyBuffer = [];
   symbols.forEach((symbol) => {
+    /* eslint-disable no-fallthrough */
     switch (symbol.trim()) {
       case '[':
-        bracketsDeep += 1;
-        return;
+        if (!hadBrackets) {
+          hadBrackets = true;
+          bracketsDeep += 1;
+          return;
+        }
       case '] [':
-        bracketContents.push(bracketBuffer.join(''));
-        bracketBuffer = [];
-        return;
-      case ']':
-      case ']:':
-        bracketsDeep -= 1;
-        if (!bracketsDeep) {
+      case ']: [':
+        if (!(hadBrackets && !bracketsDeep)) {
           bracketContents.push(bracketBuffer.join(''));
           bracketBuffer = [];
+          return;
         }
-        return;
+      case ']':
+      case ']:':
+        if (!(hadBrackets && !bracketsDeep)) {
+          bracketsDeep -= 1;
+          if (!bracketsDeep) {
+            bracketContents.push(bracketBuffer.join(''));
+            bracketBuffer = [];
+          }
+          return;
+        }
       default:
         if (bracketsDeep) {
           bracketBuffer.push(symbol);
@@ -46,19 +57,26 @@ export function parseLogEntry(symbols: Array<string>): LogEntry {
         }
         break;
     }
+    /* eslint-enable no-fallthrough */
   });
   const [time, baseCategory, ...categories] = bracketContents;
-
-  let category = baseCategory;
+  let thread = baseCategory;
   let logLevel;
   if (baseCategory && baseCategory.includes('/')) {
-    [category, logLevel] = baseCategory.split('/');
+    [thread, logLevel] = baseCategory.split('/');
   }
   const text = bodyBuffer.join('');
+  const deduplicatedCategories = categories.reduce((acc, cat) => {
+    if (acc.includes(cat)) {
+      return acc;
+    }
+    return acc.concat([cat]);
+  }, []);
   return {
     time,
     text,
-    category: [category, ...categories],
+    thread,
+    category: deduplicatedCategories,
     logLevel,
   };
 }
