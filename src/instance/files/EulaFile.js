@@ -1,5 +1,5 @@
 // @flow
-import TextFile from '../../util/TextFile';
+import TextFile from '../../util/file/TextFile';
 import pkg from '../../../package.json';
 
 class EulaFile extends TextFile<boolean> {

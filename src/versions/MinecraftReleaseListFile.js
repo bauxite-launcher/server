@@ -1,5 +1,5 @@
 // @flow
-import RemoteFile from '../util/RemoteFile';
+import RemoteFile from '../util/file/RemoteFile';
 
 const MANIFEST_URL = 'https://launchermeta.mojang.com/mc/game/version_manifest.json';
 

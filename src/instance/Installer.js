@@ -7,8 +7,8 @@ import {
 import Instance from './Instance';
 import MinecraftRelease from '../versions/MinecraftReleaseFile';
 import { type PartialSettings } from './files/SettingsFile';
-import RemoteFile from '../util/RemoteFile';
-import TextFile from '../util/TextFile';
+import RemoteFile from '../util/file/RemoteFile';
+import TextFile from '../util/file/TextFile';
 
 export const InstallStage = {
   NotInstalled: Symbol('NotInstalled'),

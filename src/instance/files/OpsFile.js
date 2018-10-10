@@ -1,11 +1,11 @@
 // @flow
-import JsonCollectionFile from '../../util/JsonCollectionFile';
+import JsonCollectionFile from '../../util/file/JsonCollectionFile';
 
 export type OpsEntry = {
   uuid: string,
   name: string,
   level: 1 | 2 | 3 | 4,
-  bypassesPlayerLimit: boolean
+  bypassesPlayerLimit: boolean,
 };
 
 class OpsFile extends JsonCollectionFile<OpsEntry> {

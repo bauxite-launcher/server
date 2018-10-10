@@ -1,6 +1,6 @@
 // @flow
 
-import JsonCollectionFile from '../../util/JsonCollectionFile';
+import JsonCollectionFile from '../../util/file/JsonCollectionFile';
 
 export type WhitelistEntry = {
   uuid: string,

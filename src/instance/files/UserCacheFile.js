@@ -1,6 +1,6 @@
 // @flow
 import parseDate from 'date-fns/parse';
-import JsonCollectionFile from '../../util/JsonCollectionFile';
+import JsonCollectionFile from '../../util/file/JsonCollectionFile';
 
 export type RawCachedUser = {
   name: string,

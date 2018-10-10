@@ -3,7 +3,7 @@ import { gunzip as gunzipAsync } from 'zlib';
 import { promisify } from 'util';
 import { readFile } from 'fs-extra';
 import { Tail } from 'tail';
-import JsonCollectionFile from '../../util/JsonCollectionFile';
+import JsonCollectionFile from '../../util/file/JsonCollectionFile';
 
 const gunzip: (Buffer | string) => string = promisify(gunzipAsync);
 

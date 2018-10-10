@@ -1,6 +1,6 @@
 import fs from 'jest-plugin-fs';
 import WhitelistFile from '../WhitelistFile';
-import TextFile from '../../../util/TextFile';
+import TextFile from '../../../util/file/TextFile';
 
 jest.mock('fs', () => require('jest-plugin-fs/mock'));
 

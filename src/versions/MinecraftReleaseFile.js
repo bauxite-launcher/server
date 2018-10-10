@@ -1,6 +1,6 @@
 // @flow
 import Releases from './MinecraftReleaseListFile';
-import RemoteFile from '../util/RemoteFile';
+import RemoteFile from '../util/file/RemoteFile';
 
 /**
  * There's a lot more to the actual version manifest, but we only care

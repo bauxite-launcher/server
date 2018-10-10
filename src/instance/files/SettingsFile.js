@@ -1,13 +1,13 @@
 // @flow
 
-import JsonFile from '../../util/JsonFile';
+import JsonFile from '../../util/file/JsonFile';
 
 export type Settings = {
   name: string,
   minecraftVersion: string,
   serverJar?: string,
   javaArgs?: Array<string>,
-  javaBin?: string
+  javaBin?: string,
 };
 
 export type PartialSettings = {
@@ -15,7 +15,7 @@ export type PartialSettings = {
   minecraftVersion?: string,
   serverJar?: string,
   javaArgs?: Array<string>,
-  javaBin?: string
+  javaBin?: string,
 };
 
 class SettingsFile extends JsonFile<Settings> {

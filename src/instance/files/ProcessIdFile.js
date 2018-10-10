@@ -1,6 +1,6 @@
 // @flow
 
-import TextFile from '../../util/TextFile';
+import TextFile from '../../util/file/TextFile';
 
 class ProcessIdFile extends TextFile<?number> {
   static async parse(rawValue: string) {
