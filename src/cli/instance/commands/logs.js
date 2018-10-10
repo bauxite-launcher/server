@@ -35,29 +35,31 @@ function renderLogItem({
 export const logsCommand: CommandHandlerDefinition<LogsArgs, LogsOutput> = {
   command: 'logs',
   description: 'Displays logs from the Minecraft server',
-  builder: {
-    lines: {
-      type: 'number',
-      conflicts: 'tail',
-      description:
-        'The number of lines to show. If omitted, all will be shown.',
-    },
-    date: {
-      type: 'string',
-      conflicts: 'tail',
-      description:
-        'The date from which to show the logs. If omitted, the latest will be shown.',
-      coerce: (value: string): Date => parseDate(value),
-    },
-    level: {
-      type: 'string',
-      description: 'The minimum log level to show',
-    },
-    tail: {
-      type: 'boolean',
-      default: false,
-    },
-  },
+  builder: yargs => yargs
+    .options({
+      lines: {
+        type: 'number',
+        description:
+            'The number of lines to show. If omitted, all will be shown.',
+      },
+      date: {
+        type: 'string',
+        description:
+            'The date from which to show the logs. If omitted, the latest will be shown.',
+        coerce: (value: string): Date => parseDate(value),
+      },
+      level: {
+        type: 'string',
+        description: 'The minimum log level to show',
+      },
+      tail: {
+        type: 'boolean',
+        description: 'Provide a live stream from the log file',
+      },
+    })
+    .conflicts({
+      tail: ['json', 'lines', 'date'],
+    }),
   async setup(
     {
       lines, date, level, tail,
@@ -68,9 +70,7 @@ export const logsCommand: CommandHandlerDefinition<LogsArgs, LogsOutput> = {
       // Promise that never resolves, so that we continue until the user kills the process (with Ctrl+C)
       const latestLogFile = await instance.logs.getLatest();
       await new Promise((resolve, reject) => {
-        latestLogFile.tail((line) => {
-          console.log(renderLogItem(line));
-        }, reject);
+        latestLogFile.tail(line => console.log(renderLogItem(line)), reject);
       });
     }
     const logFiles: Array<LogFile> = date
