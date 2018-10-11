@@ -1,13 +1,15 @@
 // @flow
 import { type ModuleObject, type Argv, type ModuleBuilder } from 'yargs';
 import { resolve as resolvePath } from 'path';
+import stripAnsi from 'strip-ansi';
 import MinecraftInstance from '../../instance/Instance';
 
 type ErrorRenderer = (error: Error, argv: *) => string | Array<?string>;
 const defaultErrorRenderer: ErrorRenderer = (error: Error) => `Something went wrong:\n\t${error.message}`;
-const logToConsole = (result: string | Array<?string>) => {
+const logToConsole = (result: string | Array<?string>, colour?: boolean) => {
   const output = result instanceof Array ? result.join('\n') : result;
-  process.stdout.write(`${output}\n`);
+  const formatted = colour ? output : stripAnsi(output);
+  process.stdout.write(`${formatted}\n`);
 };
 
 export type CommandHandlerDefinition<T, U> = {
@@ -42,11 +44,11 @@ export default function createCommandHandler<T: Object, U: Object>({
   }
 
   async function tryHandler(
-    argv: Argv<T & { json: boolean }>,
+    argv: Argv<T & { json: boolean, color: boolean }>,
     instance: MinecraftInstance,
   ): Promise<void> {
     try {
-      logToConsole(await handler(argv, instance));
+      logToConsole(await handler(argv, instance), argv.color);
     } catch (error) {
       const errorRenderer = renderError || defaultErrorRenderer;
       const renderedError = errorRenderer(error, argv);
