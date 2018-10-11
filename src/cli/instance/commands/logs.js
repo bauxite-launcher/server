@@ -71,7 +71,7 @@ export const logsCommand: CommandHandlerDefinition<LogsArgs, LogsOutput> = {
         type: 'string',
         description:
             'The date from which to show the logs. If omitted, the latest will be shown.',
-        coerce: (value: string): Date => parseDate(value),
+        coerce: parseDate,
       },
       level: {
         type: 'string',
