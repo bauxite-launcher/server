@@ -6,7 +6,10 @@ export const definitionTerm = (term: ?string): string => (term ? chalk.white(`${
 // $FlowIgnore -- dynamic colour without indexer in Chalk libdef
 export const definitionValue = (value: ?string, colour: ?string = 'cyan') => (value ? chalk[colour](value) : '');
 
-export const definitionList = (obj: { [key: string]: ?string }): string => {
+export const definitionList = (
+  obj: { [key: string]: ?string },
+  padding?: number = 3,
+): string => {
   const longestKey = Object.keys(obj).reduce(
     (acc, curr) => (acc > curr.length ? acc : curr.length),
     0,
@@ -15,7 +18,7 @@ export const definitionList = (obj: { [key: string]: ?string }): string => {
     .map(
       ([term, value]) => (value
         ? [definitionTerm(term), definitionValue(value)].join(
-          Array(3 + longestKey - term.length)
+          Array(padding + longestKey - term.length)
             .fill(' ')
             .join(''),
         )
