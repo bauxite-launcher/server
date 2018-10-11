@@ -1,5 +1,6 @@
 // @flow
 import { type Argv } from 'yargs';
+import chalk from 'chalk';
 import createCommandHandler, {
   type CommandHandlerDefinition,
 } from '../commandHandler';
@@ -26,7 +27,7 @@ export const startCommand: CommandHandlerDefinition<StartArgs, StartOutput> = {
     }
 
     if (!json) {
-      console.log('Starting Minecraft server…');
+      console.log(chalk.cyan('Starting Minecraft server…'));
     }
 
     await instance.launch();
@@ -37,7 +38,11 @@ export const startCommand: CommandHandlerDefinition<StartArgs, StartOutput> = {
     return { started: true, pid };
   },
   render({ pid }) {
-    return `Successfully started Minecraft server (process ID: ${pid})`;
+    return chalk.green(
+      `Successfully started Minecraft server (process ID: ${chalk.white(
+        pid.toString(),
+      )})!`,
+    );
   },
 };
 

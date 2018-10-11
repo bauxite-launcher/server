@@ -1,6 +1,7 @@
 // @flow
 import { type Argv } from 'yargs';
 import parseDate from 'date-fns/parse';
+import chalk from 'chalk';
 import createCommandHandler, {
   type CommandHandlerDefinition,
 } from '../commandHandler';
@@ -34,15 +35,26 @@ const logLevelEmojis = {
   ERROR: '💢',
 };
 
+const logLevelColours = {
+  INFO: 'cyan',
+  WARN: 'yellow',
+  ERROR: 'red',
+};
+
 function renderLogItem({
   time, thread, logLevel, category, text,
 }, { emoji }) {
-  return emoji
-    ? `[${time}] ${logLevelEmojis[logLevel || 'INFO']
-        || '❓'} (${thread}) ${category.map(cat => `{${cat}}`).join(' ')}  ${text}`
-    : `[${time}] ${logLevel || 'INFO'} (${thread}) ${
-      category.length ? `{${category.join('|')}} ` : ''
-    }─ ${text}`;
+  // $FlowIgnore -- no indexer within chalk, but only using explicit keys
+  return chalk[logLevelColours[logLevel || 'INFO'] || 'gray'](
+    emoji
+      ? `[${time}] ${logLevelEmojis[logLevel || 'INFO']
+          || '❓'} (${thread}) ${category
+        .map(cat => `{${cat}}`)
+        .join(' ')}  ${chalk.white(text)}`
+      : `[${time}] ${logLevel || 'INFO'} (${thread}) ${
+        category.length ? `{${category.join('|')}} ` : ''
+      }─ ${chalk.white(text)}`,
+  );
 }
 
 export const logsCommand: CommandHandlerDefinition<LogsArgs, LogsOutput> = {
@@ -59,7 +71,7 @@ export const logsCommand: CommandHandlerDefinition<LogsArgs, LogsOutput> = {
         type: 'string',
         description:
             'The date from which to show the logs. If omitted, the latest will be shown.',
-        coerce: (value: string): Date => parseDate(value),
+        coerce: parseDate,
       },
       level: {
         type: 'string',

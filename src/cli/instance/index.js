@@ -35,6 +35,13 @@ const argParser = yargs
       global: true,
       description: 'Output results as a JSON object',
     },
+    color: {
+      type: 'boolean',
+      global: true,
+      description: 'Whether to use colours in the output',
+      default: true,
+      alias: ['colour'],
+    },
   })
   .env('BAUXITE')
   .demandCommand(1, '')

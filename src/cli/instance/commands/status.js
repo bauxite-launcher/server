@@ -2,6 +2,7 @@
 import createCommandHandler, {
   type CommandHandlerDefinition,
 } from '../commandHandler';
+import { definitionList, booleanValue, integerValue } from './util/components';
 
 type InstanceArgs = {
   directory: string,
@@ -39,20 +40,20 @@ export const statusCommand: CommandHandlerDefinition<
   render({
     directory,
     installed,
-    running,
+    running = false,
     version,
     processId,
   }: InstanceStatus) {
-    const header = `Directory:\t\t${directory}`;
+    const header = { Directory: directory, Installed: booleanValue(installed) };
+
     const body = installed
-      ? [
-        'Installed:\t\tYes',
-        `Running:\t\t${running ? 'Yes' : 'No'}`,
-        processId ? `Process ID:\t\t${processId}` : '',
-        version ? `Minecraft Version:\t${version}` : '',
-      ]
-      : ['Installed:\tNo'];
-    return [header, ...body];
+      ? {
+        Running: booleanValue(running),
+        'Process ID': integerValue(processId),
+        'MC Version': version,
+      }
+      : {};
+    return definitionList({ ...header, ...body });
   },
 };
 

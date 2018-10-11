@@ -1,5 +1,6 @@
 // @flow
 import { type Argv } from 'yargs';
+import chalk from 'chalk';
 import createCommandHandler, {
   type CommandHandlerDefinition,
 } from '../commandHandler';
@@ -22,14 +23,14 @@ export const stopCommand: CommandHandlerDefinition<StopArgs, StopOutput> = {
     }
 
     if (!json) {
-      console.log('Stopping Minecraft server…');
+      console.log(chalk.cyan('Stopping Minecraft server…'));
     }
 
     await instance.kill();
     return { stopped: true };
   },
   render() {
-    return 'Successfully stopped Minecraft server';
+    return chalk.green('Successfully stopped Minecraft server!');
   },
 };
 
