@@ -1,6 +1,7 @@
 // @flow
 import { type Argv } from 'yargs';
 import chalk from 'chalk';
+import { taskProgress } from './util/components';
 import createCommandHandler, {
   type CommandHandlerDefinition,
 } from '../commandHandler';
@@ -53,7 +54,9 @@ export const installCommand: CommandHandlerDefinition<
     if (!version) {
       if (!json) {
         console.warn(
-          'No Minecraft version specified, will use latest stable version',
+          chalk.yellow(
+            'No Minecraft version specified, will use latest stable version',
+          ),
         );
       }
       const latest = await Releases.latest('release');
@@ -66,7 +69,11 @@ export const installCommand: CommandHandlerDefinition<
     let name = inputName;
     if (!name) {
       if (!json) {
-        console.warn('No name specified for instance, falling back to default');
+        console.warn(
+          chalk.yellow(
+            'No name specified for instance, falling back to default',
+          ),
+        );
       }
       name = `Unnamed ${version}`;
     }
@@ -81,22 +88,7 @@ export const installCommand: CommandHandlerDefinition<
       version,
       !json
         ? ({ progress }) => {
-          if (progress) {
-            const {
-              transferred, length, percentage, speed, eta,
-            } = progress;
-            process.stdout.write(
-              chalk.white(
-                `\r ${chalk.gray('-')} Downloading ${Math.round(
-                  transferred / (1024 * 1024),
-                )}MB/${Math.round(length / (1024 * 1024))}MB (${Math.round(
-                  percentage,
-                )}%) at ${Math.round(speed / 1024)}kBps ─ ${Math.round(
-                  eta,
-                )}s remaining…    `,
-              ),
-            );
-          }
+          process.stdout.write(taskProgress('Downloading', progress));
         }
         : undefined,
     );

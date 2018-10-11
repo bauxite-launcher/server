@@ -1,5 +1,6 @@
 // @flow
 import chalk from 'chalk';
+import { type StreamProgressEvent } from 'progress-stream';
 
 export const definitionTerm = (term: ?string): string => (term ? chalk.white(`${term}:`) : '');
 
@@ -31,3 +32,43 @@ export const definitionList = (
 export const booleanValue = (value: boolean): string => (value ? chalk.green('Yes') : chalk.red('No'));
 
 export const integerValue = (value: ?number): string => (typeof value === 'number' ? chalk.cyan(value.toString()) : '');
+
+export const timeDuration = (seconds?: ?number = 0): string => {
+  if (typeof seconds !== 'number') {
+    return '';
+  }
+  const minutes = Math.floor(seconds / 60);
+  const remSeconds = seconds - minutes * 60;
+  if (minutes) {
+    return `${minutes}m ${remSeconds.toString().padStart(2, '0')}s`;
+  }
+  return `${remSeconds}s`;
+};
+
+const fileSizeUnits = ['B', 'kB', 'MB', 'GB'];
+export const fileSize = (size: number): string => {
+  let output = size;
+  let unitIndex = 0;
+  while (output > 1000 && unitIndex < fileSizeUnits.length) {
+    output /= 1024;
+    unitIndex += 1;
+  }
+  return `${Math.round(output)}${fileSizeUnits[unitIndex]}`;
+};
+
+export const taskProgress = (
+  action: string,
+  progress: ?StreamProgressEvent,
+): string => {
+  if (!progress) return '';
+  const {
+    transferred, length, percentage, speed, eta,
+  } = progress;
+  return chalk.white(
+    `\r ${chalk.gray('-')} Downloading ${fileSize(transferred)}/${fileSize(
+      length,
+    )} (${Math.round(percentage)}%) at ${fileSize(speed)}/s ─ ${timeDuration(
+      eta,
+    )} remaining…    `,
+  );
+};
