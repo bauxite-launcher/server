@@ -14,7 +14,8 @@
     "test": "jest",
     "type": "flow",
     "lint": "eslint src test-e2e",
-    "prepublishOnly": "yarn type && yarn lint && yarn test"
+    "prepublishOnly": "yarn type && yarn lint && yarn test",
+    "cli:instance": "./dist/cli/instance/index.js"
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",
