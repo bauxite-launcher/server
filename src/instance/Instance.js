@@ -13,6 +13,7 @@ import Installer, {
   type InstallStateSubscriber,
 } from './Installer';
 import LogManager from './LogManager';
+import RconClient from './rcon';
 
 const PROPERTIES = 'server.properties';
 const SETTINGS = 'instance.json';
@@ -48,6 +49,10 @@ class Instance {
   logsCache: ?LogManager;
 
   logs: LogManager;
+
+  rconCache: ?RconClient;
+
+  rcon: RconClient;
 
   constructor(
     directory: string,
@@ -144,6 +149,16 @@ class Instance {
 
   get logs(): LogManager {
     return this.logsCache || this.createLogManager();
+  }
+
+  createRconClient(): RconClient {
+    const rconClient = RconClient.createFromInstance(this);
+    this.rconCache = rconClient;
+    return rconClient;
+  }
+
+  get rcon(): RconClient {
+    return this.rconCache || this.createRconClient();
   }
 }
 

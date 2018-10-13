@@ -1,10 +1,15 @@
 // @flow
 
-export type RconRequest = string | Array<?(string | number | boolean | {})>;
+export type RconRequest = string | Array<?(string | number | boolean | Object)>;
 
-export type RconMessageSender = (message: RconRequest) => Promise<string>;
+export type RconMessageSender = (
+  message: RconRequest,
+) => Promise<string> | string;
 
-export type RconCommandHandler<T, U> = (input: T) => Promise<U> | U;
+export type RconCommandHandler<T = *, U = *> = ((
+  input: T,
+  sendMessage: RconMessageSender,
+) => Promise<U> | U) & { commandName: string };
 
 export type RconCommandDefinition<T = *, U = *> = {
   name: string,
@@ -12,15 +17,19 @@ export type RconCommandDefinition<T = *, U = *> = {
   +response: string => U,
 };
 
-const createRconCommand = <T, U>({
+function createRconCommand<T, U>({
+  name,
   command: generateCommand,
   response: parseResponse,
-}: RconCommandDefinition<T, U>): ((
-  sendMessage: RconMessageSender,
-) => RconCommandHandler<T, U>) => sendMessage => async (input) => {
+}: RconCommandDefinition<T, U>): RconCommandHandler<T, U> {
+  async function commandHandler(input, sendMessage: RconMessageSender) {
     const request = generateCommand(input);
     const response = await sendMessage(request);
     return parseResponse(response);
-  };
+  }
+  commandHandler.commandName = name;
+  // $FlowIgnore -- intersection type not working as expected :/
+  return commandHandler;
+}
 
 export default createRconCommand;

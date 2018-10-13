@@ -1,1 +1,1 @@
-export default from './RconClient';
+export { default } from './RconClient';

@@ -10,6 +10,7 @@ describe('createRconCommand', () => {
     let handler;
     beforeEach(() => {
       mockDefinition = {
+        name: 'fooBar',
         command: jest.fn(({ foo }) => ['baz', foo]),
         response: jest.fn(response => ({ response })),
       };
@@ -20,39 +21,32 @@ describe('createRconCommand', () => {
       expect(handler).toBeInstanceOf(Function);
     });
 
+    it('should have a commandName property', () => {
+      expect(handler).toHaveProperty('commandName', mockDefinition.name);
+    });
+
     describe('which when called', () => {
       let mockSendMessage;
-      let instance;
-      beforeEach(() => {
+      let result;
+      beforeEach(async () => {
         mockSendMessage = jest.fn(() => Promise.resolve('quux'));
-        instance = handler(mockSendMessage);
+        result = await handler({ foo: 'bar' }, mockSendMessage);
       });
 
-      it('should return a function', () => {
-        expect(instance).toBeInstanceOf(Function);
+      it("should call the handler's command method", () => {
+        expect(mockDefinition.command).toHaveBeenCalledWith({ foo: 'bar' });
       });
 
-      describe('which when called', () => {
-        let result;
-        beforeEach(() => {
-          result = instance({ foo: 'bar' });
-        });
+      it('should call sendMessage', () => {
+        expect(mockSendMessage).toHaveBeenCalledWith(['baz', 'bar']);
+      });
 
-        it("should call the handler's command method", () => {
-          expect(mockDefinition.command).toHaveBeenCalledWith({ foo: 'bar' });
-        });
+      it("should call the handler's response method", () => {
+        expect(mockDefinition.response).toHaveBeenCalledWith('quux');
+      });
 
-        it('should call sendMessage', () => {
-          expect(mockSendMessage).toHaveBeenCalledWith(['baz', 'bar']);
-        });
-
-        it("should call the handler's response method", () => {
-          expect(mockDefinition.response).toHaveBeenCalledWith('quux');
-        });
-
-        it("should return the result of calling the handler's response method", async () => {
-          await expect(result).resolves.toEqual({ response: 'quux' });
-        });
+      it("should return the result of calling the handler's response method", () => {
+        expect(result).toEqual({ response: 'quux' });
       });
     });
   });

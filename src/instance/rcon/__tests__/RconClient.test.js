@@ -15,7 +15,7 @@ describe('RconClient', () => {
 
     beforeEach(() => {
       instance = new Instance();
-      rcon = new RconClient(instance, 'localhost', 25575, 'yoyoyoyo');
+      rcon = new RconClient(instance, 'localhost', 25575, 'notARealPassword');
       rcon.send = jest.fn();
     });
 

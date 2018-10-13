@@ -1,11 +1,13 @@
 // @flow
 import Rcon from 'modern-rcon';
 import Instance from '../Instance';
-
-const listCommandRegex = /^There are (\d+) of a max (\d+) players online: (.*)$/;
+import { type RconRequest } from './RconCommand';
+import { listOnlinePlayers, stopServer } from './commands';
 
 class MinecraftRcon extends Rcon {
   instance: Instance;
+
+  +send: (command: RconRequest) => Promise<string>;
 
   constructor(
     instance: Instance,
@@ -15,6 +17,7 @@ class MinecraftRcon extends Rcon {
   ) {
     super(host, port, password);
     this.instance = instance;
+    this.send = this.send.bind(this);
   }
 
   static async createFromInstance(instance: Instance) {
@@ -37,9 +40,7 @@ class MinecraftRcon extends Rcon {
     return new MinecraftRcon(instance, 'localhost', rconPort, rconPassword);
   }
 
-  async send(
-    command: string | Array<?(string | number | boolean | Object)>,
-  ): Promise<string> {
+  async send(command: RconRequest): Promise<string> {
     const messageParts = command instanceof Array ? command.filter(Boolean) : [command];
     const formattedMessage = messageParts
       .map((part) => {
@@ -57,33 +58,12 @@ class MinecraftRcon extends Rcon {
     return super.send(formattedMessage);
   }
 
-  async listOnlinePlayers(): Promise<{
-    count: number,
-    max: number,
-    players: Array<string>,
-  }> {
-    const result = await this.send('list');
-    // There are 1 of a max 20 players online: jimotosan
-
-    const [, count, max, players] = result.match(listCommandRegex) || [];
-
-    if (!count || !max) {
-      throw new Error(
-        `Could not read response from 'list' command. Expected something matching:\n\n\t/${
-          listCommandRegex.source
-        }/\n\n...but instead got:\n\n\t"${result}"`,
-      );
-    }
-
-    return {
-      count: parseInt(count, 10),
-      max: parseInt(max, 10),
-      players: players.split(/,|(?:,?\s+)/g).filter(Boolean),
-    };
+  async listOnlinePlayers() {
+    return listOnlinePlayers(null, this.send);
   }
 
   async stopServer() {
-    await this.send('stop');
+    return stopServer(null, this.send);
   }
 }
 
