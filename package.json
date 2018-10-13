@@ -14,7 +14,8 @@
     "test": "jest",
     "type": "flow",
     "lint": "eslint src test-e2e",
-    "prepublishOnly": "yarn type && yarn lint && yarn test"
+    "prepublishOnly": "yarn type && yarn lint && yarn test",
+    "cli:instance": "./dist/cli/instance/index.js"
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",
@@ -37,12 +38,14 @@
     "prettier-eslint": "^8.8.2"
   },
   "dependencies": {
+    "chalk": "^2.4.1",
     "date-fns": "^1.29.0",
     "fs-extra": "^7.0.0",
     "modern-rcon": "^1.0.3",
     "node-fetch": "^2.2.0",
     "progress-stream": "^2.0.0",
     "ps-node": "^0.1.6",
+    "strip-ansi": "^5.0.0",
     "tail": "^2.0.0",
     "yargs": "^12.0.2"
   }

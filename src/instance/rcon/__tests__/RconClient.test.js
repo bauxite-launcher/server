@@ -1,12 +1,12 @@
-import MinecraftRcon from '../MinecraftRcon';
-import Instance from '../Instance';
+import RconClient from '../RconClient';
+import Instance from '../../Instance';
 
-jest.mock('../Instance');
+jest.mock('../../Instance');
 // jest.mock('rcon');
 
-describe('MinecraftRcon', () => {
+describe('RconClient', () => {
   it('should be a function', () => {
-    expect(MinecraftRcon).toBeInstanceOf(Function);
+    expect(RconClient).toBeInstanceOf(Function);
   });
 
   describe('class methods', () => {
@@ -15,18 +15,18 @@ describe('MinecraftRcon', () => {
 
     beforeEach(() => {
       instance = new Instance();
-      rcon = new MinecraftRcon(instance, 'localhost', 25575, 'yoyoyoyo');
+      rcon = new RconClient(instance, 'localhost', 25575, 'yoyoyoyo');
       rcon.send = jest.fn();
     });
 
-    it('should be an instance of MinecraftRcon', () => {
+    it('should be an instance of RconClient', () => {
       expect(instance).toBeInstanceOf(Instance);
-      expect(rcon).toBeInstanceOf(MinecraftRcon);
+      expect(rcon).toBeInstanceOf(RconClient);
     });
 
-    describe('list', () => {
+    describe('listOnlinePlayers', () => {
       it('should be a method', () => {
-        expect(rcon.list).toBeInstanceOf(Function);
+        expect(rcon.listOnlinePlayers).toBeInstanceOf(Function);
       });
 
       describe('when there are no players online', () => {
@@ -37,7 +37,7 @@ describe('MinecraftRcon', () => {
         });
 
         it('should return an empty array', async () => {
-          await expect(rcon.list()).resolves.toMatchObject({
+          await expect(rcon.listOnlinePlayers()).resolves.toMatchObject({
             count: 0,
             max: 20,
             players: [],
@@ -54,7 +54,7 @@ describe('MinecraftRcon', () => {
         });
 
         it('should return a less empty array', async () => {
-          await expect(rcon.list()).resolves.toMatchObject({
+          await expect(rcon.listOnlinePlayers()).resolves.toMatchObject({
             count: 1,
             max: 20,
             players: ['jimotosan'],
@@ -63,7 +63,7 @@ describe('MinecraftRcon', () => {
         });
       });
 
-      describe('when there is three player online', () => {
+      describe('when there is three players online', () => {
         beforeEach(() => {
           rcon.send.mockResolvedValue(
             'There are 3 of a max 20 players online: jimotosan, AJtastic, SippyTango',
@@ -71,7 +71,7 @@ describe('MinecraftRcon', () => {
         });
 
         it('should return a less empty array', async () => {
-          await expect(rcon.list()).resolves.toMatchObject({
+          await expect(rcon.listOnlinePlayers()).resolves.toMatchObject({
             count: 3,
             max: 20,
             players: ['jimotosan', 'AJtastic', 'SippyTango'],

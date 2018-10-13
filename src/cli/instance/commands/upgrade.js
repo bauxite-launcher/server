@@ -1,5 +1,7 @@
 // @flow
 import { type Argv } from 'yargs';
+import chalk from 'chalk';
+import { taskProgress } from './util/components';
 import createCommandHandler, {
   type CommandHandlerDefinition,
 } from '../commandHandler';
@@ -43,7 +45,9 @@ export const upgradeCommand: CommandHandlerDefinition<
     if (!version) {
       if (!json) {
         console.warn(
-          'No Minecraft version specified, will use latest stable version',
+          chalk.yellow(
+            'No Minecraft version specified, will use latest stable version',
+          ),
         );
       }
       const latest = await Releases.latest('release');
@@ -62,7 +66,11 @@ export const upgradeCommand: CommandHandlerDefinition<
 
     if (!json) {
       console.log(
-        `Upgrading Minecraft server from ${minecraftVersion} to ${version}…`,
+        chalk.cyan(
+          `Upgrading Minecraft server from ${chalk.white(
+            minecraftVersion,
+          )} to ${chalk.white(version)}…`,
+        ),
       );
     }
 
@@ -70,20 +78,7 @@ export const upgradeCommand: CommandHandlerDefinition<
       version,
       !json
         ? ({ progress }) => {
-          if (progress) {
-            const {
-              transferred, length, percentage, speed, eta,
-            } = progress;
-            process.stdout.write(
-              `\rDownloading ${Math.round(
-                transferred / (1024 * 1024),
-              )}MB/${Math.round(length / (1024 * 1024))}MB (${Math.round(
-                percentage,
-              )}%) at ${Math.round(speed / 1024)}kBps ─ ${Math.round(
-                eta,
-              )}s remaining`,
-            );
-          }
+          process.stdout.write(taskProgress('Downloading', progress));
         }
         : undefined,
       true,
@@ -98,7 +93,11 @@ export const upgradeCommand: CommandHandlerDefinition<
     };
   },
   render({ oldVersion, newVersion }) {
-    return `Successfully upgraded Minecraft server instance from ${oldVersion} to ${newVersion}`;
+    return chalk.green(
+      `Successfully upgraded Minecraft server instance from ${chalk.white(
+        oldVersion,
+      )} to ${chalk.white(newVersion)}`,
+    );
   },
 };
 
