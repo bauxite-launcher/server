@@ -4,3 +4,4 @@ export { default as UpgradeCommand } from './upgrade';
 export { default as StartCommand } from './start';
 export { default as StopCommand } from './stop';
 export { default as LogsCommand } from './logs';
+export { default as RconCommand } from './rcon';

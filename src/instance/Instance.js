@@ -52,8 +52,6 @@ class Instance {
 
   rconCache: ?RconClient;
 
-  rcon: RconClient;
-
   constructor(
     directory: string,
     settings?: SettingsFile,
@@ -151,14 +149,26 @@ class Instance {
     return this.logsCache || this.createLogManager();
   }
 
-  createRconClient(): RconClient {
-    const rconClient = RconClient.createFromInstance(this);
+  async createRconClient(): Promise<RconClient> {
+    const rconClient = await RconClient.createFromInstance(this);
     this.rconCache = rconClient;
     return rconClient;
   }
 
-  get rcon(): RconClient {
+  async rcon(): RconClient {
     return this.rconCache || this.createRconClient();
+  }
+
+  async rconConnection(runCommand: (rcon: RconClient) => * | Promise<*>) {
+    const rcon = await this.rcon();
+    if (!rcon.hasAuthed) await rcon.connect();
+    const result = await runCommand(rcon);
+    await rcon.disconnect();
+    return result;
+  }
+
+  async rconCommand(command: string): Promise<string> {
+    return this.rconConnection(rcon => rcon.command(command));
   }
 }
 
