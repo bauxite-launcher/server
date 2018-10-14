@@ -102,6 +102,19 @@ class ServerPropertiesFile extends TextFile<ServerProperties> {
     }
     return value;
   }
+
+  async get(key: ServerPropertyName): Promise<ServerPropertyValue> {
+    const props = await this.read();
+    return props[key];
+  }
+
+  async set(
+    key: ServerPropertyName,
+    value: ServerPropertyValue,
+  ): Promise<void> {
+    const props = await this.read();
+    return this.write({ ...props, [key]: value });
+  }
 }
 
 export default ServerPropertiesFile;
