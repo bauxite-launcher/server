@@ -13,6 +13,7 @@ import Installer, {
   type InstallStateSubscriber,
 } from './Installer';
 import LogManager from './LogManager';
+import RconClient from './rcon';
 
 const PROPERTIES = 'server.properties';
 const SETTINGS = 'instance.json';
@@ -48,6 +49,8 @@ class Instance {
   logsCache: ?LogManager;
 
   logs: LogManager;
+
+  rconCache: ?RconClient;
 
   constructor(
     directory: string,
@@ -144,6 +147,28 @@ class Instance {
 
   get logs(): LogManager {
     return this.logsCache || this.createLogManager();
+  }
+
+  async createRconClient(): Promise<RconClient> {
+    const rconClient = await RconClient.createFromInstance(this);
+    this.rconCache = rconClient;
+    return rconClient;
+  }
+
+  async rcon(): RconClient {
+    return this.rconCache || this.createRconClient();
+  }
+
+  async rconConnection(runCommand: (rcon: RconClient) => * | Promise<*>) {
+    const rcon = await this.rcon();
+    if (!rcon.hasAuthed) await rcon.connect();
+    const result = await runCommand(rcon);
+    await rcon.disconnect();
+    return result;
+  }
+
+  async rconCommand(command: string): Promise<string> {
+    return this.rconConnection(rcon => rcon.command(command));
   }
 }
 

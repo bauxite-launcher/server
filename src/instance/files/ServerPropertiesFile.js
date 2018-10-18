@@ -32,7 +32,7 @@ export type ServerPropertyName =
   | 'pvp'
   | 'query.port'
   | 'rcon.password'
-  | 'rcon-port'
+  | 'rcon.port'
   | 'resource-pack'
   | 'resource-pack-sha1'
   | 'server-ip'
@@ -101,6 +101,11 @@ class ServerPropertiesFile extends TextFile<ServerProperties> {
       return value.toString();
     }
     return value;
+  }
+
+  async get(key: ServerPropertyName) {
+    const props = await this.read();
+    return props[key];
   }
 }
 
