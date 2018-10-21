@@ -35,6 +35,7 @@ export type InstallState =
 
 export type InstallStateSubscriber = (newState: InstallState) => void;
 
+// TODO: Download + extract dependencies manually
 class ForgeInstaller {
   instance: Instance;
 
@@ -99,7 +100,7 @@ class ForgeInstaller {
       await this.downloadForgeInstaller(forgeVersion, progress => this.setState(InstallStage.Downloading, progress));
 
       this.setState(InstallStage.Installing);
-      await this.installForge(forgeVersion);
+      await this.runForgeInstaller(forgeVersion);
     }
 
     this.setState(InstallStage.Installed);
@@ -138,7 +139,7 @@ class ForgeInstaller {
     );
   }
 
-  async installForge(forgeVersion: string): Promise<void> {
+  async runForgeInstaller(forgeVersion: string): Promise<void> {
     const {
       minecraftVersion,
       javaBin = 'java',
@@ -149,18 +150,22 @@ class ForgeInstaller {
     const installerJarPath = this.instance.path(
       `forge-${minecraftVersion}-${forgeVersion}-installer.jar`,
     );
-    const installerOutput = await new Promise((resolve, reject) => {
+    await new Promise((resolve, reject) => {
       exec(
         `${javaBin} -jar ${installerJarPath} --installServer`,
-        (err: ?Error, stdout: ?string, stderr: ?string) => {
+        { cwd: this.instance.path(), encoding: 'utf8' },
+        (err: ?Error, stdout: ?string | Buffer, stderr: ?string | Buffer) => {
           const error = err || stderr;
           if (error) reject(error);
-          else resolve({ stdout, stderr });
+          else {
+            resolve({
+              stdout: stdout && stdout.toString(),
+              stderr: stderr && stderr.toString(),
+            });
+          }
         },
       );
     });
-
-    console.log(installerOutput);
 
     await this.instance.settings.patch({
       forgeVersion,

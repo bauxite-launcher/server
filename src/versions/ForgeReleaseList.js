@@ -5,24 +5,24 @@ import type { MinecraftReleaseId } from './MinecraftReleaseList';
 
 const MANIFEST_URL = 'https://files.minecraftforge.net/maven/net/minecraftforge/forge/json';
 
-type ForgeBuildId = number;
-type ForgeReleaseId = string;
-type ForgeBranchName = string;
-type ForgePromoId = string;
+export type ForgeBuildId = number;
+export type ForgeReleaseId = string;
+export type ForgeBranchName = string;
+export type ForgePromoId = string;
 
-type ForgeReleaseChannel = 'recommended' | 'latest';
+export type ForgeReleaseChannel = 'recommended' | 'latest';
 
-type FileType = 'zip' | 'txt' | 'jar' | 'exe';
-type ForgeReleaseFileType =
+export type FileType = 'zip' | 'txt' | 'jar' | 'exe';
+export type ForgeReleaseFileType =
   | 'mdk'
   | 'changelog'
   | 'universal'
   | 'userdev'
   | 'installer'
   | 'installer-win';
-type RawForgeReleaseFile = [FileType, ForgeReleaseFileType, string];
+export type RawForgeReleaseFile = [FileType, ForgeReleaseFileType, string];
 
-type RawForgeRelease = {
+export type RawForgeRelease = {
   build: ForgeBuildId,
   branch: ForgeBranchName | null,
   version: ForgeReleaseId,
@@ -31,14 +31,14 @@ type RawForgeRelease = {
   files: Array<RawForgeReleaseFile>,
 };
 
-type ForgeReleaseFile = {
+export type ForgeReleaseFile = {
   fileType: FileType,
   releaseFileType: ForgeReleaseFileType,
   url: string,
   sha1: string,
 };
 
-type ForgeRelease = {
+export type ForgeRelease = {
   id: ForgeBuildId,
   name: ForgeReleaseId,
   branch: ForgeBranchName | null,
@@ -48,7 +48,7 @@ type ForgeRelease = {
 };
 
 // TODO: To be supportive of Forge, we should show their ad to user somehow
-type ForgeReleaseManifest = {
+export type ForgeReleaseManifest = {
   adfocus: string,
   artifact: 'forge',
   branches: { [branchName: ForgeBranchName]: Array<ForgeBuildId> },
@@ -86,7 +86,7 @@ export class ForgeReleaseListFile extends RemoteFile<ForgeReleaseManifest> {
         fileType,
         releaseFileType,
         sha1,
-        url: `${webpath}${minecraftVersion}-${name}/${mavenArtifact}-${minecraftVersion}-${releaseFileType}.${fileType}`,
+        url: `${webpath}${minecraftVersion}-${name}/${mavenArtifact}-${minecraftVersion}-${name}-${releaseFileType}.${fileType}`,
       };
       return acc;
     }, {});
@@ -141,7 +141,9 @@ export class ForgeReleaseListFile extends RemoteFile<ForgeReleaseManifest> {
     }: ForgeReleaseManifest = await this.read();
     const supportedBuilds = byMinecraftVersion[minecraftVersion];
     if (!supportedBuilds) {
-      throw new Error(`Forge does not support version ${minecraftVersion} (yet)`);
+      throw new Error(
+        `Forge does not support version ${minecraftVersion} (yet)`,
+      );
     }
     const allBuilds = await Promise.all(
       supportedBuilds.map(buildId => this.getReleaseByBuildId(buildId)),
@@ -157,7 +159,20 @@ export class ForgeReleaseListFile extends RemoteFile<ForgeReleaseManifest> {
     const { promos }: ForgeReleaseManifest = await this.read();
     const buildId: ?number = promos[`${minecraftVersion}-${channel}`];
     if (!buildId) {
-      throw new Error(`There is no ${channel} version of Forge for Minecraft ${minecraftVersion}`);
+      throw new Error(
+        `There is no ${channel} version of Forge for Minecraft ${minecraftVersion}`,
+      );
+    }
+    return this.getReleaseByBuildId(buildId);
+  }
+
+  async getLatest(
+    channel: ForgeReleaseChannel = 'recommended',
+  ): Promise<ForgeRelease> {
+    const { promos }: ForgeReleaseManifest = await this.read();
+    const buildId: ?number = promos[channel];
+    if (!buildId) {
+      throw new Error(`There is no ${channel} version of Forge`);
     }
     return this.getReleaseByBuildId(buildId);
   }
