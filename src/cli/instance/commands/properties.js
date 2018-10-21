@@ -41,12 +41,15 @@ export const propertiesCommand: CommandHandlerDefinition<
   PropertiesOutput,
 > = {
   command: 'properties',
-  description: 'Properties Minecraft server',
+  description: 'Get/set settings from server.properties file',
   builder: {
     key: {
+      description:
+        'If provided alone, returns the prop. If provided with --value, specifies the key to set. If not provided, all settings are listed',
       type: 'string',
     },
     value: {
+      description: 'The new value to set for the key specified by --key',
       type: 'string',
     },
   },

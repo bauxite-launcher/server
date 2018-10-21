@@ -45,7 +45,7 @@ function renderLogItem({
   time, thread, logLevel, category, text,
 }, { emoji }) {
   // $FlowIgnore -- no indexer within chalk, but only using explicit keys
-  return chalk[logLevelColours[logLevel || 'INFO'] || 'gray'](
+  return chalk.keyword(logLevelColours[logLevel || 'INFO'] || 'gray')(
     emoji
       ? `[${time}] ${logLevelEmojis[logLevel || 'INFO']
           || '❓'} (${thread}) ${category

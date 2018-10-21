@@ -11,6 +11,8 @@ type UpgradeArgs = {
   json?: boolean,
   directory: string,
   minecraftVersion?: string,
+  snapshot?: boolean,
+  stable?: boolean,
 };
 
 type UpgradeOutput = {
@@ -25,13 +27,33 @@ export const upgradeCommand: CommandHandlerDefinition<
 > = {
   command: 'upgrade',
   description: 'Upgrade Minecraft server',
-  builder: {
-    minecraftVersion: {
-      type: 'string',
-    },
-  },
+  builder: yargs => yargs
+    .options({
+      minecraftVersion: {
+        description: 'The specific version of Minecraft to install',
+        type: 'string',
+      },
+      stable: {
+        description: 'Install the latest stable version',
+        type: 'boolean',
+      },
+      snapshot: {
+        description: 'Install the latest snapshot version',
+        type: 'boolean',
+      },
+    })
+    .conflicts({
+      minecraftVersion: ['stable', 'snapshot'],
+      snapshot: 'stable',
+    }),
   async setup(
-    { json = false, minecraftVersion: inputVersion, $0 }: Argv<UpgradeArgs>,
+    {
+      json = false,
+      minecraftVersion: inputVersion,
+      snapshot,
+      stable,
+      $0,
+    }: Argv<UpgradeArgs>,
     instance,
   ): Promise<UpgradeOutput> {
     const installed = await instance.isInstalled();
@@ -43,16 +65,19 @@ export const upgradeCommand: CommandHandlerDefinition<
 
     let version = inputVersion;
     if (!version) {
-      if (!json) {
+      const releaseChannel = snapshot ? 'snapshot' : 'release';
+      if (!json && !stable && !snapshot) {
         console.warn(
           chalk.yellow(
-            'No Minecraft version specified, will use latest stable version',
+            `No Minecraft version specified, will use latest version from the ${releaseChannel} release channel`,
           ),
         );
       }
-      const latest = await Releases.latest('release');
+      const latest = await Releases.latest(releaseChannel);
       if (!latest) {
-        throw new Error('Could not find latest version of Minecraft');
+        throw new Error(
+          `Could not find latest version from the ${releaseChannel} release channel of Minecraft`,
+        );
       }
       version = latest.id;
     }
