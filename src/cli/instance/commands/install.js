@@ -5,7 +5,7 @@ import { taskProgress } from './util/components';
 import createCommandHandler, {
   type CommandHandlerDefinition,
 } from '../commandHandler';
-import Releases from '../../../versions/MinecraftReleaseListFile';
+import Releases from '../../../versions/MinecraftReleaseList';
 
 type InstallArgs = {
   json?: boolean,

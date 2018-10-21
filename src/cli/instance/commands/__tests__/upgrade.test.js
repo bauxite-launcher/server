@@ -2,12 +2,12 @@ import { upgradeCommand } from '../upgrade';
 import MinecraftInstance from '../../../../instance/Instance';
 import ServerProcess from '../../../../instance/Process';
 import SettingsFile from '../../../../instance/files/SettingsFile';
-import Releases from '../../../../versions/MinecraftReleaseListFile';
+import Releases from '../../../../versions/MinecraftReleaseList';
 
 jest.mock('../../../../instance/Instance');
 jest.mock('../../../../instance/Process');
 jest.mock('../../../../instance/files/SettingsFile');
-jest.mock('../../../../versions/MinecraftReleaseListFile');
+jest.mock('../../../../versions/MinecraftReleaseList');
 
 const originalConsoleLog = console.log;
 const originalConsoleWarn = console.warn;

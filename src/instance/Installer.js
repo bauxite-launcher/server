@@ -5,7 +5,7 @@ import {
   type StreamProgressCallback,
 } from 'progress-stream';
 import Instance from './Instance';
-import MinecraftRelease from '../versions/MinecraftReleaseFile';
+import MinecraftRelease from '../versions/MinecraftRelease';
 import { type PartialSettings } from './files/SettingsFile';
 import RemoteFile from '../util/file/RemoteFile';
 import TextFile from '../util/file/TextFile';
