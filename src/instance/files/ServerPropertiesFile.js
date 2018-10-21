@@ -45,7 +45,8 @@ export type ServerPropertyName =
   | 'use-native-transport'
   | 'view-distance'
   | 'white-list'
-  | 'enforce-whitelist';
+  | 'enforce-whitelist'
+  | string; // Feels redundant, but really this could be anything
 
 export type ServerProperties = {
   [key: ServerPropertyName]: ServerPropertyValue,
