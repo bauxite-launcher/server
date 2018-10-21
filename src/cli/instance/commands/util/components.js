@@ -77,15 +77,14 @@ export const taskProgress = (
   action: string,
   progress: ?StreamProgressEvent,
 ): string => {
-  if (!progress) return '';
-  const {
-    transferred, length, percentage, speed, eta,
-  } = progress;
-  return chalk.white(
-    `\r ${chalk.gray('-')} Downloading ${fileSize(transferred)}/${fileSize(
-      length,
-    )} (${Math.round(percentage)}%) at ${fileSize(speed)}/s ─ ${timeDuration(
-      eta,
-    )} remaining…    `,
-  );
+  let progressText = '…';
+  if (progress) {
+    const {
+      transferred, length, percentage, speed, eta,
+    } = progress;
+    progressText = ` ${fileSize(transferred)}/${fileSize(length)} (${Math.round(
+      percentage,
+    )}%) at ${fileSize(speed)}/s ─ ${timeDuration(eta)} remaining…    `;
+  }
+  return chalk.white(`\r ${chalk.gray('-')} ${action}${progressText}`);
 };

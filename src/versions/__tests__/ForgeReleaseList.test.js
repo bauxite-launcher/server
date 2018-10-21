@@ -69,7 +69,7 @@ const mockForgeRelease = {
         .fill(0)
         .join(''),
       url:
-        'https://files.minecraftforge.net/test/1.12.2-12.345.33/forge-test-1.12.2-test.txt',
+        'https://files.minecraftforge.net/test/1.12.2-12.345.33/forge-test-1.12.2-12.345.33-test.txt',
     },
   },
 };
