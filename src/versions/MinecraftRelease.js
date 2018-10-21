@@ -1,5 +1,5 @@
 // @flow
-import Releases from './MinecraftReleaseListFile';
+import Releases from './MinecraftReleaseList';
 import RemoteFile from '../util/file/RemoteFile';
 
 /**
