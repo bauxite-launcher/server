@@ -104,6 +104,22 @@ export class ForgeReleaseListFile extends RemoteFile<ForgeReleaseManifest> {
     super(MANIFEST_URL);
   }
 
+  async getReleaseById(id: ForgeReleaseId): Promise<ForgeRelease> {
+    const manifest: ForgeReleaseManifest = await this.read();
+    const build = Object.keys(manifest.number)
+      .map(buildId => parseInt(buildId, 10))
+      .map(buildId => manifest.number[buildId])
+      .find(thisBuild => thisBuild.version === id);
+    if (!build) {
+      throw new Error(`There is no Forge release with version name "${id}`);
+    }
+    return this.constructor.parseRelease(
+      build,
+      manifest.webpath,
+      manifest.artifact,
+    );
+  }
+
   async getReleaseByBuildId(buildId: ForgeBuildId): Promise<ForgeRelease> {
     const manifest: ForgeReleaseManifest = await this.read();
     const build = manifest.number[buildId];
