@@ -12,6 +12,8 @@ type InstallArgs = {
   directory: string,
   minecraftVersion?: string,
   name?: string,
+  stable?: boolean,
+  snapshot?: boolean,
 };
 
 type InstallOutput = {
@@ -26,19 +28,36 @@ export const installCommand: CommandHandlerDefinition<
 > = {
   command: 'install',
   description: 'Install Minecraft server',
-  builder: {
-    minecraftVersion: {
-      type: 'string',
-    },
-    name: {
-      type: 'string',
-    },
-  },
+  builder: yargs => yargs
+    .options({
+      minecraftVersion: {
+        description: 'The specific version of Minecraft to install',
+        type: 'string',
+      },
+      stable: {
+        description: 'Install the latest stable version',
+        type: 'boolean',
+      },
+      snapshot: {
+        description: 'Install the latest snapshot version',
+        type: 'boolean',
+      },
+      name: {
+        description: 'A name for the server. Not currently used',
+        type: 'string',
+      },
+    })
+    .conflicts({
+      minecraftVersion: ['stable', 'snapshot'],
+      snapshot: 'stable',
+    }),
   async setup(
     {
       json = false,
       name: inputName,
       minecraftVersion: inputVersion,
+      stable,
+      snapshot,
       $0,
     }: Argv<InstallArgs>,
     instance,
@@ -52,16 +71,19 @@ export const installCommand: CommandHandlerDefinition<
 
     let version = inputVersion;
     if (!version) {
-      if (!json) {
+      const releaseChannel = snapshot ? 'snapshot' : 'release';
+      if (!json && !stable && !snapshot) {
         console.warn(
           chalk.yellow(
-            'No Minecraft version specified, will use latest stable version',
+            `No Minecraft version specified, will use latest version from the ${releaseChannel} release channel`,
           ),
         );
       }
-      const latest = await Releases.latest('release');
+      const latest = await Releases.latest(releaseChannel);
       if (!latest) {
-        throw new Error('Could not find latest version of Minecraft');
+        throw new Error(
+          `Could not find latest version from the ${releaseChannel} release channel of Minecraft`,
+        );
       }
       version = latest.id;
     }
