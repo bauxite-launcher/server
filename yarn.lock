@@ -5017,7 +5017,7 @@ table@^4.0.3:
 
 tail@^2.0.0:
   version "2.0.0"
-  resolved "https://npm.v2.mudano.com/tail/-/tail-2.0.0.tgz#ef16cd67fe4842c8c608571cf6228cf2fab6af2a"
+  resolved "https://registry.yarnpkg.com/tail/-/tail-2.0.0.tgz#ef16cd67fe4842c8c608571cf6228cf2fab6af2a"
   integrity sha512-WWFbWp6YhoOxZfCIws0tlxG3SoO2XBgRL+91Cu32j/MqJakKd2lv4Dfc0zHh29Jl1sbGdfkHvMt37H/zUEXTtg==
 
 tar@^4:
