@@ -3,20 +3,24 @@ import RemoteFile from '../util/file/RemoteFile';
 
 const MANIFEST_URL = 'https://launchermeta.mojang.com/mc/game/version_manifest.json';
 
-type ReleaseId = string;
-type ReleaseType = 'release' | 'snapshot' | 'old_alpha' | 'old_beta';
+export type MinecraftReleaseId = string;
+export type MinecraftReleaseType =
+  | 'release'
+  | 'snapshot'
+  | 'old_alpha'
+  | 'old_beta';
 
-type MinecraftRelease = {
-  id: ReleaseId,
+export type MinecraftRelease = {
+  id: MinecraftReleaseId,
   url: string,
-  type: ReleaseType,
+  type: MinecraftReleaseType,
   time: string,
   releaseTime: string,
 };
 
-type MinecraftReleaseManifest = {
+export type MinecraftReleaseManifest = {
   versions: Array<MinecraftRelease>,
-  latest: { [releaseType: ReleaseType]: ReleaseId },
+  latest: { [releaseType: MinecraftReleaseType]: MinecraftReleaseId },
 };
 
 export class MinecraftReleaseListFile extends RemoteFile<
@@ -37,13 +41,13 @@ export class MinecraftReleaseListFile extends RemoteFile<
     return versions;
   }
 
-  async findById(releaseId: ReleaseId): Promise<?MinecraftRelease> {
+  async findById(releaseId: MinecraftReleaseId): Promise<?MinecraftRelease> {
     const { versions } = await this.read();
     return versions.find(({ id }) => id === releaseId);
   }
 
   async latest(
-    releaseType: ReleaseType = 'release',
+    releaseType: MinecraftReleaseType = 'release',
   ): Promise<?MinecraftRelease> {
     const { latest } = await this.read();
     const releaseId = latest[releaseType];

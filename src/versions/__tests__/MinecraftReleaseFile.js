@@ -23,7 +23,9 @@ describe('MinecraftReleaseFile', () => {
 
   describe('when instantiated with valid URL', () => {
     it('should not throw an error', () => {
-      expect(() => new MinecraftReleaseFile(mockManifestUrl)).not.toThrowError();
+      expect(
+        () => new MinecraftReleaseFile(mockManifestUrl),
+      ).not.toThrowError();
     });
   });
 
