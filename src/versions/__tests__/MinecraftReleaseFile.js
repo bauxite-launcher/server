@@ -1,5 +1,5 @@
 import nock from 'nock';
-import MinecraftReleaseFile from '../MinecraftReleaseFile';
+import MinecraftReleaseFile from '../MinecraftRelease';
 
 const mockManifestHost = 'http://example.com';
 const mockManifestPath = '/release.1.13.1.json';
