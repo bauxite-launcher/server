@@ -75,8 +75,7 @@ Expected download manifest to be an object containing a string at "server.url" b
 ${JSON.stringify(this.downloads)}`;
   }
 }
-
-class Installer {
+class MinecraftInstaller {
   instance: Instance;
 
   state: InstallState;
@@ -85,7 +84,7 @@ class Installer {
 
   constructor(instance: Instance) {
     if (!instance) {
-      throw new Error('Installer requires an instance');
+      throw new Error(`${this.constructor.name} requires an instance`);
     }
     this.instance = instance;
   }
@@ -207,4 +206,4 @@ class Installer {
   }
 }
 
-export default Installer;
+export default MinecraftInstaller;
