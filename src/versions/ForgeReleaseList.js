@@ -3,7 +3,7 @@ import parseDate from 'date-fns/parse';
 import RemoteFile from '../util/file/RemoteFile';
 import type { MinecraftReleaseId } from './MinecraftReleaseList';
 
-const MANIFEST_URL = 'http://files.minecraftforge.net/maven/net/minecraftforge/forge/json';
+const MANIFEST_URL = 'https://files.minecraftforge.net/maven/net/minecraftforge/forge/json';
 
 type ForgeBuildId = number;
 type ForgeReleaseId = string;
@@ -50,7 +50,7 @@ type ForgeRelease = {
 // TODO: To be supportive of Forge, we should show their ad to user somehow
 type ForgeReleaseManifest = {
   adfocus: string,
-  artifact: ['forge'],
+  artifact: 'forge',
   branches: { [branchName: ForgeBranchName]: Array<ForgeBuildId> },
   homepage: string,
   mcversion: { [minecraftVersion: MinecraftReleaseId]: Array<ForgeBuildId> },
@@ -77,8 +77,8 @@ export class ForgeReleaseListFile extends RemoteFile<ForgeReleaseManifest> {
       mcversion: minecraftVersion,
       files: rawFiles,
     }: RawForgeRelease,
-    homepage: string,
-    mavenName: string,
+    webpath: string,
+    mavenArtifact: string,
   ): ForgeRelease {
     const releaseTime = parseDate(modified);
     const files = rawFiles.reduce((acc, [fileType, releaseFileType, sha1]) => {
@@ -86,7 +86,7 @@ export class ForgeReleaseListFile extends RemoteFile<ForgeReleaseManifest> {
         fileType,
         releaseFileType,
         sha1,
-        url: `${homepage}/${minecraftVersion}-${name}/${mavenName}-${minecraftVersion}-${releaseFileType}.${fileType}`,
+        url: `${webpath}${minecraftVersion}-${name}/${mavenArtifact}-${minecraftVersion}-${releaseFileType}.${fileType}`,
       };
       return acc;
     }, {});
@@ -104,12 +104,16 @@ export class ForgeReleaseListFile extends RemoteFile<ForgeReleaseManifest> {
     super(MANIFEST_URL);
   }
 
-  async getReleaseByBuildId(buildId: ForgeBuildId): Promise<?ForgeRelease> {
+  async getReleaseByBuildId(buildId: ForgeBuildId): Promise<ForgeRelease> {
     const manifest: ForgeReleaseManifest = await this.read();
+    const build = manifest.number[buildId];
+    if (!build) {
+      throw new Error(`There is no Forge release with a build ID "${buildId}`);
+    }
     return this.constructor.parseRelease(
-      manifest.number[buildId],
-      manifest.homepage,
-      manifest.name,
+      build,
+      manifest.webpath,
+      manifest.artifact,
     );
   }
 
@@ -121,7 +125,7 @@ export class ForgeReleaseListFile extends RemoteFile<ForgeReleaseManifest> {
     }: ForgeReleaseManifest = await this.read();
     const supportedBuilds = byMinecraftVersion[minecraftVersion];
     if (!supportedBuilds) {
-      return [];
+      throw new Error(`Forge does not support version ${minecraftVersion} (yet)`);
     }
     const allBuilds = await Promise.all(
       supportedBuilds.map(buildId => this.getReleaseByBuildId(buildId)),
@@ -133,11 +137,11 @@ export class ForgeReleaseListFile extends RemoteFile<ForgeReleaseManifest> {
   async getLatestForMinecraftVersion(
     minecraftVersion: MinecraftReleaseId,
     channel: ForgeReleaseChannel = 'recommended',
-  ): Promise<?ForgeRelease> {
+  ): Promise<ForgeRelease> {
     const { promos }: ForgeReleaseManifest = await this.read();
     const buildId: ?number = promos[`${minecraftVersion}-${channel}`];
     if (!buildId) {
-      return undefined;
+      throw new Error(`There is no ${channel} version of Forge for Minecraft ${minecraftVersion}`);
     }
     return this.getReleaseByBuildId(buildId);
   }
