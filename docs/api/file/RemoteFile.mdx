@@ -1,0 +1,93 @@
+---
+name: RemoteFile class
+route: /api/file/RemoteFile
+menu: Utility APIs
+---
+
+# `RemoteFile` class
+
+A utility class that reads from a remote file over HTTP(S).
+
+## Example Usage
+
+### Reading content of remote file
+
+```js
+const remoteFile = new RemoteFile("https://example.com/file.txt");
+
+const fileContent = await remoteFile.read();
+```
+
+### Streaming contents of remote file
+
+```js
+const remoteFile = new RemoteFile("https://example.com/file.txt");
+const writeStream = fs.createWriteStream("/path/to/file.txt");
+
+const readStream = await remoteFile.stream();
+readStream.pipe(writeStream);
+```
+
+> _Note:_ This is a contrived example. The heavy lifting of downloading a remote file can be performed using `TextFile.createFromRemoteFile`.
+
+## Static Methods
+
+### `constructor`
+
+Instantiates a new `RemoteFile`.
+
+#### Parameters
+
+1. `url: string`
+
+   The remote URL of the file.
+
+2. `fetchOptions?: FetchOptions`
+
+   An optional set of options to pass to [`node-fetch`][node-fetch]. These options will be used when requesting the remote file.
+
+## Instance Methods
+
+### `read`
+
+Reads the content of the remote file. Behaves identically to [`TextFile.prototype.read`](./TextFile).
+
+### `fetch`
+
+Performs a fetch of the remote file using [`node-fetch`][node-fetch].
+
+To get the text content of the file (or a stream of the file content), use `read` or `readStream` specifically.
+
+#### Parameters
+
+_none_
+
+#### Return Value
+
+Returns a fetch response object.
+
+[node-fetch]: https://npmjs.com/package/node-fetch
+
+### `readRaw`
+
+Returns the raw text content of the remote file.
+
+#### Parameters
+
+_none_
+
+#### Return Value
+
+Returns a Promise that resolves with the text content of the remote file.
+
+### `readStream`
+
+Returns a readable stream of the remote file content.
+
+#### Parameters
+
+_none_
+
+#### Return Value
+
+Returns a Promise that resolves to a readable stream.

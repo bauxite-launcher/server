@@ -1,0 +1,262 @@
+---
+name: TextFile class
+route: /api/file/TextFile
+menu: Utility APIs
+---
+
+# `TextFile` class
+
+A utility class which reads and writes from a text file on disk.
+Once read, the file will be cached in memory for quick access.
+
+It can be extended to implement classes for formatted files (i.e. JSON and other text formats).
+
+## Example Usage
+
+### Reading from a file on disk
+
+```js
+const file = new TextFile("/path/to/file.txt");
+
+const fileContent = await file.read();
+```
+
+### Writing to a file on disk
+
+```js
+const file = new TextFile("/path/to/file.txt");
+
+await file.write("new file content");
+```
+
+### Extending to parse formatted files
+
+Here, we make a new class that can read and write JSON files.
+`TextFile` will automatically call `parse` and `serialize` if they are overridden.
+This will automatically cache the _parsed_ value of the file on the first read, to allow fast repeated reads.
+
+```js
+class JsonFile extends TextFile {
+  static parse(rawValue) {
+    return JSON.parse(rawValue);
+  }
+
+  static serialize(value) {
+    return JSON.stringify(value, null, 2);
+  }
+}
+```
+
+> _Note:_ this is actually a simplified version of how [JsonFile](./JsonFile) is implemented
+
+## Properties
+
+### `path` _(string)_
+
+The absolute path to the file, i.e. `"/path/to/file.txt"`
+
+### `name` _(read-only string)_
+
+Just the filename part of the path, without the directory, i.e. `"file.txt"`
+
+### `directory` _(read-only string)_
+
+Just the directory part of the path, without the filename, i.e. `/path/to/`
+
+## Static Methods
+
+### `constructor`
+
+Instantiates a new `TextFile`.
+
+#### Parameters
+
+1. `path: string`
+
+   The absolute local filepath to the file.
+
+2. `encoding?: string`
+
+   Optionally, the encoding to use when reading the file. By default, this is 'utf8'.
+
+### `createFromRemoteFile`
+
+Downloads the contents of a [`RemoteFile`](./RemoteFile) to disk,
+and returns a Promise to a `TextFile` representing it.
+
+#### Example
+
+The following example downloads the remote file to `/path/to/file.txt`.
+
+```js
+const remoteFile = new RemoteFile("http://example.com/file.txt");
+const localCopy = await TextFile.createFromRemoteFile(remoteFile, "/path/to");
+```
+
+#### Parameters
+
+1. `remoteFile: RemoteFile`
+
+   The remote file to download
+
+2. `directory: string`
+
+   The local directory into which the remote file will be downloaded.
+
+3. `name?: string`
+
+   The name of the file to create. If omitted, it will fallback to using the remote file's `Content-Disposition` header to extract the original filename.
+
+4. `encoding?: string`
+
+   The encoding to use for the remote file. If omitted, it will fallback to using the remote file's `Content-Disposition` header to extract the original file encoding.
+
+5. `onProgress?: (progress: StreamProgressEvent) => void`
+
+   An optional callback that will be called as the download progresses. This uses [`stream-progress`][stream-progress] internally.
+
+#### Return Value
+
+Returns a Promise, that will resolve with an instance of `TextFile`.
+
+### `createFromStream`
+
+Writes a file to disk from any [`ReadableStream`][readable-stream], and then returns a Promise to a `TextFile` representing it.
+
+> _Note:_ You probably want to use `createFromRemoteFile`, which handles most of the heavy lifting of downloading a file.
+
+#### Parameters
+
+1. `path: string`
+
+   The local path into which the file will be written.
+
+2. `readStream: ReadableStream`
+
+   A [`ReadableStream`][readable-stream] from which the file content should be read.
+
+3. `encoding?: string`
+
+   The encoding to use for the remote file. If omitted, it will fallback to `'utf8'`.
+
+4. `onProgress?: (progress: StreamProgressEvent) => void`
+
+   An optional callback that will be called as the download progresses. This uses [`stream-progress`][stream-progress] internally.
+
+5. `expectedLength?: number`
+
+   If `onProgress` is provided, an `expectedLength` must also be provided, to allow progress events to calculate stream completion. It represents the size of the file in bytes.
+
+#### Return Value
+
+Returns a Promise, that will resolve with an instance of `TextFile`.
+
+### `validate`
+
+This method throws an error is the supplied string is empty.
+This is largely useless in `TextFile`, and is mostly intended to be overridden in extending classes.
+
+`validate` is called by `write` with the new value (before serialization). It should be used to throw an error to prevent writes with invalid data.
+
+#### Parameters
+
+1. `value: string | ParsedTextFileContent`
+
+   The new content of the file to be validated. If no `parse` method is specified on the instance, then `value` will be a string; otherwise it will be the return type of `parse`.
+
+#### Return Value
+
+_none_
+
+## Instance Methods
+
+### `writeFromStream`
+
+Writes to the file on disk from any [`ReadableStream`][readable-stream].
+
+#### Parameters
+
+1. `readStream: ReadableStream`
+
+   A [`ReadableStream`][readable-stream] from which the file content should be read.
+
+2. `onProgress?: (progress: StreamProgressEvent) => void`
+
+   An optional callback that will be called as the download progresses. This uses [`stream-progress`][stream-progress] internally.
+
+3. `expectedLength?: number`
+
+   If `onProgress` is provided, an `expectedLength` must also be provided, to allow progress events to calculate stream completion. It represents the size of the file in bytes.
+
+#### Return Value
+
+Returns a Promise which resolves with nothing.
+
+### `read`
+
+Reads the file from disk. If the file has been read previously, a cached copy from memory is returned instead.
+
+If a `parse` instance method is defined, it will be used to parse the file before returning. The parsed version will be cached instead of the raw contents of the file.
+
+#### Parameters
+
+1. `bypassCache?: boolean`
+
+   If supplied (and truthy), the cache will be bypassed and the file will be read fresh from disk. If not supplied (or falsy), the cache will be used as normal.
+
+#### Return Value
+
+Returns a Promise which resolves the parsed content of the file.
+
+### `write`
+
+Writes a file to disk. The new value will be used to update the in-memory cache.
+
+If a `serialize` instance method is defined, it will be used to serialize the file before writing.
+
+#### Parameters
+
+1. `newValue: string | ParsedTextFileContent`
+
+   The new (parsed) value of the file to write.
+
+#### Return Value
+
+Returns a Promise which resolves with nothing.
+
+### `readRaw`
+
+Reads the raw content of a file, bypassing the cache and any `parse` method that may be defined.
+
+#### Parameters
+
+_none_
+
+#### Return Value
+
+Returns a Promise that resolves with a string.
+
+### `writeRaw`
+
+Writes the raw content of a file, bypassing the cache and any `serialize` method that may be defined.
+
+#### Parameters
+
+1. `newRawValue: string`
+
+   The new (raw) value of the file to write.
+
+### `delete`
+
+Deletes the file from disk.
+
+#### Parameters
+
+_none_
+
+#### Return Value
+
+A Promise that resolves with nothing.
+
+[readable-stream]: https://nodejs.org/api/stream.html#stream_readable_streams
+[stream-progress]: https://npmjs.com/package/progress-stream

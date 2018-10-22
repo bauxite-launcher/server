@@ -15,17 +15,23 @@
     "type": "flow",
     "lint": "eslint src test-e2e",
     "prepublishOnly": "yarn type && yarn lint && yarn test",
-    "cli:instance": "./dist/cli/instance/index.js"
+    "docs": "docz"
   },
   "devDependencies": {
-    "babel-cli": "^6.26.0",
-    "babel-core": "^6.26.3",
+    "@babel/cli": "^7.1.2",
+    "@babel/core": "^7.1.2",
+    "@babel/plugin-proposal-class-properties": "^7.0.0",
+    "@babel/plugin-proposal-object-rest-spread": "^7.0.0",
+    "@babel/preset-env": "^7.1.0",
+    "@babel/preset-flow": "^7.0.0",
+    "babel-core": "^7.0.0",
     "babel-eslint": "^10.0.1",
-    "babel-jest": "^23.6.0",
-    "babel-plugin-transform-class-properties": "^6.24.1",
-    "babel-plugin-transform-object-rest-spread": "^6.26.0",
-    "babel-preset-env": "^1.7.0",
-    "babel-preset-flow": "^6.23.0",
+    "babel-jest": "^23.4.2",
+<<<<<<< HEAD
+    "buble": "0.19.4",
+=======
+>>>>>>> 5d7f643... Re-add docz
+    "docz": "^0.12.5",
     "eslint": "^5.6.1",
     "eslint-config-airbnb-base": "^13.1.0",
     "eslint-plugin-flow": "^2.29.1",

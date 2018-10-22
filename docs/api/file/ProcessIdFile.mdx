@@ -1,0 +1,15 @@
+---
+name: ProcessIdFile class
+route: /api/file/ProcessIdFile
+menu: Instance File APIs
+---
+
+# `ProcessIdFile` class
+
+Represents the `instance.pid` file within a server instance directory; it stores the process ID of the currently running Minecraft/Forge server instance.
+
+This class extends [`TextFile`](./TextFile).
+
+When reading, if the file does not exist, then `null` is returned. When writing, if no new value is specified, then the file is deleted.
+
+In other words, the file can only exist while a value is specified &mdash; no value means no file.

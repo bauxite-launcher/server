@@ -3,3 +3,4 @@ reports
 *.log
 junit.xml
 dist
+.docz/

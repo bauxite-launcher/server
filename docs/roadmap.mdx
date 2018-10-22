@@ -1,0 +1,103 @@
+---
+name: Feature Roadmap
+route: /roadmap
+menu: Overview
+---
+
+# Roadmap
+
+As much as possible, semantic versioning will be respected. Bauxite is an ambitious project
+with a lengthy roadmap for a single developer to complete, so please don't rely on its existance
+for anything critical. There will be no npm release of anything before v0.5.0, as it is still
+early days, and I don't plan for anybody to adopt this yet.
+
+## Version 0.1.0 (completed)
+
+The bare minimum to get a vanilla Minecraft instance installed, and launched.
+And some other stuff, because why not?
+
+- [x] Basic File APIs
+  - [x] [`TextFile`](/api/file/TextFile)
+  - [x] [`JsonFile`](/api/file/JsonFile)
+  - [x] [`JsonCollectionFile`](/api/file/JsonCollectionFile)
+  - [x] [`RemoteFile`](/api/file/RemoteFile)
+- [x] Basic Instance API
+  - [x] Minecraft server installation
+  - [x] Server process management (start/stop)
+  - [x] [server.properties][server.properties] management
+  - [x] Log file management (parse/tail)
+  - [x] Ops/whitelist/usercache
+- [x] Instance CLI
+  - [x] Status
+  - [x] Install/upgrade
+  - [x] Start/stop
+  - [x] Server proeprties
+  - [x] Logs
+
+## Version 0.2.0 (in progress)
+
+In order to launch modded servers, 1st class support for [Minecraft Forge][forge] is necessary.
+This version adds the bare minimum to get Forge installed and launching.
+
+- [x] Forge support
+  - [x] Forge server installation
+  - [ ] Launch Forge server when available
+  - [x] Adapt status CLI command
+  - [x] Adapt install CLI command
+- [ ] Forge mod support
+  - [ ] List installed mods
+  - [ ] Install mod from filepath/URL
+
+## Version 0.3.0
+
+- [ ] Install mod from CurseForge project ID/URL
+- [ ] Find compatible updates for mods installed from CurseForge
+
+## Version 0.4.0
+
+- [ ] Install modpack instance from CurseForge project ID/URL
+- [ ] Update modpacks installed from CurseForge
+- [ ] npm release:
+  - [ ] @bauxite/instance-api
+  - [ ] @bauxite/instance-cli
+
+## Version 0.5.0
+
+- [ ] Almost everything stateful becomes an EventEmitter
+- [ ] GraphQL API with subscriptions ([Apollo][apollo], probably)
+- [ ] Websocket bindings (maybe local unix socket bindings)
+
+## Version 0.6.0
+
+- [ ] Containerisation of instances, probably using [LXD][lxd]
+- [ ] Basic "controller" API (manages multiple instances, nomenclature TBC), via GraphQL instance API + containers
+
+## Version 0.7.0
+
+- [ ] GraphQL API for "controller" (again websocket, maybe unix socket)
+- [ ] Web UI for for "controller"
+- [ ] Public-facing web dashboard for statistics/map etc.
+
+## Other
+
+These features are things I want to add, but haven't really thought through (or don't add much value),
+and will probably bring into the roadmap as I go.
+
+- [ ] Wizard CLI (as frontend for existing CLI)
+- [ ] Mod configuration
+- [ ] "controller" option groups (i.e. presets)
+- [ ] [Dynmap][dynmap] integration
+  - [ ] Web UI / public dashboard
+- [ ] World management
+- [ ] Backup management
+  - [ ] Via LXD + copy-on-write filesystem
+  - [ ] Via Forge mod (i.e. [AromaBackup][aroma])
+- [ ] Browser extensions (Chrome/FF) to launch instances from CurseForge project pages
+
+[server.properties]: https://minecraft.gamepedia.com/Server.properties
+[forge]: https://files.minecraftforge.net/
+[curseforge]: https://www.curseforge.com/
+[apollo]: https://apollographql.com/
+[lxd]: https://linuxcontainers.org/lxd/introduction/
+[dynmap]: https://minecraft.curseforge.com/projects/dynmapforge/
+[aroma]: https://minecraft.curseforge.com/projects/aromabackup/

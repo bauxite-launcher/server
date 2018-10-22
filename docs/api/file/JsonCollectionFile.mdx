@@ -1,0 +1,126 @@
+---
+name: JsonCollectionFile class
+route: /api/file/JsonCollectionFile
+menu: Utility APIs
+---
+
+# `JsonCollectionFile` class
+
+A utility class which represents a JSON collection (array of objects), backed by a file on disk.
+
+This class extends [`JsonFile`](./JsonFile).
+
+## Example Usage
+
+### Reading collection from a file on disk
+
+```js
+const file = new JsonCollectionFile("/path/to/file.json");
+
+const collection = await file.read();
+```
+
+### Adding/removing items
+
+```js
+const file = new JsonCollectionFile("/path/to/file.json");
+// file content is initially empty
+
+await collection.add({ foo: "bar" }, { foo: "baz" });
+// file content is now [{ foo: 'bar' }, { foo: 'baz' }]
+
+await collection.remove(item => item.foo === "bar");
+// file content is now [{ foo: 'baz' }]
+```
+
+## Static Methods
+
+### `parse`
+
+Parses the collection from stringified JSON.
+If a static `parseItem` method is defined, it will be used to transform each item of the collection. The method extends `parse` from [`JsonFile`](./JsonFile).
+
+### `serialize`
+
+Serializes the collection to JSON.
+If a static `serializeItem` method is defined, it will be used to transform each item of the collection. The method extends `serialize` from [`JsonFile`](./JsonFile).
+
+### `validate`
+
+Validates the collection. If a static `uniqueKeys` property is present on the class, then `validateUniqueness` will be used.
+
+## Instance Methods
+
+### `find`
+
+Finds an item from the collection using the supplied callback. Behaves very similarly to `Array.find`.
+
+#### Parameters
+
+1. `callback: (item: CollectionItem) => boolean`
+
+   A callback method, passed to `Array.find` on the collection.
+
+#### Return Value
+
+Returns a Promise that resolves with the first matched item from the collection, or undefined if no item is matched.
+
+### `filter`
+
+Returns a filtered version of the collection using the supplied callback. Behaves similarly to `Array.filter`.
+
+#### Parameters
+
+1. `callback: (item: CollectionItem) => boolean`
+
+   A callback method, passed to `Array.filter` on the collection.
+
+#### Return Value
+
+Returns a Promise that resolves with an array of items from the collection for which the callback returns `true`.
+
+### `updateItem`
+
+Updates one or more items within the collection.
+
+#### Parameters
+
+1. `matchesItem: (item: CollectionItem) => boolean`
+
+   A callback used to select which items to update.
+
+2. `updater: (item: CollectionItem) => CollectionItem`
+
+   A callback to update the selected items.
+
+#### Return Value
+
+Returns a Promise that resolves with nothing.
+
+### `add`
+
+Adds a new item to the collection.
+
+#### Parameters
+
+1. `entry: CollectionItem`
+
+   The new item to add to the collection.
+
+#### Return Value
+
+Returns a Promise that resolves with nothing.
+
+### `remove`
+
+Removes one or more items from the collection using the supplied callback.
+
+#### Parameters
+
+1. `callback: (item: CollectionItem) => boolean`
+
+   The callback method will be passed each item from the collection. If the callback returns `true`, then the item will be removed.
+
+#### Return Value
+
+Returns a Promise that resolves with nothing.
