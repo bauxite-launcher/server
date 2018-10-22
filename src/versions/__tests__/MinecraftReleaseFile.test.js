@@ -1,5 +1,5 @@
 import nock from 'nock';
-import MinecraftReleaseFile from '../MinecraftReleaseFile';
+import MinecraftReleaseFile from '../MinecraftRelease';
 
 const mockManifestHost = 'http://example.com';
 const mockManifestPath = '/release.1.13.1.json';
@@ -23,7 +23,9 @@ describe('MinecraftReleaseFile', () => {
 
   describe('when instantiated with valid URL', () => {
     it('should not throw an error', () => {
-      expect(() => new MinecraftReleaseFile(mockManifestUrl)).not.toThrowError();
+      expect(
+        () => new MinecraftReleaseFile(mockManifestUrl),
+      ).not.toThrowError();
     });
   });
 

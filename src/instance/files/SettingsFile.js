@@ -2,21 +2,20 @@
 
 import JsonFile from '../../util/file/JsonFile';
 
+export type ForgeSettings = {
+  forgeVersion?: string,
+  forgeJar?: string,
+};
+
 export type Settings = {
   name: string,
   minecraftVersion: string,
   serverJar?: string,
   javaArgs?: Array<string>,
   javaBin?: string,
-};
+} & ForgeSettings;
 
-export type PartialSettings = {
-  name?: string,
-  minecraftVersion?: string,
-  serverJar?: string,
-  javaArgs?: Array<string>,
-  javaBin?: string,
-};
+export type PartialSettings = $Shape<Settings>; // eslint-disable-line no-undef
 
 class SettingsFile extends JsonFile<Settings> {
   static validate(settings: Settings) {
@@ -27,7 +26,13 @@ class SettingsFile extends JsonFile<Settings> {
     }
 
     const {
-      name, minecraftVersion, serverJar, javaArgs, javaBin,
+      name,
+      minecraftVersion,
+      serverJar,
+      javaArgs,
+      javaBin,
+      forgeVersion,
+      forgeJar,
     } = settings;
 
     if (!name || typeof name !== 'string') {
@@ -59,6 +64,22 @@ class SettingsFile extends JsonFile<Settings> {
       throw new Error(
         'Instance must have javaBin as a non-empty string, if provided',
       );
+    }
+
+    if (forgeVersion || forgeJar) {
+      if (!(forgeVersion && forgeJar)) {
+        throw new Error(
+          'Both (or neither) of forgeVersion and forgeJar must be specified',
+        );
+      }
+      if (!forgeVersion || typeof forgeVersion !== 'string') {
+        throw new Error(
+          'Instance must have forgeVersion as a non-empty string',
+        );
+      }
+      if (!forgeJar || typeof forgeJar !== 'string') {
+        throw new Error('Instance must have forgeJar as a non-empty string');
+      }
     }
   }
 

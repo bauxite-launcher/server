@@ -1,5 +1,5 @@
 import nock from 'nock';
-import { MinecraftReleaseListFile } from '../MinecraftReleaseListFile';
+import { MinecraftReleaseListFile } from '../MinecraftReleaseList';
 
 const mockReleaseManifest = {
   versions: [

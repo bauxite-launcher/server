@@ -12,6 +12,10 @@ import Installer, {
   type InstallState,
   type InstallStateSubscriber,
 } from './Installer';
+import ForgeInstaller, {
+  type InstallState as ForgeInstallState,
+  type InstallStateSubscriber as ForgeInstallStateSubscriber,
+} from './ForgeInstaller';
 import LogManager from './LogManager';
 
 const PROPERTIES = 'server.properties';
@@ -44,6 +48,10 @@ class Instance {
   installerCache: ?Installer;
 
   installer: Installer;
+
+  forgeInstallerCache: ?ForgeInstaller;
+
+  forgeInstaller: ForgeInstaller;
 
   logsCache: ?LogManager;
 
@@ -130,6 +138,37 @@ class Instance {
   ): Promise<void> {
     const unsubscribe = onProgress && this.installer.subscribe(onProgress);
     const result = await this.installer.install(minecraftVersionId, force);
+    if (unsubscribe) {
+      unsubscribe();
+    }
+    return result;
+  }
+
+  createForgeInstaller(): ForgeInstaller {
+    const newInstaller = new ForgeInstaller(this);
+    this.forgeInstallerCache = newInstaller;
+    return newInstaller;
+  }
+
+  get forgeInstaller() {
+    return this.forgeInstallerCache || this.createForgeInstaller();
+  }
+
+  async getForgeInstallState(): Promise<ForgeInstallState> {
+    return this.forgeInstaller.getState();
+  }
+
+  async isForgeInstalled(): Promise<boolean> {
+    return this.forgeInstaller.isInstalled();
+  }
+
+  async installForge(
+    forgeVersionId: string,
+    onProgress?: ?ForgeInstallStateSubscriber,
+    force?: boolean,
+  ): Promise<void> {
+    const unsubscribe = onProgress && this.forgeInstaller.subscribe(onProgress);
+    const result = await this.forgeInstaller.install(forgeVersionId, force);
     if (unsubscribe) {
       unsubscribe();
     }

@@ -13,6 +13,8 @@ type InstanceStatus = {
   running?: boolean,
   processId?: ?number,
   version?: string,
+  forgeInstalled?: boolean,
+  forgeVersion?: string,
 };
 
 export const statusCommand: CommandHandlerDefinition<
@@ -25,8 +27,9 @@ export const statusCommand: CommandHandlerDefinition<
     const installed = await instance.isInstalled();
     if (!installed) return { directory, installed };
 
+    const forgeInstalled = await instance.isForgeInstalled();
     const running = await instance.isRunning();
-    const { minecraftVersion } = await instance.settings.read();
+    const { minecraftVersion, forgeVersion } = await instance.settings.read();
     const processId = await instance.process.getProcessId();
 
     return {
@@ -35,25 +38,49 @@ export const statusCommand: CommandHandlerDefinition<
       running,
       processId,
       version: minecraftVersion,
+      forgeInstalled,
+      forgeVersion,
     };
   },
   render({
     directory,
     installed,
+    forgeInstalled,
     running = false,
     version,
+    forgeVersion,
     processId,
   }: InstanceStatus) {
     const header = { Directory: directory, Installed: booleanValue(installed) };
 
     const body = installed
       ? {
-        Running: booleanValue(running),
-        'Process ID': integerValue(processId),
-        'MC Version': version,
+        'Minecraft Version': version,
       }
       : {};
-    return definitionList({ ...header, ...body });
+
+    // eslint-disable-next-line no-nested-ternary
+    const whileRunning = installed
+      ? running
+        ? {
+          Running: booleanValue(running),
+          'Process ID': integerValue(processId),
+        }
+        : { Running: booleanValue(running) }
+      : {};
+
+    const forge = forgeInstalled
+      ? {
+        'Forge Installed': booleanValue(forgeInstalled),
+        'Forge Version': forgeVersion,
+      }
+      : {};
+    return definitionList({
+      ...header,
+      ...body,
+      ...forge,
+      ...whileRunning,
+    });
   },
 };
 
