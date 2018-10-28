@@ -15,6 +15,8 @@ export class DuplicateError extends Error {
 class JsonCollectionFile<T: any = *, R = *> extends JsonFile<Array<T>> {
   static +parseItem: ?(R) => T;
 
+  static +serializeItem: ?(T) => R;
+
   static +uniqueKeys: ?Array<string>;
 
   static validate(collection: Array<T>) {
@@ -56,6 +58,12 @@ class JsonCollectionFile<T: any = *, R = *> extends JsonFile<Array<T>> {
     return collection;
   }
 
+  static async serialize(collection: Array<T>): Promise<string> {
+    const rawCollection = this.serializeItem ? collection.map(this.serializeItem, this) : collection;
+    // $FlowFixMe
+    return super.serialize(rawCollection);
+  }
+
   async find(callback: (item: T) => boolean): Promise<?T> {
     const collection = await this.read();
     return collection.find(callback);
@@ -84,8 +92,8 @@ class JsonCollectionFile<T: any = *, R = *> extends JsonFile<Array<T>> {
     return super.write(newCollection);
   }
 
-  async add(entry: T): Promise<void> {
-    return this.update(collection => collection.concat([entry]));
+  async add(...entries: Array<T>): Promise<void> {
+    return this.update(collection => collection.concat(entries));
   }
 
   async remove(matchesItem: (item: T) => boolean): Promise<void> {

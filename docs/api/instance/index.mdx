@@ -1,0 +1,232 @@
+---
+name: MinecraftInstance class
+route: /api/instance
+menu: Server Instance API
+---
+
+# `MinecraftInstance` class
+
+Represents a single instance of Minecraft server, and all of its associated files on disk.
+
+## Properties
+
+### `directory` _(read-only string)_
+
+The absolute path of the directory that contains the instance.
+
+### `settings` _([`SettingsFile`](./file/SettingsFile))_
+
+A `SettingsFile` for the instance.
+
+### `properties` _([`ServerPropertiesFile`](./file/ServerPropertiesFile))_
+
+A `ServerPropertiesFile` for the instance.
+
+### `whitelist` _([`WhitelistFile`](./file/WhitelistFile))_
+
+A `WhitelistFile` for the instance.
+
+### `ops` _([`OpsFile`](./file/OpsFile))_
+
+An `OpsFile` for the instance.
+
+### `userCache` _([`UserCacheFile`](./file/UserCacheFile))_
+
+A `UserCacheFile` for the instance.
+
+### `eula` _([`EulaFile`](./file/EulaFile))_
+
+An `EulaFile` for the instance.
+
+### `process` _([`InstanceProcess`](./InstanceProcess))_
+
+An `InstanceProcess` for the instance.
+
+### `installer` _([`MinecraftInstaller`](./Installer))_
+
+An `Installer` for the instance.
+
+### `forgeInstaller` _([`ForgeInstaller`](./ForgeInstaller))_
+
+A `ForgeInstaller` for the instance.
+
+### `logs` _([`LogManager`](./LogManager))_
+
+A `LogManager` for the instance.
+
+## Static Methods
+
+### `constructor`
+
+Instantiates a new `Instance`.
+
+#### Parameters
+
+1. `path: directory`
+
+   The absolute local filepath to the instance's directory. If the directory does not exist, it will be created when its `install` method is called.
+
+2. `settings?: SettingsFile`
+
+   An optional `SettingsFile`. Not useful for the majority of cases - may be removed in the future. If not supplied, one will be automatically created.
+
+3. `properties?: ServerPropertiesFile`
+
+   An optional `ServerPropertiesFile`.  Not useful for the majority of cases - may be removed in the future. If not supplied, one will be automatically created.
+
+### `create`
+
+Creates a new `Instance` and installs it based on some initial settings.
+
+#### Parameters
+
+1. `path: directory`
+
+   The absolute local filepath to the instance's directory. If the directory does not exist, it will be created when its `install` method is called.
+
+2. `settings: { minecraftVersion: string }`
+
+   An object containing the initial settings to use to install the instance. Currently, only the `minecraftVersion` key is used ─ other values may be added in future.
+
+3. `onProgress?: InstallStateSubscriber`
+
+   An optional callback to fire with progress updates from the installation process. See the documentation for [`MinecraftInstaller.install`](./Installer) for further information on this callback.
+
+#### Return values
+
+Returns a Promise, which resolves with a new `MinecraftInstance`, having installed Minecraft.
+
+## Instance Methods
+
+### `path`
+
+Returns a path, relative to the instance's directory root. This is essentially [`path.resolve`][path-resolve] with the instance directory bound as its first parameter.
+
+#### Example Usage
+
+Given a `MinecraftInstance`, constructed like so:
+
+```js
+const instance = new MinecraftInstance('/path/to/instance');
+```
+
+Then, calling `instance.path` with no parameters returns the instance directory as-is:
+
+```js
+instance.path() // => /path/to/instance
+```
+
+Similarly, calling `instance.path` with a relative file path will resolve that path within the instance directory:
+
+```js
+instance.path('someFile.txt') // => /path/to/instance/someFile.txt
+```
+
+Finally, given that this method is based on Node's built-in [`path.resolve`][path-resolve] function, you may pass it as many arguments as you like:
+
+```js
+instance.path('some/other', 'path', 'inside', 'someFile.json')
+// => /path/to/instance/some/other/path/inside/someFile.json
+```
+
+#### Parameters
+
+Accepts zero or more string arguments (i.e. the method is variadic), each representing a component of the path.
+
+#### Return Value
+
+Returns a string representing an absolute path to a file/folder within the instance directory. See the **Example Usage** section above for more information.
+
+### `launch`
+
+A convenience method that calls the starts the Minecraft instance. This is a wrapper around [`InstanceProcess.launch`](./InstanceProcess).
+
+#### Return Value
+
+Returns a Promise, that resolves when the instance process has been launched.
+
+### `kill`
+
+A convenience method that calls the stops the Minecraft instance. This is a wrapper around [`InstanceProcess.kill`](./InstanceProcess).
+
+#### Return Value
+
+Returns a Promise, that resolves when the instance process has been stopped.
+
+### `isRunning`
+
+A convenience method that can be used to determine whether the instance is currently running. This is a wrapper around [`InstanceProcess.isRunning`](./InstanceProcess)
+
+#### Return Value
+
+Returns a Promise, that resolves with a boolean. If that boolean is true, then the instance is running; otherwise it is not running.
+
+### `isInstalled`
+
+A convenience method to quickly determine whether Minecraft server has been installed on this instance.
+
+#### Return Value
+
+Returns a Promise, that resolves with a boolean. If this boolean is true, then Minecraft server is installed.
+
+### `getInstallState`
+
+A convenience method that returns the current install state of the instance. This is a wrapper around [`Installer.getInstallState`](./Installer)
+
+#### Return Value
+
+Returns a Promise, that resolves with an `InstallState`.
+
+### `install`
+
+Installs a specific version of the Minecraft server into the instance.
+
+#### Parameters
+
+1. `minecraftVersionId: string`
+
+   The version ID of Minecraft to install, e.g. `"1.13.2"`.
+
+2. `onProgress?: InstallStateSubscriber`
+
+   An optional callback to fire with progress updates from the installation process. See the documentation for [`MinecraftInstaller.install`](./Installer) for further information on this callback.
+
+3. `force?: boolean`
+
+   If true, then the installation will not perform any preflight checks. In other words, it will override any existing installations.
+
+### `isForgeInstalled`
+
+A convenience method to quickly determine whether Minecraft Forge server has been installed on this instance.
+
+#### Return Value
+
+Returns a Promise, that resolves with a boolean. If this boolean is true, then Minecraft Forge server is installed.
+
+### `getForgeInstallState`
+
+A convenience method that returns the current Forge installation state of the instance. This is a wrapper around [`ForgeInstaller.getInstallState`](./Installer)
+
+#### Return Value
+
+Returns a Promise, that resolves with a `ForgeInstallState`.
+
+### `installForge`
+
+Installs a specific version of Minecraft Forge server into the instance.
+
+#### Parameters
+
+1. `forgeVersionId: string`
+
+   The version ID of Minecraft Forge to install, e.g. `"14.123.3222"`.
+
+2. `onProgress?: ForgeInstallStateSubscriber`
+
+   An optional callback to fire with progress updates from the installation process. See the documentation for [`ForgeInstaller.install`](./ForgeInstaller) for further information on this callback.
+
+3. `force?: boolean`
+
+   If true, then the installation will not perform any preflight checks. In other words, it will override any existing installations.
+
+[path-resolve]: https://nodejs.org/api/path.html#path_path_resolve_paths

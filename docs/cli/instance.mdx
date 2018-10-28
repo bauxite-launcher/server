@@ -1,0 +1,202 @@
+---
+name: Instance CLI
+route: /cli/instance
+menu: Command-Line Tools
+---
+
+# Instance Command-Line Interface
+
+To allow easy/lazy management of a single instance, the `@bauxite/instance-cli` package offers a set of terminal commands that can perform most of the common management tasks offered by the [Instance API](/api/instance).
+
+## Installation
+
+> **Note:** This package has not yet been published to npm &mdash; these installation instructions do not currently work.
+>
+> For advanced users, you may clone, build and symlink the instance CLI:
+>
+> ```sh
+> git clone https://github.com/bauxite-launcher/server.git
+> cd server
+> yarn && yarn build && chmod +x ./dist/cli/instance/index.js
+> sudo ln -s $(realpath ./dist/cli/instance/index.js) /usr/local/bin/bx-instance
+> ```
+
+Installation is possible using `npm` or `yarn`:
+
+```sh
+yarn global add @bauxite/instance-cli
+```
+
+or
+
+```sh
+npm install --global @bauxite/instance-cli
+```
+
+## Usage
+
+Once installed, the `bx-instance` command will be available for use in the terminal. You can see a full list of its commands using:
+
+```sh
+bx-instance --help
+```
+
+Information about a specific command may be accessed in a similar fashion:
+
+```sh
+bx-instance install --help
+```
+
+You may also check the current version using:
+
+```sh
+bx-instance --version
+```
+
+## Global Options
+
+The following options apply to all available commands, except where noted.
+
+### `--directory` _(required)_
+
+This is the only required option, specifying the absolute path to the instance's directory on disk. By default, the current working directory will be used.
+
+Alternatively, this option be supplied using the `BAUXITE_DIRECTORY` environment variable.
+
+### `--colour` / `--color`
+
+If set, terminal output will be colourised. To disable this, the `--no-colour` or `--no-color` flag may be passed.
+
+Alternatively, this option be supplied using the `BAUXITE_COLOUR` environment variable.
+
+### `--emoji`
+
+Some commands use emojis in their output. To disable this, the `--no-emoji` flag may be used.
+
+Alternatively, this option be supplied using the `BAUXITE_EMOJI` environment variable.
+
+### `--json`
+
+With most commands, this flag can be set to output JSON instead of human-readable text. This is useful if you want to use this CLI tool from other scripts/applications.
+
+Alternatively, this option be supplied using the `BAUXITE_JSON` environment variable.
+
+
+> For all of the examples for the following commands, we are installing an instance using the `BAUXITE_DIRECTORY` environment variable to tell Bauxite where our instance lives.
+>
+> ```sh
+> export BAUXITE_DIRECTORY=/path/to/instance
+> ```
+
+## Commands
+
+### `install` Command
+
+Downloads and sets up Minecraft (and, optionally, Forge) server.
+
+```sh
+# Install the latest version of Minecraft server
+bx-instance install
+```
+
+```sh
+# Install the latest snapshot version of Minecraft server
+bx-instance install --snapshot
+```
+
+```sh
+# Install version 1.12.2 of Minecraft server
+bx-instance install --minecraftVersion 1.12.2
+```
+
+```sh
+# Install the latest recommended version of Forge (and Minecraft too)
+bx-instance install --forge
+```
+
+#### Options
+
+##### `--stable`
+
+Install the latest stable version of Minecraft server. This is the default behaviour.
+
+##### `--snapshot`
+
+Install the latest snapshot version of Minecraft server.
+
+##### `--minecraftVersion <version>`
+
+The version of Minecraft server to install. If omitted, then the latest stable version will be installed.
+
+##### `--forge`
+
+Installs Forge server. If Minecraft server is not yet installed, it will be installed automatically.
+
+##### `--forgeVersion`
+
+Installs a specific version of Forge server.
+
+### `upgrade` Command
+
+Almost identical to the `install`, except it will upgrade an existing instance to a new version.
+
+### `status` Command
+
+Shows the current status of the instance, including:
+
+- The instance directory
+- Whether the instance is installed
+  - The version of Minecraft server
+- Whether Forge is installed
+  - The version of Forge
+- Whether the instance is running
+  - The process ID of the running instance
+
+### `start` Command
+
+Starts the instance
+
+### `stop` Command
+
+Stops the instance.
+
+### `properties` Command
+
+Used to read/write settings from the instance's server.properties file.
+
+```sh
+# List all settings
+bx-instance properties
+```
+
+```sh
+# Read the 'port' property
+bx-instance properties --key port
+```
+
+```sh
+# Update the 'port' property
+bx-instance properties --key port --value 25536
+```
+
+### `logs` Command
+
+Used to read the instance's log files.
+
+#### Options
+
+##### `--lines <n>`
+
+The number of lines to show. If supplied, only the last `n` entries from the log file will be shown. If omitted, the entire file(s) will be shown.
+
+##### `--latest`
+
+Show the contents of the latest log file.
+
+##### `--date`
+
+Show the contents of the log file(s) from the specified date. Date may be supplied as ISO8601, or a unix timestamp.
+
+##### `--tail`
+
+Streams the log file live from the terminal.

@@ -1,0 +1,42 @@
+---
+name: SettingsFile class
+route: /api/file/SettingsFile
+menu: Instance File APIs
+---
+
+# `SettingsFile` class
+
+Represents a `settings.json` file, which stores Bauxite-specific configuration data.
+
+This class extends [`JsonFile`](./JsonFile).
+
+## File Format
+
+`settings.json` is a JSON file, with the following accepted keys:
+
+- `name`: A string representing the user-facing name of the instance.
+- `minecraftVersion`: A string representing the version of Minecraft that is installed.
+- `serverJar`: The filename of the vanilla Minecraft server JAR.
+- `javaArgs`: An array of additional parameters to supply to the server JAR.
+- `javaBin`: The Java binary to use. By default, `java` will be used from `$PATH`.
+
+If Forge is installed, the following additional keys are accepted:
+
+- `forgeVersion`: The version of Forge that is installed.
+- `forgeJar` The filename of the Forge server JAR.
+
+## Instance Methods
+
+### `patch`
+
+Allows patching of the current settings, by providing a partial object containing new settings to update. Any settings not included in the patch will be left untouched.
+
+#### Parameters
+
+1. `partialSettings: $Shape<Settings>`
+
+   An object containing 1 or more settings to update.
+
+#### Return Value
+
+Returns a Promise, which resolves with nothing.

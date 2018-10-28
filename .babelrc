@@ -1,9 +1,20 @@
 {
-  "presets": ["flow", ["env", { "targets": { "node": "current" } }]],
-  "plugins": [
-    "transform-class-properties",
+  "presets": [
+    "@babel/preset-flow",
     [
-      "transform-object-rest-spread",
+      "@babel/preset-env",
+      {
+        "targets": {
+          "node": "current"
+        }
+      }
+    ]
+  ],
+  "plugins": [
+    "@babel/plugin-transform-flow-strip-types",
+    "@babel/plugin-proposal-class-properties",
+    [
+      "@babel/plugin-proposal-object-rest-spread",
       {
         "useBuiltIns": true
       }

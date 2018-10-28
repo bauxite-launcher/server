@@ -1,0 +1,87 @@
+---
+name: JsonFile class
+route: /api/file/JsonFile
+menu: Utility APIs
+---
+
+# `JsonFile` class
+
+A utility class which reads and writes from a JSON file on disk, handling parsing/serialization automatically.
+Once read, the JSON data will be cached in memory for quick access.
+
+This class extends [`TextFile`](./TextFile).
+
+## Example Usage
+
+### Reading from a file on disk
+
+```js
+const file = new JsonFile("/path/to/file.json");
+
+const fileContent = await file.read();
+```
+
+### Writing to a file on disk
+
+```js
+const file = new JsonFile("/path/to/file.json");
+
+await file.write({ foo: "bar" });
+```
+
+## Static Methods
+
+### `parse`
+
+Just a wrapper around `JSON.parse`.
+
+#### Parameters
+
+1. `rawValue: string`
+
+   The raw file content to parse.
+
+#### Return Value
+
+The parsed file content.
+
+### `serialize`
+
+Just a wrapper around `JSON.stringify`, with pretty-printing options set.
+
+#### Parameters
+
+1. `value: JSON`
+
+   The parsed file content to serialize.
+
+#### Return Value
+
+The serialized file content.
+
+## Instance Methods
+
+### `update`
+
+Accepts a callback, which will be used to update the contents of the file.
+
+For example:
+
+```js
+const store = await new JsonFile("/path/to/file.json");
+
+// content of file is initially { "foo": "bar" }
+
+await store.update(old => ({ ...old, baz: "quux" }));
+// content of file is now { "foo": "bar", "baz": "quux" }
+```
+
+#### Parameters
+
+1. `updateFn: (previousValue: JSON) => Promise<JSON> | JSON`
+
+   A callback that should return the new value of the file. If a Promise is returned, the value with which it resolves will be used.
+
+#### Return Value
+
+Returns a Promise that resolves with nothing.

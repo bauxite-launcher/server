@@ -48,7 +48,9 @@ class TextFile<T: any = string> implements ReadableFile<T>, WriteableFile<T> {
     if (!path) {
       throw new Error('File requires a path argument');
     }
-    this.path = path;
+    const { dir, base } = parsePath(path);
+    this.name = base;
+    this.directory = dir;
     if (encoding) {
       this.encoding = encoding;
     }

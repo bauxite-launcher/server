@@ -1,0 +1,63 @@
+---
+name: MinecraftReleaseList class
+route: /api/version/MinecraftReleaseList
+menu: Version APIs
+---
+
+# `MinecraftReleaseList` class
+
+A utility class for fetching and querying the official [Minecraft version API][mc-version-api]. The version data is cached in memory for quick re-use.
+
+> **Note:** The default export of this module is a singleton instance of the class, but access to the class is available by named export:
+
+> ```js
+> // Singleton instance from default export
+> import MinecraftReleaseList from '<-- package TBD -->'
+> const MinecraftReleaseList = require('<-- package TBD -->').default
+>
+> // Class interface from named export
+> import { MinecraftReleaseListFile } from '<-- package TBD -->'
+> const { MinecraftReleaseListFile } = require('<-- package TBD -->')
+> ```
+
+This class extends [`RemoteFile`](/api/file/RemoteFile).
+
+## Instance Methods
+
+### `releases`
+
+Fetches an array of Minecraft releases.
+
+#### Return Value
+
+Returns a Promise that resolves with an array of `MinecraftRelease`.
+
+### `findById`
+
+Finds a release of Minecraft that matches the specified ID.
+
+#### Parameters
+
+1. `releaseId: string`
+
+   The release ID of Minecraft to find metadata for, i.e. `"1.13.2"`
+
+#### Return Value
+
+Returns a Promise which resolves with a `MinecraftRelease`, or `undefined` if none match.
+
+### `latest`
+
+Returns the latest release of Minecraft from the specified release channel.
+
+#### Parameters
+
+1. `releaseType?: 'release' | 'snapshot'`
+
+   The release channel to use. If omitted, it will default to `'release'`.
+
+#### Return Value
+
+Returns a Promise which resolves with a `MinecraftRelease`, or `undefined` if the release channel does not exist.
+
+[mc-version-api]: https://launchermeta.mojang.com/mc/game/version_manifest.json
