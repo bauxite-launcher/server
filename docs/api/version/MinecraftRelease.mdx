@@ -1,0 +1,37 @@
+---
+name: MinecraftRelease class
+route: /api/version/MinecraftRelease
+menu: Version APIs
+---
+
+# `MinecraftRelease` class
+
+A utility class for fetching and querying metadata from manifest files linked to by the [Minecraft version API][mc-version-api]. The version data is cached in memory for quick re-use.
+
+This class extends [`RemoteFile`](/api/file/RemoteFile).
+
+## Static Methods
+
+### `constructor`
+
+Creates a new instance of `MinecraftRelease` based on a release manifest URL from the version API.
+
+#### Parameters
+
+1. `url: string`
+
+   The URL of the Minecraft release manifest file to use.
+
+### `fromReleaseId`
+
+Returns a `MinecraftReleaseManifest` based on a specific release ID.
+
+#### Parameters
+
+1. `id: string`
+
+   The ID of the Minecraft release to look up, i.e. `"1.13.2"`.
+
+#### Return Value
+
+Returns a Promise that resolves with a `MinecraftReleaseManifest`.

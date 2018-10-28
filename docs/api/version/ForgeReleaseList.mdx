@@ -1,0 +1,83 @@
+---
+name: ForgeReleaseList class
+route: /api/version/ForgeReleaseList
+menu: Version APIs
+---
+
+# `ForgeReleaseList` class
+
+A utility class for fetching and querying the unofficial [Minecraft Forge version API][forge-version-api]. The version data is cached in memory for quick re-use.
+
+> **Note:** Minecraft Forge uses advertising to generate revenue, and we would be nothing without Forge. When implementing a tool that uses this API, you are bypassing those advertisments. If you want to support the developers of Minecraft Forge, an adfocus ID is provided in the raw data of this file, accessible via the `read` instance method.
+
+This class extends [`RemoteFile`](/api/file/RemoteFile).
+
+## Instance Methods
+
+### `getReleaseById`
+
+Finds a Forge release by its ID.
+
+#### Parameters
+
+1. `id: string`
+
+   The Forge release ID, e.g. `"14.123.4565"`.
+
+#### Return Value
+
+Returns a Promise that resolves with a `ForgeRelease`.
+
+### `getReleaseByBuildId`
+
+Finds a Forge release by its build ID
+
+#### Parameters
+
+1. `buildId: number`
+
+   The Forge build ID, e.g. `2565`.
+
+#### Return Value
+
+Returns a Promise that resolves with a `ForgeRelease`.
+
+### `getReleasesByMinecraftVersion`
+
+Finds all compatible Forge releases for a specific version of Minecraft.
+
+#### Parameters
+
+1. `minecraftVersion: string`
+
+   The version of Minecraft, e.g. `"1.13.2"`.
+
+#### Return Value
+
+Returns a Promise that resolves with an array of `ForgeRelease`.
+
+### `getLatestForMinecraftVersion`
+
+Finds the latest compatible version of Forge for a given version of Minecraft.
+
+#### Parameters
+
+1. `minecraftVersion: string`
+
+   The version of Minecraft, e.g. `"1.13.2"`.
+
+2. `channel?: 'recommended' | 'latest'`
+
+   The Forge release channel to select a version from. If omitted, `'recommended'` will be used.
+
+### `getLatest`
+
+Finds the latest version of Forge.
+
+#### Parameters
+
+1. `channel?: 'recommended' | 'latest'`
+
+   The Forge release channel to select the latest version from. If omitted, `'recommended'` will be used.
+
+[forge-version-api]: https://files.minecraftforge.net/maven/net/minecraftforge/forge/json
