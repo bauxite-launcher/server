@@ -1,7 +1,9 @@
 import fs from 'jest-plugin-fs';
+import nock from 'nock';
 import ModInstance from '../ModInstance';
 import MinecraftInstance from '../../Instance';
 import TextFile from '../../../util/file/TextFile';
+import RemoteTextFile from '../../../util/file/RemoteFile';
 
 jest.mock('../../Instance');
 jest.mock('fs', () => require('jest-plugin-fs/mock'));
@@ -20,7 +22,7 @@ describe('ModInstance', () => {
     mockMinecraftInstance.path.mockImplementation(
       (...bits) => `/${bits.join('/')}`,
     );
-    fs.mock();
+    fs.mock({ '/mods/.keep': '1' });
   });
 
   afterEach(() => {
@@ -44,9 +46,6 @@ describe('ModInstance', () => {
       let localFile;
       beforeEach(() => {
         localFile = new TextFile('/mods/mod.jar');
-      });
-      it('should be a function', () => {
-        expect(ModInstance.fromLocalFile).toBeInstanceOf(Function);
       });
 
       describe('if the file is not in the right place', () => {
@@ -87,14 +86,30 @@ describe('ModInstance', () => {
     });
 
     describe('fromRemoteFile', () => {
-      it('should be a function', () => {
-        expect(ModInstance.fromRemoteFile).toBeInstanceOf(Function);
+      let httpScope;
+      let remoteFile;
+
+      beforeEach(() => {
+        httpScope = nock('http://example.com')
+          .get('/mod.jar')
+          .reply(200, mockModContent);
+        remoteFile = new RemoteTextFile('http://example.com/mod.jar');
+        remoteFile.suggestedFilename = 'mod.path.jar';
       });
 
-      // TODO: Nock out some tests
-      xit('should return a new ModInstance', () => {});
-      xit('should fetch the remote file', () => {});
-      xit('should install to the right location', () => {});
+      afterEach(() => {
+        httpScope.done();
+      });
+
+      it('should return a new ModInstance', async () => {
+        await expect(
+          ModInstance.fromRemoteFile(mockMinecraftInstance, remoteFile),
+        ).resolves.toBeInstanceOf(ModInstance);
+      });
+      it('should install to the right location', async () => {
+        await ModInstance.fromRemoteFile(mockMinecraftInstance, remoteFile);
+        expect(fs.files()['/mods/mod.path.jar']).toBe(mockModContent);
+      });
     });
   });
 
