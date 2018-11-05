@@ -64,17 +64,45 @@ describe('ModManager', () => {
       it('should be a function', () => {
         expect(modManager.addMod).toBeInstanceOf(Function);
       });
+
+      describe('when the mod is not installed', () => {
+        xit('should throw an error', () => {});
+      });
+
+      describe('when the mod is already installed', () => {
+        xit('should resolve silently', () => {});
+      });
     });
 
     describe('removeMod', () => {
       it('should be a function', () => {
         expect(modManager.removeMod).toBeInstanceOf(Function);
       });
+
+      describe('when the mod is not installed', () => {
+        xit('should resolve silently', () => {});
+      });
+
+      describe('when the mod is already installed', () => {
+        xit('should throw an error', () => {});
+      });
     });
 
     describe('areAllModsInstalled', () => {
       it('should be a function', () => {
         expect(modManager.areAllModsInstalled).toBeInstanceOf(Function);
+      });
+
+      describe('when no mods are installed (and none listed)', () => {
+        xit('should return true', () => {});
+      });
+
+      describe('when some mods are installed', () => {
+        xit('should return false', () => {});
+      });
+
+      describe('when all mods are installed', () => {
+        xit('should return true', () => {});
       });
     });
   });
