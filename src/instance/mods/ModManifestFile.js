@@ -10,6 +10,17 @@ export type ModManifest = {
   from: ModInstallationSource,
 };
 
-class ModManifestFile extends JsonCollectionFile<ModManifest, ModManifest> {}
+class ModManifestFile extends JsonCollectionFile<ModManifest, ModManifest> {
+  async readRaw(): Promise<*> {
+    try {
+      return await super.readRaw();
+    } catch (error) {
+      if (error.code === 'ENOENT') {
+        return '[]';
+      }
+      throw error;
+    }
+  }
+}
 
 export default ModManifestFile;
