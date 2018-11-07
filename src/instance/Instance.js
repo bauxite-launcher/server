@@ -17,6 +17,7 @@ import ForgeInstaller, {
   type InstallStateSubscriber as ForgeInstallStateSubscriber,
 } from './ForgeInstaller';
 import LogManager from './LogManager';
+import ModManager from './mods/ModManager';
 
 const PROPERTIES = 'server.properties';
 const SETTINGS = 'instance.json';
@@ -56,6 +57,10 @@ class Instance {
   logsCache: ?LogManager;
 
   logs: LogManager;
+
+  modsCache: ?ModManager;
+
+  mods: ModManager;
 
   constructor(
     directory: string,
@@ -183,6 +188,16 @@ class Instance {
 
   get logs(): LogManager {
     return this.logsCache || this.createLogManager();
+  }
+
+  createModManager(): ModManager {
+    const newModManager = new ModManager(this);
+    this.modsCache = newModManager;
+    return newModManager;
+  }
+
+  get mods(): ModManager {
+    return this.modsCache || this.createModManager();
   }
 }
 

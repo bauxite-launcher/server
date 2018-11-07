@@ -10,6 +10,8 @@ import {
   StopCommand,
   LogsCommand,
   PropertiesCommand,
+  ListModsCommand,
+  InstallModCommand,
 } from './commands';
 
 const commands: Array<ModuleObject<*>> = [
@@ -20,6 +22,8 @@ const commands: Array<ModuleObject<*>> = [
   StopCommand,
   LogsCommand,
   PropertiesCommand,
+  ListModsCommand,
+  InstallModCommand,
 ];
 
 const argParser = yargs

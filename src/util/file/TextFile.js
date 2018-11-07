@@ -5,7 +5,11 @@ import createProgressStream, {
   type StreamProgressCallback,
 } from 'progress-stream';
 import {
-  readFile, writeFile, createWriteStream, remove,
+  readFile,
+  writeFile,
+  createWriteStream,
+  remove,
+  ensureDir,
 } from 'fs-extra';
 import RemoteFile from './RemoteFile';
 
@@ -110,6 +114,7 @@ class TextFile<T: any = string> implements ReadableFile<T>, WriteableFile<T> {
     onProgress?: ?StreamProgressCallback,
     expectedLength?: ?number,
   ): Promise<void> {
+    await ensureDir(this.directory);
     if (onProgress && !expectedLength) {
       throw new Error('Expected length is required to use onProgress');
     }

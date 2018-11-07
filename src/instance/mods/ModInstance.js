@@ -1,5 +1,10 @@
 // @flow
-import { copy as copyFile, pathExists, remove as removeFile } from 'fs-extra';
+import {
+  copy as copyFile,
+  pathExists,
+  remove as removeFile,
+  ensureDir,
+} from 'fs-extra';
 import { type StreamProgressCallback } from 'progress-stream';
 import MinecraftInstance from '../Instance';
 import TextFile from '../../util/file/TextFile';
@@ -64,8 +69,8 @@ class ModInstance {
 
   static async fromCurseForgeProject(
     instance: MinecraftInstance,
-    projectId: number,
-    fileId: number,
+    projectId: number | string,
+    fileId: number | string,
     onProgress?: StreamProgressCallback,
   ): Promise<ModInstance> {
     const remoteFile = new RemoteFile(

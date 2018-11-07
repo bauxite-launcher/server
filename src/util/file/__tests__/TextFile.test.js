@@ -11,7 +11,7 @@ const mockFilePath = `/${mockFileName}`;
 const existingFiles = { [mockFilePath]: mockContent };
 
 const remoteHost = 'http://example.com';
-const remotePath = '/example.txt';
+const remotePath = '/path/to/example.txt';
 const remoteUrl = `${remoteHost}${remotePath}`;
 
 describe('TextFile', () => {
@@ -165,8 +165,12 @@ describe('TextFile', () => {
     describe('when called with a readable stream', () => {
       beforeEach(() => fs.mock({ '/src': mockContent }));
       it('should write to disk', async () => {
-        const readStream = require('jest-plugin-fs/mock').createReadStream('/src');
-        await expect(textFile.writeFromStream(readStream)).resolves.toBeUndefined();
+        const readStream = require('jest-plugin-fs/mock').createReadStream(
+          '/src',
+        );
+        await expect(
+          textFile.writeFromStream(readStream),
+        ).resolves.toBeUndefined();
         expect(fs.files()[mockFilePath]).toBe(mockContent);
       });
     });
@@ -180,10 +184,12 @@ describe('TextFile', () => {
     describe('when called with a readable stream', () => {
       beforeEach(() => fs.mock({ '/src': mockContent }));
       it('should write to disk', async () => {
-        const readStream = require('jest-plugin-fs/mock').createReadStream('/src');
-        await expect(TextFile.createFromStream(mockFilePath, readStream)).resolves.toBeInstanceOf(
-          TextFile,
+        const readStream = require('jest-plugin-fs/mock').createReadStream(
+          '/src',
         );
+        await expect(
+          TextFile.createFromStream(mockFilePath, readStream),
+        ).resolves.toBeInstanceOf(TextFile);
         expect(fs.files()[mockFilePath]).toBe(mockContent);
       });
     });
@@ -196,7 +202,9 @@ describe('TextFile', () => {
 
     describe('when called without a remote file', () => {
       it('should throw an error', async () => {
-        await expect(TextFile.createFromRemoteFile()).rejects.toBeInstanceOf(Error);
+        await expect(TextFile.createFromRemoteFile()).rejects.toBeInstanceOf(
+          Error,
+        );
       });
     });
 
@@ -218,17 +226,22 @@ describe('TextFile', () => {
       describe('when a filename is passed', () => {
         it('should use the passed filename', async () => {
           await expect(
-            TextFile.createFromRemoteFile(new RemoteFile(remoteUrl), '/', mockFileName),
+            TextFile.createFromRemoteFile(
+              new RemoteFile(remoteUrl),
+              '/',
+              mockFileName,
+            ),
           ).resolves.toBeInstanceOf(TextFile);
           expect(fs.files()[mockFilePath]).toBe(mockContent);
         });
       });
 
       describe('when no filename is passed', () => {
-        it('should throw an error', async () => {
+        it('should use the path from the URL', async () => {
           await expect(
             TextFile.createFromRemoteFile(new RemoteFile(remoteUrl), '/'),
-          ).rejects.toBeInstanceOf(Error);
+          ).resolves.toBeInstanceOf(TextFile);
+          expect(fs.files()['/example.txt']).toBe(mockContent);
         });
       });
     });
@@ -245,7 +258,11 @@ describe('TextFile', () => {
       describe('when a filename is passed', () => {
         it('should use the passed filename', async () => {
           await expect(
-            TextFile.createFromRemoteFile(new RemoteFile(remoteUrl), '/', mockFileName),
+            TextFile.createFromRemoteFile(
+              new RemoteFile(remoteUrl),
+              '/',
+              mockFileName,
+            ),
           ).resolves.toBeInstanceOf(TextFile);
           expect(fs.files()[mockFilePath]).toBe(mockContent);
         });

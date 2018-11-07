@@ -92,9 +92,10 @@ describe('ModInstance', () => {
       beforeEach(() => {
         httpScope = nock('http://example.com')
           .get('/mod.jar')
-          .reply(200, mockModContent);
+          .reply(200, mockModContent, {
+            'Content-Disposition': 'attachment; filename=mod.path.jar',
+          });
         remoteFile = new RemoteTextFile('http://example.com/mod.jar');
-        remoteFile.suggestedFilename = 'mod.path.jar';
       });
 
       afterEach(() => {

@@ -5,7 +5,7 @@ import stripAnsi from 'strip-ansi';
 import MinecraftInstance from '../../instance/Instance';
 
 type ErrorRenderer = (error: Error, argv: *) => string | Array<?string>;
-const defaultErrorRenderer: ErrorRenderer = (error: Error) => `Something went wrong:\n\t${error.message}`;
+const defaultErrorRenderer: ErrorRenderer = (error: Error) => `Something went wrong:\n\t${error.stack}`;
 const logToConsole = (result: string | Array<?string>, colour?: boolean) => {
   const output = result instanceof Array ? result.join('\n') : result;
   const formatted = colour ? output : stripAnsi(output);
