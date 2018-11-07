@@ -61,6 +61,21 @@ class ModInstance {
 
     return this.fromLocalFile(instance, localFile, from);
   }
+
+  static async fromCurseForgeProject(
+    instance: MinecraftInstance,
+    projectId: number,
+    fileId: number,
+    onProgress?: StreamProgressCallback,
+  ): Promise<ModInstance> {
+    const remoteFile = new RemoteFile(
+      `https://minecraft.curseforge.com/projects/${projectId}/files/${fileId}/download`,
+    );
+
+    const from = { type: 'forge', projectId, fileId };
+
+    return this.fromRemoteFile(instance, remoteFile, from, onProgress);
+  }
 }
 
 export default ModInstance;

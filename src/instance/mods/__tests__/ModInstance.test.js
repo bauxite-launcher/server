@@ -111,6 +111,41 @@ describe('ModInstance', () => {
         expect(fs.files()['/mods/mod.path.jar']).toBe(mockModContent);
       });
     });
+
+    describe('fromCurseForgeProject', () => {
+      let httpScope;
+      let remoteFile;
+
+      beforeEach(() => {
+        httpScope = nock('https://minecraft.curseforge.com')
+          .get('/projects/238222/files/2635239/download')
+          .reply(200, mockModContent, {
+            'Content-Disposition': 'attachment; filename=mod.path.jar',
+          });
+      });
+
+      afterEach(() => {
+        httpScope.done();
+      });
+
+      it('should return a new ModInstance', async () => {
+        await expect(
+          ModInstance.fromCurseForgeProject(
+            mockMinecraftInstance,
+            238222,
+            2635239,
+          ),
+        ).resolves.toBeInstanceOf(ModInstance);
+      });
+      it('should install to the right location', async () => {
+        await ModInstance.fromCurseForgeProject(
+          mockMinecraftInstance,
+          238222,
+          2635239,
+        );
+        expect(fs.files()['/mods/mod.path.jar']).toBe(mockModContent);
+      });
+    });
   });
 
   describe('class methods', () => {

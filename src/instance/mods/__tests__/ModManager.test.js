@@ -83,7 +83,7 @@ describe('ModManager', () => {
         xit('should resolve silently', () => {});
       });
 
-      describe('when the mod is already installed', () => {
+      describe('when the mod is installed', () => {
         xit('should throw an error', () => {});
       });
     });
