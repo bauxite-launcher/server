@@ -13,19 +13,20 @@
  * https://github.com/flowtype/flow-typed
  */
 
-declare module "node-fetch" {
-  import type { Readable } from "stream";
+declare module 'node-fetch' {
+  import type { Readable } from 'stream';
 
   declare type Headers = {
     raw: () => { [key: string]: string },
-    get: (key: string) => ?string
+    get: (key: string) => ?string,
   };
 
   declare export type FetchOptions = {
-    method?: "GET" | "POST" | "PUT" | "DELETE" | "HEAD"
+    method?: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'HEAD',
   };
 
   declare export type FetchResult<T: Object | Array<Object>> = {
+    url: string,
     status: number,
     statusText: string,
     headers: Headers,
@@ -33,11 +34,11 @@ declare module "node-fetch" {
     body: Readable,
     buffer(): Promise<Buffer>,
     text(): Promise<string>,
-    json(): Promise<T>
+    json(): Promise<T>,
   };
 
   declare export default function fetch<T>(
     url: string,
-    fetchOptions: ?FetchOptions
+    fetchOptions: ?FetchOptions,
   ): Promise<FetchResult<T>>;
 }
