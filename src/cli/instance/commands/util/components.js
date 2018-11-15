@@ -1,6 +1,7 @@
 // @flow
 import chalk from 'chalk';
 import { type StreamProgressEvent } from 'progress-stream';
+import { WriteStream as TtyWriteStream } from 'tty';
 
 type ValueType = string | boolean | number | null;
 
@@ -84,7 +85,11 @@ export const taskProgress = (
     } = progress;
     progressText = ` ${fileSize(transferred)}/${fileSize(length)} (${Math.round(
       percentage,
-    )}%) at ${fileSize(speed)}/s ─ ${timeDuration(eta)} remaining…    `;
+    )}%) at ${fileSize(speed)}/s ─ ${timeDuration(eta)} remaining…`;
   }
-  return chalk.white(`\r ${chalk.gray('-')} ${action}${progressText}`);
+
+  const columns = process.stdout instanceof TtyWriteStream ? process.stdout.columns : 80;
+  return chalk.white(
+    `\r ${chalk.gray('-')} ${action}${progressText}`.padEnd(columns, ' '),
+  );
 };

@@ -8,6 +8,7 @@ import ModInstance from '../../../instance/mods/ModInstance';
 import TextFile from '../../../util/file/TextFile';
 import RemoteTextFile from '../../../util/file/RemoteFile';
 import { type ModManifest } from '../../../instance/mods/ModManifestFile';
+import { definitionList } from './util/components';
 
 type InstallModArgs = {
   url?: string,
@@ -91,7 +92,10 @@ export const installModCommand: CommandHandlerDefinition<
     return { mod: mod.manifest };
   },
   render({ mod }) {
-    return 'Done';
+    return [
+      chalk.green('Successfully installed mod!'),
+      definitionList(mod.manifest),
+    ];
   },
 };
 
