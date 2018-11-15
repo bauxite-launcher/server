@@ -21,7 +21,7 @@ class ModMetadataFile extends ArchivedFile<Array<ModMetadata>> {
   }
 
   static parse(rawFile: string) {
-    const { modid, mcversion, ...rest } = JSON.parse(rawFile);
+    const [{ modid, mcversion, ...rest }] = JSON.parse(rawFile);
     return { id: modid, mcVersion: mcversion, ...rest };
   }
 }

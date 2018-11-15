@@ -87,8 +87,7 @@ class ModInstance {
   }
 
   get metadata() {
-    this.metadata = new ModMetadataFile(this.absolutePath);
-    return this.metadata;
+    return new ModMetadataFile(this.absolutePath);
   }
 }
 

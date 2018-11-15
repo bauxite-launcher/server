@@ -17,7 +17,7 @@ export const listModsCommand: CommandHandlerDefinition<
   ListModsOutput,
 > = {
   command: 'list-mods',
-  description: 'Mods stuff',
+  description: 'List the installed mods',
   builder: yargs => yargs,
   async setup(args: Argv<ListModsArgs>, instance): Promise<ListModsOutput> {
     const mods = await instance.mods.listMods();
@@ -27,9 +27,7 @@ export const listModsCommand: CommandHandlerDefinition<
     const header = mods.length
       ? chalk.green(`${chalk.white(mods.length.toString())} mods installed:`)
       : chalk.grey('No mods are installed');
-    const body = mods.length
-      ? mods.map(({ manifest: { path } }) => ` - ${chalk.cyan(path)}`)
-      : [];
+    const body = mods.map(({ manifest: { path } }) => ` - ${chalk.cyan(path)}`);
     return [header, ...body];
   },
 };

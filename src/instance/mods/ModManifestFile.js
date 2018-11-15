@@ -1,4 +1,5 @@
 import JsonCollectionFile from '../../util/file/JsonCollectionFile';
+import { type ModMetadata } from './ModMetadataFile';
 
 export type ModInstallationSource =
   | { type: 'local' }
@@ -8,6 +9,7 @@ export type ModInstallationSource =
 export type ModManifest = {
   path: string,
   from: ModInstallationSource,
+  metadata: ModMetadata,
 };
 
 class ModManifestFile extends JsonCollectionFile<ModManifest, ModManifest> {

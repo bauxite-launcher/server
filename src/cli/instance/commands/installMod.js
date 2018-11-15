@@ -8,6 +8,7 @@ import ModInstance from '../../../instance/mods/ModInstance';
 import TextFile from '../../../util/file/TextFile';
 import RemoteTextFile from '../../../util/file/RemoteFile';
 import { type ModManifest } from '../../../instance/mods/ModManifestFile';
+import { type ModMetadata } from '../../../instance/mods/ModMetadataFile';
 import { definitionList } from './util/components';
 
 type InstallModArgs = {
@@ -19,6 +20,7 @@ type InstallModArgs = {
 
 type InstallModOutput = {
   mod: ModManifest,
+  meta: ModMetadata,
 };
 
 const newMod = async (
@@ -53,7 +55,7 @@ export const installModCommand: CommandHandlerDefinition<
   InstallModOutput,
 > = {
   command: 'install-mod',
-  description: 'Mods stuff',
+  description: 'Installs a mod on a Forge-enabled instance',
   builder: yargs => yargs
     .options({
       url: {
@@ -89,12 +91,12 @@ export const installModCommand: CommandHandlerDefinition<
       forgeFileId,
     });
     await instance.mods.addMod(mod);
-    return { mod: mod.manifest };
+    return { mod: mod.manifest, meta: await mod.metadata.read() };
   },
-  render({ mod }) {
+  render({ meta: { name, description, version } }) {
     return [
       chalk.green('Successfully installed mod!'),
-      definitionList(mod.manifest),
+      definitionList({ name, description, version }),
     ];
   },
 };

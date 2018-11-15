@@ -25,7 +25,12 @@ class ModManager {
       throw new Error('Mod is not yet installed.');
     }
 
-    await this.manifest.add(await modInstance.manifest);
+    const [metadata, manifest] = await Promise.all([
+      modInstance.metadata.read(),
+      modInstance.manifest,
+    ]);
+
+    await this.manifest.add({ ...manifest, metadata });
   }
 
   async removeMod(modInstance: ModInstance) {
