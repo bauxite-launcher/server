@@ -8,6 +8,7 @@ import {
   type ModManifest,
   type ModInstallationSource,
 } from './ModManifestFile';
+import ModMetadataFile from './ModMetadataFile';
 
 class ModInstance {
   instance: MinecraftInstance;
@@ -16,8 +17,16 @@ class ModInstance {
 
   absolutePath: string;
 
+  relativePath: string;
+
+  metadata: ModMetadataFile;
+
   get absolutePath() {
     return this.instance.path('mods', this.manifest.path);
+  }
+
+  get relativePath() {
+    return this.manifest.path;
   }
 
   constructor(instance: MinecraftInstance, manifest: ModManifest) {
@@ -75,6 +84,11 @@ class ModInstance {
     const from = { type: 'forge', projectId, fileId };
 
     return this.fromRemoteFile(instance, remoteFile, from, onProgress);
+  }
+
+  get metadata() {
+    this.metadata = new ModMetadataFile(this.absolutePath);
+    return this.metadata;
   }
 }
 
