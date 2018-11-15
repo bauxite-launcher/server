@@ -5,7 +5,6 @@ import createCommandHandler, {
   type CommandHandlerDefinition,
 } from '../commandHandler';
 import ModInstance from '../../../instance/mods/ModInstance';
-import { definitionList } from './util/components';
 
 type ListModsArgs = {};
 
