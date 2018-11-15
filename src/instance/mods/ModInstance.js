@@ -77,7 +77,7 @@ class ModInstance {
     fileId: number | string,
     onProgress?: StreamProgressCallback,
   ): Promise<ModInstance> {
-    const remoteFile = new RemoteFile(
+    const remoteFile: RemoteFile<*> = new RemoteFile(
       `https://minecraft.curseforge.com/projects/${projectId}/files/${fileId}/download`,
     );
 
