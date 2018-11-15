@@ -6,6 +6,9 @@ class ArchivedTextFile<T> extends TextFile<T> {
 
   constructor(path: string, innerPath: string, encoding?: string) {
     super(path, encoding);
+    if (!innerPath) {
+      throw new Error('An innerPath must be supplied to ArchivedFile');
+    }
     this.innerPath = innerPath;
   }
 
@@ -20,7 +23,11 @@ class ArchivedTextFile<T> extends TextFile<T> {
       filter: fileInArchive => fileInArchive.path === this.innerPath,
     });
 
-    return file;
+    if (!file) {
+      throw new Error(`${this.innerPath} (within ${this.path}) does not exist`);
+    }
+
+    return file.data.toString(this.encoding);
   }
 }
 
