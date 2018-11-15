@@ -82,7 +82,7 @@ export const installModCommand: CommandHandlerDefinition<
     }: Argv<InstallModArgs>,
     instance,
   ): Promise<InstallModOutput> {
-    const mod = await newMod(instance, {
+    const mod: ModInstance = await newMod(instance, {
       url,
       path,
       forgeProjectId,

@@ -1,10 +1,5 @@
 // @flow
-import {
-  copy as copyFile,
-  pathExists,
-  remove as removeFile,
-  ensureDir,
-} from 'fs-extra';
+import { copy as copyFile, pathExists, remove as removeFile } from 'fs-extra';
 import { type StreamProgressCallback } from 'progress-stream';
 import MinecraftInstance from '../Instance';
 import TextFile from '../../util/file/TextFile';
