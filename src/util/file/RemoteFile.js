@@ -1,6 +1,8 @@
 // @flow
 import fetch, { type FetchOptions } from 'node-fetch';
 import { type Readable } from 'stream';
+import { parse as parseUrl } from 'url';
+import { parse as parsePath } from 'path';
 import TextFile, { ReadableFile } from './TextFile';
 
 export function parseHeaderValue(value: string, keyToMatch: string): ?string {
@@ -60,11 +62,20 @@ class RemoteTextFile<T> implements ReadableFile<T> {
     }
 
     const contentDisposition = response.headers.get('content-disposition');
+    let suggestedFilename;
     if (contentDisposition) {
-      const suggestedFilename = parseHeaderValue(contentDisposition, 'filename');
-      if (suggestedFilename) {
-        this.suggestedFilename = suggestedFilename;
+      suggestedFilename = parseHeaderValue(contentDisposition, 'filename');
+    } else {
+      const url = parseUrl(response.url);
+      if (url && url.pathname) {
+        const path = parsePath(url.pathname);
+        if (path && path.base) {
+          suggestedFilename = path.base;
+        }
       }
+    }
+    if (suggestedFilename) {
+      this.suggestedFilename = suggestedFilename;
     }
     return response;
   }

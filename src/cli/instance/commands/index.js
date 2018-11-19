@@ -5,3 +5,6 @@ export { default as StartCommand } from './start';
 export { default as StopCommand } from './stop';
 export { default as LogsCommand } from './logs';
 export { default as PropertiesCommand } from './properties';
+export { default as ListModsCommand } from './listMods';
+export { default as InstallModCommand } from './installMod';
+export { default as RemoveModCommand } from './removeMod';

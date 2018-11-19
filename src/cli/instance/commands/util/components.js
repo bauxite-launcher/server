@@ -1,6 +1,7 @@
 // @flow
 import chalk from 'chalk';
 import { type StreamProgressEvent } from 'progress-stream';
+import { WriteStream as TtyWriteStream } from 'tty';
 
 type ValueType = string | boolean | number | null;
 
@@ -73,6 +74,21 @@ export const fileSize = (size: number): string => {
   return `${Math.round(output)}${fileSizeUnits[unitIndex]}`;
 };
 
+let taskAnimIndex = 0;
+const taskAnimParts = [
+  '🕛',
+  '🕐',
+  '🕑',
+  '🕒',
+  '🕓',
+  '🕔',
+  '🕕',
+  '🕖',
+  '🕗',
+  '🕘',
+  '🕙',
+  '🕚',
+];
 export const taskProgress = (
   action: string,
   progress: ?StreamProgressEvent,
@@ -84,7 +100,21 @@ export const taskProgress = (
     } = progress;
     progressText = ` ${fileSize(transferred)}/${fileSize(length)} (${Math.round(
       percentage,
-    )}%) at ${fileSize(speed)}/s ─ ${timeDuration(eta)} remaining…    `;
+    )}%) at ${fileSize(speed)}/s ─ ${timeDuration(eta)} remaining…`;
   }
-  return chalk.white(`\r ${chalk.gray('-')} ${action}${progressText}`);
+
+  const isComplete = progress && progress.transferred === progress.length;
+
+  if (progress && !isComplete) {
+    taskAnimIndex = (taskAnimIndex + 1) % taskAnimParts.length;
+  }
+
+  const symbol = isComplete
+    ? chalk.green(' ✔️ ')
+    : chalk.blue(` ${taskAnimParts[taskAnimIndex]} `);
+
+  const columns = process.stdout instanceof TtyWriteStream ? process.stdout.columns : 80;
+  return chalk.white(
+    `\r ${symbol} ${action}${progressText}`.padEnd(columns, ' '),
+  );
 };
