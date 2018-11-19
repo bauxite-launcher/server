@@ -1,5 +1,7 @@
 import ArchivedFile from '../../util/file/ArchivedFile';
 
+const MOD_METADATA = 'mcmod.info';
+
 // TODO: Validate this schema
 type ModMetadata = {
   modid: string,
@@ -17,7 +19,7 @@ type ModMetadata = {
 
 class ModMetadataFile extends ArchivedFile<Array<ModMetadata>> {
   constructor(modPath: string, encoding?: string) {
-    super(modPath, 'mcmod.info', encoding);
+    super(modPath, MOD_METADATA, encoding);
   }
 
   static parse(rawFile: string) {
