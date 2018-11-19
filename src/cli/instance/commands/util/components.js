@@ -74,6 +74,21 @@ export const fileSize = (size: number): string => {
   return `${Math.round(output)}${fileSizeUnits[unitIndex]}`;
 };
 
+let taskAnimIndex = 0;
+const taskAnimParts = [
+  '🕛',
+  '🕐',
+  '🕑',
+  '🕒',
+  '🕓',
+  '🕔',
+  '🕕',
+  '🕖',
+  '🕗',
+  '🕘',
+  '🕙',
+  '🕚',
+];
 export const taskProgress = (
   action: string,
   progress: ?StreamProgressEvent,
@@ -88,8 +103,18 @@ export const taskProgress = (
     )}%) at ${fileSize(speed)}/s ─ ${timeDuration(eta)} remaining…`;
   }
 
+  const isComplete = progress && progress.transferred === progress.length;
+
+  if (progress && !isComplete) {
+    taskAnimIndex = (taskAnimIndex + 1) % taskAnimParts.length;
+  }
+
+  const symbol = isComplete
+    ? chalk.green(' ✔️ ')
+    : chalk.blue(` ${taskAnimParts[taskAnimIndex]} `);
+
   const columns = process.stdout instanceof TtyWriteStream ? process.stdout.columns : 80;
   return chalk.white(
-    `\r ${chalk.gray('-')} ${action}${progressText}`.padEnd(columns, ' '),
+    `\r ${symbol} ${action}${progressText}`.padEnd(columns, ' '),
   );
 };
