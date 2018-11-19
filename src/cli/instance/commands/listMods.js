@@ -4,6 +4,7 @@ import chalk from 'chalk';
 import createCommandHandler, {
   type CommandHandlerDefinition,
 } from '../commandHandler';
+import { definitionList } from './util/components';
 import ModInstance from '../../../instance/mods/ModInstance';
 
 type ListModsArgs = {};
@@ -25,10 +26,19 @@ export const listModsCommand: CommandHandlerDefinition<
   },
   render({ mods }) {
     const header = mods.length
-      ? chalk.green(`${chalk.white(mods.length.toString())} mods installed:`)
+      ? chalk.green(
+        `${chalk.white(mods.length.toString())} mod${
+          mods.length > 1 ? 's' : ''
+        } installed:`,
+      )
       : chalk.grey('No mods are installed');
-    const body = mods.map(({ manifest: { path } }) => ` - ${chalk.cyan(path)}`);
-    return [header, ...body];
+    const body = definitionList(
+      mods.reduce((acc, { manifest: { path, metadata } }) => {
+        acc[path] = `${metadata.name} (${metadata.version})`;
+        return acc;
+      }, {}),
+    );
+    return [header, body];
   },
 };
 
